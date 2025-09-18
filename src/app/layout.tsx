@@ -1,14 +1,21 @@
 import "./globals.css"
 import Providers from "@/components/providers"
-import Navbar from "@/components/navbar"
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export const metadata = {
+  title: "Smart Data",
+  description: "Plataforma de gestión corporativa",
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="es">
-      <body className="bg-gray-100">
+      <body>
         <Providers>
-          <Navbar />
-          <main className="p-6">{children}</main>
+          {children}
         </Providers>
       </body>
     </html>
