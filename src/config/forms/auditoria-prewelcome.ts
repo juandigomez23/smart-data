@@ -46,6 +46,57 @@ export const auditoriaPrewelcomeForm: FormConfig = {
         { label: "Pendiente", value: "pendiente" },
       ],
     },
+
+     {
+      name: "correo_electronico",
+      label: "Correo electrónico",
+      type: "select",
+      options: [
+        { label: "Sí", value: "si" },
+        { label: "No", value: "no" },
+      ],
+    },
+
+    { name: "telefono", label: "Teléfono", type: "text", required: true },
+
+    {
+      name: "direccion",
+      label: "Dirección",
+      type: "select",
+      options: [
+        { label: "Sí", value: "si" },
+        { label: "No", value: "no" },
+        { label: "Pendiente", value: "pendiente" },
+      ],
+    },
+
+    {
+      name: "total_datos_correctos",
+      label: "Total de datos correctos",
+      type: "select",
+      options: [
+        { label: "0 de 4", value: "0" },
+        { label: "1 de 4", value: "1" },
+        { label: "2 de 4", value: "2" },
+        { label: "3 de 4", value: "3" },
+        { label: "4 de 4", value: "4" },
+      ],
+    },
+
+    { name: "documento_cliente", label: "Documento cliente", type: "text" },
+    { name: "linea_contacto_principal", label: "Línea de contacto principal", type: "text" },
+    { name: "linea_contacto_secundaria", label: "Línea de contacto secundaria", type: "text" },
+    { name: "email", label: "Email", type: "text" },
+    {
+      name: "tipo_venta",
+      label: "Tipo de venta",
+      type: "select",
+      options: [
+        { label: "Persona natural", value: "natural" },
+        { label: "PYME", value: "pyme" },
+      ],
+    },
+
     {
       name: "correo_valido",
       label: "Correo válido",
@@ -65,31 +116,17 @@ export const auditoriaPrewelcomeForm: FormConfig = {
         { label: "Pendiente", value: "pendiente" },
       ],
     },
+
     {
-      name: "total_datos_correctos",
-      label: "Total de datos correctos",
+      name: "docuemnto_de_id",
+      label: "Docuemnto de ID",
       type: "select",
       options: [
-        { label: "0 de 4", value: "0" },
-        { label: "1 de 4", value: "1" },
-        { label: "2 de 4", value: "2" },
-        { label: "3 de 4", value: "3" },
-        { label: "4 de 4", value: "4" },
+        { label: "Sí", value: "si" },
+        { label: "No", value: "no" },
       ],
     },
-    { name: "documento_cliente", label: "Documento cliente", type: "text" },
-    { name: "linea_contacto_principal", label: "Línea de contacto principal", type: "text" },
-    { name: "linea_contacto_secundaria", label: "Línea de contacto secundaria", type: "text" },
-    { name: "email", label: "Email", type: "text" },
-    {
-      name: "tipo_venta",
-      label: "Tipo de venta",
-      type: "select",
-      options: [
-        { label: "Persona natural", value: "natural" },
-        { label: "PYME", value: "pyme" },
-      ],
-    },
+    
     {
       name: "validacion_id",
       label: "Validación ID",
@@ -130,6 +167,56 @@ export const auditoriaPrewelcomeForm: FormConfig = {
         { label: "Error del sistema", value: "error" },
       ],
     },
+
+    {
+      name: "hughespro",
+      label: "HughesPro",
+      type: "select",
+      options: [
+        { label: "Confirmado", value: "confirmado" },
+        { label: "Pendiente", value: "pendiente" },
+        { label: "No enviado", value: "no_enviado" },
+      ],
+    },
+
+    {
+      name: "validacion_id_",
+      label: "Validación de ID",
+      type: "select",
+      options: [
+        { label: "Exitoso", value: "exitoso" },
+        { label: "Pendiente", value: "pendiente" },
+        { label: "Fallido", value: "fallido" },
+        { label: "No enviado", value: "no_enviado" },
+        { label: "No aplica", value: "no_aplica" },
+      ],
+    },
+
+    {
+      name: "aprobado_historial_crediticio",
+      label: "Aprobado (historial crediticio)",
+      type: "select",
+      options: [
+        { label: "Excepcionado", value: "excepcionado" },
+        { label: "No", value: "no" },
+        { label: "No aplica", value: "no_aplica" },
+
+      ],
+    },
+
+    {
+      name: "autorizado_por_gerencia",
+      label: "Autorizado por gerencia (cliente con mas de un servicio)",
+      type: "select",
+      options: [
+        { label: "Autorizado sin pago anticipado", value: "autorizado _sin_pago_anticipado" },
+        { label: "Autorizado pago de 6 meses", value: "autorizado_pago_de_6_meses" },
+        { label: "Autorizado pago de 12 meses", value: "Autorizado_pago_de_12_meses" },
+        { label: "No autorizado", value: "no_autorizado" },
+        { label: "No aplica", value: "no_aplica" },
+      ],
+    },
+
     {
       name: "estado_servicio",
       label: "Estado del servicio",
