@@ -82,7 +82,7 @@ export default function Navbar() {
                 Perfil
               </Link>
               <button
-                onClick={() => signOut({ callbackUrl: "/login" })}
+                onClick={() => signOut({ callbackUrl: "/" })}
                 className="w-full text-left px-4 py-2 hover:bg-gray-100"
               >
                 Cerrar sesión
@@ -133,7 +133,7 @@ export default function Navbar() {
                 Perfil
               </Link>
               <button
-                onClick={() => signOut({ callbackUrl: "/login" })}
+                onClick={() => signOut({ callbackUrl: "/" })}
                 className="px-3 py-1 rounded hover:bg-red-600 transition text-white"
               >
                 Cerrar sesión

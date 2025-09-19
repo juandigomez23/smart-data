@@ -44,7 +44,7 @@ export default function Sidebar() {
       {/* Cerrar sesión */}
       <div className="p-4 border-t border-gray-700">
         <button
-          onClick={() => signOut({ callbackUrl: "/login" })}
+          onClick={() => signOut({ callbackUrl: "/" })}
           className="flex items-center gap-2 text-red-400 hover:text-red-300 w-full"
         >
           <LogOut className="w-5 h-5" />

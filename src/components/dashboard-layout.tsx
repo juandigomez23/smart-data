@@ -149,7 +149,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <Transition as={Fragment} show={userDropdown} enter="transition ease-out duration-200" enterFrom="opacity-0 translate-y-1" enterTo="opacity-100 translate-y-0" leave="transition ease-in duration-150" leaveFrom="opacity-100 translate-y-0" leaveTo="opacity-0 translate-y-1">
                 <div className="absolute right-0 mt-2 w-40 bg-white text-gray-800 rounded-md shadow-lg py-2 z-50">
                   <Link href="/profile" className="block px-4 py-2 hover:bg-gray-100">Perfil</Link>
-                  <button onClick={() => signOut({ callbackUrl: "/login" })} className="w-full text-left px-4 py-2 hover:bg-gray-100">Cerrar sesión</button>
+                  <button onClick={() => signOut({ callbackUrl: "/" })} className="w-full text-left px-4 py-2 hover:bg-gray-100">Cerrar sesión</button>
                 </div>
               </Transition>
             </div>
@@ -169,7 +169,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             {session && (
               <>
                 <Link href="/profile" className="px-3 py-1 rounded hover:bg-blue-500 transition" onClick={() => setMobileMenuOpen(false)}>Perfil</Link>
-                <button onClick={() => signOut({ callbackUrl: "/login" })} className="px-3 py-1 rounded hover:bg-red-600 transition text-white">Cerrar sesión</button>
+                <button onClick={() => signOut({ callbackUrl: "/" })} className="px-3 py-1 rounded hover:bg-red-600 transition text-white">Cerrar sesión</button>
               </>
             )}
           </div>
