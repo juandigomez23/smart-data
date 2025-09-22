@@ -1,9 +1,7 @@
-"use client"
+import { FormConfig } from "@/components/formgenerator"
 
-import FormGenerator, { FormConfig } from "@/components/formgenerator"
-
-const config: FormConfig = {
-  title: "Gestión Retenciones – Ecuador",
+export const retencionesEcuador: FormConfig = {
+  title: "Retenciones – Ecuador",
   tipo: "retenciones-ecuador",
   image: "/flags/ec.png",
   fields: [
@@ -20,34 +18,47 @@ const config: FormConfig = {
       ],
     },
     {
+      name: "tipo_asignacion",
+      label: "Tipo asignación",
+      type: "select",
+      options: [
+        { label: "Terminación programada", value: "terminacion" },
+        { label: "Winback", value: "winback" },
+        { label: "Entrante", value: "entrante" },
+        { label: "Asignado por correo", value: "correo" },
+        { label: "Asignado por cartera", value: "cartera" },
+      ],
+    },
+    {
       name: "motivo_cancelacion",
       label: "Motivo de cancelación del cliente",
       type: "select",
       options: [
         { label: "Dificultades financieras", value: "financieras" },
         { label: "Falla velocidad", value: "velocidad" },
+        { label: "Cobertura", value: "cobertura" },
+        { label: "Inconformidad con facturas", value: "facturas" },
+        { label: "Cambio de proveedor", value: "proveedor" },
         { label: "Cambio de residencia", value: "residencia" },
-        { label: "Finalizó proyecto", value: "finalizo_proyecto" },
+        { label: "Cliente fallecido", value: "fallecido" },
         { label: "No aplica", value: "na" },
       ],
     },
     {
       name: "codigo_gestion",
-      label: "Código de gestión",
+      label: "Código gestión",
       type: "select",
       options: [
         { label: "Retención", value: "retencion" },
         { label: "No acepta retención", value: "no_retencion" },
         { label: "Cliente ya retenido", value: "retenido" },
-        { label: "Cliente no apto", value: "no_apto" },
+        { label: "Volver a llamar", value: "volver_llamar" },
+        { label: "Posible fraude", value: "fraude" },
         { label: "No contesta", value: "no_contesta" },
+        { label: "Cliente fallecido", value: "fallecido" },
       ],
     },
-    { name: "resumen", label: "Resumen de la gestión", type: "text" },
-    { name: "fecha_proxima", label: "Fecha próxima gestión", type: "date" },
+    { name: "resumen", label: "Resumen de la gestión", type: "text", required: false },
+    { name: "fecha_proxima_gestion", label: "Fecha próxima gestión", type: "date" },
   ],
-}
-
-export default function RetencionesEcuadorPage() {
-  return <FormGenerator config={config} />
 }

@@ -1,16 +1,16 @@
 "use client";
 
 import FormGenerator from "@/components/formgenerator";
-import { retencionesForm } from "@/config/forms/retenciones";
+import { retencionesColombia } from "@/config/forms/retenciones-colombia";
 
 export default function RetencionesColombiaPage() {
   return (
     <FormGenerator
       config={{
-        ...retencionesForm,
+        ...retencionesColombia,
         title: "Retenciones – Colombia",
         image: "/flags/co.png", // 👈 bandera Colombia
-        fields: retencionesForm.fields.map((field) =>
+        fields: retencionesColombia.fields.map((field) =>
           field.name === "pais"
             ? { ...field, options: [{ label: "Colombia", value: "Colombia" }] }
             : field

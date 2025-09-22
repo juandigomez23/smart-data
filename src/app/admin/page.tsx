@@ -8,26 +8,71 @@ import {
   XCircle, FileSpreadsheet, Moon, Sun, Download
 } from "lucide-react"
 import { useTheme } from "next-themes"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import ExcelJS from "exceljs"
 import { saveAs } from "file-saver"
+
+interface Formulario {
+  id: number
+  tipo: string
+  usuario: string
+  pais: string | null
+  datos: Record<string, unknown> // 👈 reemplaza any por unknown
+  created_at: string
+}
 
 export default function AdminDashboardPage() {
   const { theme, setTheme } = useTheme()
   const [dark, setDark] = useState(theme === "dark")
+  const [registros, setRegistros] = useState<Formulario[]>([])
 
   const toggleTheme = () => {
     setDark(!dark)
     setTheme(dark ? "light" : "dark")
   }
 
-  // 📊 Ejemplo de métricas
+  // 🔄 Traer formularios reales de la BD
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch("/api/formularios")
+        const json = await res.json()
+        if (json.success) {
+          setRegistros(json.data)
+        }
+      } catch (err) {
+        console.error("❌ Error al cargar registros:", err)
+      }
+    }
+    fetchData()
+  }, [])
+
+  // 📊 Métricas dinámicas
   const metricas = [
-    { titulo: "Total Usuarios", valor: "142", icono: <Users className="w-6 h-6" />, color: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200" },
-    { titulo: "Formularios Completados", valor: "387", icono: <CheckSquare className="w-6 h-6" />, color: "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200" },
-    { titulo: "Auditorías Pendientes", valor: "25", icono: <ClipboardList className="w-6 h-6" />, color: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200" },
-    { titulo: "Tasa Finalización", valor: "78%", icono: <BarChart3 className="w-6 h-6" />, color: "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200" },
+    { titulo: "Total Formularios", valor: registros.length.toString(), icono: <FileText className="w-6 h-6" />, color: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200" },
+    { titulo: "Usuarios únicos", valor: new Set(registros.map(r => r.usuario)).size.toString(), icono: <Users className="w-6 h-6" />, color: "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200" },
+    { titulo: "Último formulario", valor: registros[0]?.tipo || "N/A", icono: <ClipboardList className="w-6 h-6" />, color: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200" },
+    { titulo: "Países activos", valor: new Set(registros.map(r => r.pais).filter(Boolean)).size.toString(), icono: <BarChart3 className="w-6 h-6" />, color: "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200" },
   ]
+
+  // 📤 Exportar registros reales a Excel
+  const exportToExcel = async () => {
+    const workbook = new ExcelJS.Workbook()
+    const worksheet = workbook.addWorksheet("Formularios")
+
+    worksheet.columns = [
+      { header: "ID", key: "id", width: 10 },
+      { header: "Tipo", key: "tipo", width: 20 },
+      { header: "Usuario", key: "usuario", width: 20 },
+      { header: "País", key: "pais", width: 15 },
+      { header: "Fecha", key: "created_at", width: 25 },
+    ]
+
+    registros.forEach((r) => worksheet.addRow(r))
+
+    const buffer = await workbook.xlsx.writeBuffer()
+    saveAs(new Blob([buffer]), "formularios.xlsx")
+  }
 
   // 📋 Formularios disponibles
   const formularios = [
@@ -42,32 +87,6 @@ export default function AdminDashboardPage() {
     { title: "Gestión FCR", href: "/admin/formularios/gestion-fcr", icon: FileText, color: "bg-orange-100 text-orange-700" },
     { title: "Otras Gestiones", href: "/admin/formularios/otras-gestiones", icon: FileSpreadsheet, color: "bg-gray-100 text-gray-700" },
   ]
-
-  // 📑 Datos ficticios de últimos registros
-  const registros = [
-    { id: 1, formulario: "Retenciones – Colombia", usuario: "Juan Pérez", fecha: "2025-09-15", estado: "Completado" },
-    { id: 2, formulario: "Welcome", usuario: "Ana Gómez", fecha: "2025-09-16", estado: "Pendiente" },
-    { id: 3, formulario: "Auditoría Prewelcome", usuario: "Carlos Ruiz", fecha: "2025-09-17", estado: "En revisión" },
-  ]
-
-  // 📤 Exportar a Excel con ExcelJS
-  const exportToExcel = async () => {
-    const workbook = new ExcelJS.Workbook()
-    const worksheet = workbook.addWorksheet("Registros")
-
-    worksheet.columns = [
-      { header: "ID", key: "id", width: 10 },
-      { header: "Formulario", key: "formulario", width: 30 },
-      { header: "Usuario", key: "usuario", width: 30 },
-      { header: "Fecha", key: "fecha", width: 20 },
-      { header: "Estado", key: "estado", width: 20 },
-    ]
-
-    registros.forEach((r) => worksheet.addRow(r))
-
-    const buffer = await workbook.xlsx.writeBuffer()
-    saveAs(new Blob([buffer]), "registros.xlsx")
-  }
 
   return (
     <div className="p-8 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
@@ -133,20 +152,20 @@ export default function AdminDashboardPage() {
           <thead>
             <tr className="text-gray-600 dark:text-gray-300">
               <th className="pb-2">ID</th>
-              <th className="pb-2">Formulario</th>
+              <th className="pb-2">Tipo</th>
               <th className="pb-2">Usuario</th>
+              <th className="pb-2">País</th>
               <th className="pb-2">Fecha</th>
-              <th className="pb-2">Estado</th>
             </tr>
           </thead>
           <tbody>
             {registros.map((r) => (
               <tr key={r.id} className="border-t border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300">
                 <td className="py-2">{r.id}</td>
-                <td className="py-2">{r.formulario}</td>
+                <td className="py-2">{r.tipo}</td>
                 <td className="py-2">{r.usuario}</td>
-                <td className="py-2">{r.fecha}</td>
-                <td className="py-2">{r.estado}</td>
+                <td className="py-2">{r.pais}</td>
+                <td className="py-2">{new Date(r.created_at).toLocaleString()}</td>
               </tr>
             ))}
           </tbody>

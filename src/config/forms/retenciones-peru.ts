@@ -1,11 +1,9 @@
-"use client"
+import { FormConfig } from "@/components/formgenerator"
 
-import FormGenerator, { FormConfig } from "@/components/formgenerator"
-
-const config: FormConfig = {
-  title: "Gestión Retenciones – Colombia",
-  tipo: "retenciones-colombia", // 👈 lo que se guarda en PostgreSQL
-  image: "/flags/co.png",
+export const retencionesPeru: FormConfig = {
+  title: "Retenciones – Perú",
+  tipo: "retenciones-peru",
+  image: "/flags/pe.png",
   fields: [
     { name: "correo", label: "Correo electrónico", type: "text", required: true },
     { name: "san", label: "SAN", type: "text", required: true },
@@ -21,7 +19,7 @@ const config: FormConfig = {
     },
     {
       name: "tipo_asignacion",
-      label: "Tipo de asignación",
+      label: "Tipo asignación",
       type: "select",
       options: [
         { label: "Terminación programada", value: "terminacion" },
@@ -29,7 +27,6 @@ const config: FormConfig = {
         { label: "Entrante", value: "entrante" },
         { label: "Asignado por correo", value: "correo" },
         { label: "Asignado por cartera", value: "cartera" },
-        { label: "PQR", value: "pqr" },
       ],
     },
     {
@@ -40,35 +37,28 @@ const config: FormConfig = {
         { label: "Dificultades financieras", value: "financieras" },
         { label: "Falla velocidad", value: "velocidad" },
         { label: "Cobertura", value: "cobertura" },
-        { label: "Inconformidad con las facturas", value: "facturas" },
-        { label: "Retoma presencialidad", value: "presencialidad" },
+        { label: "Inconformidad con facturas", value: "facturas" },
         { label: "Cambio de proveedor", value: "proveedor" },
-        { label: "Inconformidad con el servicio", value: "servicio" },
-        { label: "No necesita el servicio", value: "innecesario" },
         { label: "Cambio de residencia", value: "residencia" },
+        { label: "Cliente fallecido", value: "fallecido" },
         { label: "No aplica", value: "na" },
       ],
     },
     {
       name: "codigo_gestion",
-      label: "Código de gestión",
+      label: "Código gestión",
       type: "select",
       options: [
         { label: "Retención", value: "retencion" },
         { label: "No acepta retención", value: "no_retencion" },
         { label: "Cliente ya retenido", value: "retenido" },
-        { label: "Posible retención", value: "posible" },
-        { label: "Volver a llamar", value: "llamar" },
-        { label: "Mensaje de voz", value: "voz" },
-        { label: "Fuera de servicio", value: "fuera_servicio" },
-        { label: "No aplica", value: "na" },
+        { label: "Volver a llamar", value: "volver_llamar" },
+        { label: "Posible fraude", value: "fraude" },
+        { label: "No contesta", value: "no_contesta" },
+        { label: "Cliente fallecido", value: "fallecido" },
       ],
     },
     { name: "resumen", label: "Resumen de la gestión", type: "text", required: false },
-    { name: "fecha_proxima", label: "Fecha próxima gestión", type: "date" },
+    { name: "fecha_proxima_gestion", label: "Fecha próxima gestión", type: "date" },
   ],
-}
-
-export default function RetencionesColombiaPage() {
-  return <FormGenerator config={config} />
 }

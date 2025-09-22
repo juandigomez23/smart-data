@@ -1,7 +1,9 @@
-import { FieldConfig, FormConfig } from "@/components/formgenerator"
+import { FormConfig } from "@/components/formgenerator"
 
-export const retencionesForm: FormConfig = {
-  title: "Formulario Retenciones",
+export const retencionesChile: FormConfig = {
+  title: "Retenciones – Chile",
+  tipo: "retenciones-chile",
+  image: "/flags/cl.png",
   fields: [
     { name: "correo", label: "Correo electrónico", type: "text", required: true },
     { name: "san", label: "SAN", type: "text", required: true },
@@ -40,7 +42,6 @@ export const retencionesForm: FormConfig = {
         { label: "Cambio de residencia", value: "residencia" },
         { label: "Cliente fallecido", value: "fallecido" },
         { label: "No aplica", value: "na" },
-        // ... agrega todos los que tienes en el doc
       ],
     },
     {
@@ -55,7 +56,6 @@ export const retencionesForm: FormConfig = {
         { label: "Posible fraude", value: "fraude" },
         { label: "No contesta", value: "no_contesta" },
         { label: "Cliente fallecido", value: "fallecido" },
-        // ... agrega todas las opciones de código gestión
       ],
     },
     { name: "resumen", label: "Resumen de la gestión", type: "text", required: false },
