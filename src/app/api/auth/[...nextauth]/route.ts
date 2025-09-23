@@ -1,25 +1,64 @@
 import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
+import pool from "@/lib/db" // tu conexión a PostgreSQL
 
 const handler = NextAuth({
   providers: [
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        username: { label: "Usuario", type: "text" },
+        username: { label: "Usuario/Correo", type: "text" },
         password: { label: "Contraseña", type: "password" },
       },
       async authorize(credentials) {
-        if (credentials?.username === "admin" && credentials.password === "123") {
-          return { id: "1", username: "admin", role: "admin", email: "admin@empresa.com" }
+        if (!credentials?.username || !credentials.password) return null
+
+        // 🔹 Admin fijo
+        if (credentials.username === "admin" && credentials.password === "123") {
+          return {
+            id: "1",
+            username: "admin",
+            email: "admin@empresa.com",
+            role: "admin",
+          }
         }
-        if (credentials?.username === "asesor" && credentials.password === "123") {
-          return { id: "2", username: "asesor", role: "asesor", email: "asesor@empresa.com" }
+
+        // 🔹 Auditor fijo
+        if (credentials.username === "auditor" && credentials.password === "123") {
+          return {
+            id: "2",
+            username: "auditor",
+            email: "auditor@empresa.com",
+            role: "auditor",
+          }
         }
-        if (credentials?.username === "auditor" && credentials.password === "123") {
-          return { id: "3", username: "auditor", role: "auditor", email: "auditor@empresa.com" }
+
+        // 🔹 Asesores desde BD (clave genérica)
+        try {
+          const result = await pool.query(
+            `SELECT id, nombre, email, rol, estado 
+             FROM asesores 
+             WHERE email = $1 LIMIT 1`,
+            [credentials.username]
+          )
+
+          const asesor = result.rows[0]
+          if (!asesor) return null
+
+          // Validación con clave genérica
+          if (credentials.password !== "123") return null
+
+          return {
+            id: asesor.id,
+            username: asesor.nombre,
+            email: asesor.email,
+            role: asesor.rol || "asesor",
+            estado: asesor.estado,
+          }
+        } catch (error) {
+          console.error("❌ Error en authorize:", error)
+          return null
         }
-        return null
       },
     }),
   ],
@@ -29,7 +68,9 @@ const handler = NextAuth({
       if (user) {
         token.id = user.id
         token.username = user.username
+        token.email = user.email
         token.role = user.role
+        token.estado = user.estado
       }
       return token
     },
@@ -37,9 +78,11 @@ const handler = NextAuth({
       if (token) {
         session.user = {
           ...session.user,
-          id: token.id as string,
-          username: token.username as string,
-          role: token.role as "admin" | "asesor" | "auditor"
+          id: token.id,
+          username: token.username,
+          email: token.email,
+          role: token.role,
+          estado: token.estado,
         }
       }
       return session

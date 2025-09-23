@@ -126,7 +126,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 rounded hover:bg-blue-500 transition">
               <Menu size={24} />
             </button>
-            <span className="font-bold text-lg">Smart Data</span>
+            <span className="font-bold text-lg">    </span>
           </div>
 
           <div className="hidden md:flex gap-3 items-center">

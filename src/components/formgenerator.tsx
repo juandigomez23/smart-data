@@ -3,6 +3,7 @@
 import { useForm, FieldValues } from "react-hook-form"
 import Image from "next/image"
 import { useState } from "react"
+import { useAsesor } from "@/hooks/useAsesor"  // 👈 importar hook
 
 export type FieldConfig = {
   name: string
@@ -24,22 +25,24 @@ export default function FormGenerator({ config }: { config: FormConfig }) {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ text: string; type: "success" | "error" | "warning" } | null>(null)
 
-  // ✅ DEBUG: Verificar configuración
-  console.log("🔍 Configuración recibida:", config)
-  console.log("📋 Tipo de formulario:", config.tipo)
+  const { id: asesorId, nombre: asesorNombre, autenticado, cargando } = useAsesor()
 
   const onSubmit = async (data: Record<string, unknown>) => {
+    if (!asesorId) {
+      setMessage({ text: "⚠️ Debes iniciar sesión como asesor", type: "error" })
+      return
+    }
+
     setLoading(true)
     setMessage(null)
 
     try {
-      // ✅ Valor por defecto por seguridad
       const tipoFormulario = config.tipo || "retenciones-generico"
-      
+
       console.log("📤 Enviando formulario...", {
         tipo: tipoFormulario,
-        usuario: "asesor_demo",
-        datos: data
+        asesor: asesorId,
+        datos: data,
       })
 
       const res = await fetch("/api/formularios", {
@@ -47,8 +50,7 @@ export default function FormGenerator({ config }: { config: FormConfig }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           tipo: tipoFormulario,
-          usuario: "asesor_demo", // ⚡️ luego reemplazar con usuario real (auth)
-          pais: typeof data.pais === "string" ? data.pais : null,
+          asesor: asesorId, // 👈 ahora se manda el ID real del asesor
           datos: data,
         }),
       })
@@ -77,6 +79,14 @@ export default function FormGenerator({ config }: { config: FormConfig }) {
     }
   }
 
+  if (cargando) {
+    return <p className="text-gray-500">Cargando sesión...</p>
+  }
+
+  if (!autenticado) {
+    return <p className="text-red-600">⚠️ Debes iniciar sesión para usar el formulario</p>
+  }
+
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
       {/* Encabezado */}
@@ -92,6 +102,13 @@ export default function FormGenerator({ config }: { config: FormConfig }) {
         )}
         <h2 className="text-2xl font-bold text-gray-800">{config.title}</h2>
       </div>
+
+      {/* Mostrar asesor activo */}
+      {asesorNombre && (
+        <p className="mb-4 text-sm text-gray-600">
+          Sesión activa: <strong>{asesorNombre}</strong>
+        </p>
+      )}
 
       {/* Formulario */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

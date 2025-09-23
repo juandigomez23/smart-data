@@ -18,14 +18,14 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    // 👇 Aliases
+   
     "baseUrl": ".",
     "paths": {
       "@/*": [
         "src/*"
       ]
     },
-    // 👇 Necesario para NextAuth extendido
+    
     "types": [
       "next-auth"
     ],

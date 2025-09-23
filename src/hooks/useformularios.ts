@@ -6,7 +6,7 @@ export interface Formulario {
   id: number
   tipo: string
   fecha: string
-  usuario: string
+  asesor: string
   datos: Record<string, string | number | boolean>
 }
 

@@ -44,7 +44,7 @@ export default function Navbar() {
     <nav className="bg-blue-600 text-white px-4 py-3 flex justify-between items-center relative shadow-md">
       {/* Marca */}
       <Link href="/" className="font-bold text-lg">
-        Smart Data
+      
       </Link>
 
       {/* Enlaces Desktop */}

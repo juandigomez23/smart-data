@@ -1,5 +1,6 @@
 import "./globals.css"
 import Providers from "@/components/providers"
+import ClientLayout from "@/components/client-layout"
 
 export const metadata = {
   title: "Smart Data",
@@ -15,7 +16,7 @@ export default function RootLayout({
     <html lang="es">
       <body>
         <Providers>
-          {children}
+          <ClientLayout>{children}</ClientLayout>
         </Providers>
       </body>
     </html>
