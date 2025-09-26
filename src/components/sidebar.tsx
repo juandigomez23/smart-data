@@ -3,12 +3,11 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { signOut } from "next-auth/react"
-import { LayoutDashboard, Users, Settings, FileText, LogOut } from "lucide-react"
+import { LayoutDashboard, Users, FileText, LogOut } from "lucide-react"
 
 const links = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { name: "Usuarios", href: "/admin/users", icon: Users },
-  { name: "Configuración", href: "/admin/settings", icon: Settings },
+  { name: "Asesores", href: "/admin/users", icon: Users },
   { name: "Reportes", href: "/admin/reports", icon: FileText },
 ]
 

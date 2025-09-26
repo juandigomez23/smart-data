@@ -1,45 +1,61 @@
-// app/api/asesores/[id]/route.ts - VERSIÓN CORREGIDA
-import { NextRequest, NextResponse } from 'next/server'
-import pool from '@/lib/db'
+// app/api/asesores/[id]/route.ts
+import { NextRequest, NextResponse } from "next/server"
+import pool from "@/lib/db"
 
-// Interface para el error de PostgreSQL
+// Interface para error de PostgreSQL
 interface PostgreSQLError extends Error {
   code?: string
 }
 
-// Type guard para verificar si es error de PostgreSQL
+// Type guard para detectar errores de PostgreSQL
 function isPostgreSQLError(error: unknown): error is PostgreSQLError {
-  return error instanceof Error && 'code' in error
+  return error instanceof Error && "code" in error
 }
 
+/**
+ * 📌 GET /api/asesores/[id]
+ * Obtener datos de un asesor por ID
+ */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id)
+    const { id: idString } = await context.params
+    const id = parseInt(idString)
+
+    if (isNaN(id)) {
+      return NextResponse.json(
+        { success: false, error: "ID inválido" },
+        { status: 400 }
+      )
+    }
+
     const client = await pool.connect()
-    
     try {
-      const result = await client.query(`
+      const result = await client.query(
+        `
         SELECT 
           id,
           nombre,
           email,
-          telefono,
-          pais,
+          cedula,
           estado,
           rol,
           fecha_registro as "fechaRegistro",
           ultimo_acceso as "ultimoAcceso",
           formularios_completados as "formulariosCompletados",
-          eficiencia
-        FROM asesores WHERE id = $1
-      `, [id])
+          eficiencia,
+          formularios_permitidos
+        FROM asesores 
+        WHERE id = $1
+        `,
+        [id]
+      )
 
       if (result.rows.length === 0) {
         return NextResponse.json(
-          { success: false, error: 'Asesor no encontrado' }, 
+          { success: false, error: "Asesor no encontrado" },
           { status: 404 }
         )
       }
@@ -49,100 +65,129 @@ export async function GET(
       client.release()
     }
   } catch (error) {
-    console.error('Error obteniendo asesor:', error)
+    console.error("❌ Error obteniendo asesor:", error)
     return NextResponse.json(
-      { success: false, error: 'Error al obtener asesor' }, 
+      { success: false, error: "Error al obtener asesor" },
       { status: 500 }
     )
   }
 }
 
+/**
+ * 📌 PATCH /api/asesores/[id]
+ * Actualizar datos de un asesor
+ */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id)
+    const { id: idString } = await context.params
+    const id = parseInt(idString)
+
+    if (isNaN(id)) {
+      return NextResponse.json(
+        { success: false, error: "ID inválido" },
+        { status: 400 }
+      )
+    }
+
     const data = await request.json()
     const client = await pool.connect()
-    
+
     try {
-      const result = await client.query(`
+      const result = await client.query(
+        `
         UPDATE asesores 
         SET 
           nombre = $1,
           email = $2,
-          telefono = $3,
-          pais = $4,
-          estado = $5,
-          rol = $6,
+          cedula = $3,
+          estado = $4,
+          rol = $5,
           updated_at = CURRENT_TIMESTAMP
-        WHERE id = $7
+        WHERE id = $6
         RETURNING *
-      `, [data.nombre, data.email, data.telefono, data.pais, data.estado, data.rol, id])
+        `,
+        [data.nombre, data.email, data.cedula, data.estado, data.rol, id]
+      )
 
       if (result.rows.length === 0) {
         return NextResponse.json(
-          { success: false, error: 'Asesor no encontrado' }, 
+          { success: false, error: "Asesor no encontrado" },
           { status: 404 }
         )
       }
 
-      return NextResponse.json({ 
-        success: true, 
+      return NextResponse.json({
+        success: true,
         data: result.rows[0],
-        message: 'Asesor actualizado exitosamente' 
+        message: "Asesor actualizado exitosamente",
       })
     } finally {
       client.release()
     }
   } catch (error) {
-    console.error('Error actualizando asesor:', error)
-    
-    // Type guard para verificar si es error de PostgreSQL
-    if (isPostgreSQLError(error) && error.code === '23505') {
+    console.error("❌ Error actualizando asesor:", error)
+
+    if (isPostgreSQLError(error) && error.code === "23505") {
       return NextResponse.json(
-        { success: false, error: 'El email ya está registrado' }, 
+        { success: false, error: "El email ya está registrado" },
         { status: 400 }
       )
     }
-    
+
     return NextResponse.json(
-      { success: false, error: 'Error al actualizar asesor' }, 
+      { success: false, error: "Error al actualizar asesor" },
       { status: 500 }
     )
   }
 }
 
+/**
+ * 📌 DELETE /api/asesores/[id]
+ * Eliminar un asesor por ID
+ */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id)
+    const { id: idString } = await context.params
+    const id = parseInt(idString)
+
+    if (isNaN(id)) {
+      return NextResponse.json(
+        { success: false, error: "ID inválido" },
+        { status: 400 }
+      )
+    }
+
     const client = await pool.connect()
-    
     try {
-      const result = await client.query('DELETE FROM asesores WHERE id = $1 RETURNING *', [id])
+      const result = await client.query(
+        "DELETE FROM asesores WHERE id = $1 RETURNING *",
+        [id]
+      )
 
       if (result.rows.length === 0) {
         return NextResponse.json(
-          { success: false, error: 'Asesor no encontrado' }, 
+          { success: false, error: "Asesor no encontrado" },
           { status: 404 }
         )
       }
 
-      return NextResponse.json({ 
-        success: true, 
-        message: 'Asesor eliminado exitosamente' 
+      return NextResponse.json({
+        success: true,
+        message: "Asesor eliminado exitosamente",
       })
     } finally {
       client.release()
     }
   } catch (error) {
-    console.error('Error eliminando asesor:', error)
+    console.error("❌ Error eliminando asesor:", error)
     return NextResponse.json(
-      { success: false, error: 'Error al eliminar asesor' }, 
+      { success: false, error: "Error al eliminar asesor" },
       { status: 500 }
     )
   }

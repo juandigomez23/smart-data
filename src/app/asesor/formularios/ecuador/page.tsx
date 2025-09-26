@@ -1,53 +1,21 @@
-"use client"
+"use client";
 
-import FormGenerator, { FormConfig } from "@/components/formgenerator"
-
-const config: FormConfig = {
-  title: "Gestión Retenciones – Ecuador",
-  tipo: "retenciones-ecuador",
-  image: "/flags/ec.png",
-  fields: [
-    { name: "correo", label: "Correo electrónico", type: "text", required: true },
-    { name: "san", label: "SAN", type: "text", required: true },
-    {
-      name: "medio_comunicacion",
-      label: "Medio de comunicación",
-      type: "select",
-      options: [
-        { label: "Llamada telefónica", value: "llamada" },
-        { label: "Gestión WhatsApp", value: "whatsapp" },
-        { label: "Gestión correo", value: "correo" },
-      ],
-    },
-    {
-      name: "motivo_cancelacion",
-      label: "Motivo de cancelación del cliente",
-      type: "select",
-      options: [
-        { label: "Dificultades financieras", value: "financieras" },
-        { label: "Falla velocidad", value: "velocidad" },
-        { label: "Cambio de residencia", value: "residencia" },
-        { label: "Finalizó proyecto", value: "finalizo_proyecto" },
-        { label: "No aplica", value: "na" },
-      ],
-    },
-    {
-      name: "codigo_gestion",
-      label: "Código de gestión",
-      type: "select",
-      options: [
-        { label: "Retención", value: "retencion" },
-        { label: "No acepta retención", value: "no_retencion" },
-        { label: "Cliente ya retenido", value: "retenido" },
-        { label: "Cliente no apto", value: "no_apto" },
-        { label: "No contesta", value: "no_contesta" },
-      ],
-    },
-    { name: "resumen", label: "Resumen de la gestión", type: "text" },
-    { name: "fecha_proxima", label: "Fecha próxima gestión", type: "date" },
-  ],
-}
+import FormGenerator from "@/components/formgenerator";
+import { retencionesEcuador } from "@/config/forms/retenciones-ecuador";
 
 export default function RetencionesEcuadorPage() {
-  return <FormGenerator config={config} />
+  return (
+    <FormGenerator
+      config={{
+        ...retencionesEcuador,
+        title: "Retenciones – Ecuador",
+        image: "/flags/ec.png", // 👈 bandera Ecuador
+        fields: retencionesEcuador.fields.map((field) =>
+          field.name === "pais"
+            ? { ...field, options: [{ label: "Ecuador", value: "Ecuador" }] }
+            : field
+        ),
+      }}
+    />
+  );
 }

@@ -1,74 +1,21 @@
-"use client"
+"use client";
 
-import FormGenerator, { FormConfig } from "@/components/formgenerator"
-
-const config: FormConfig = {
-  title: "Gestión Retenciones – Colombia",
-  tipo: "retenciones-colombia", // 👈 lo que se guarda en PostgreSQL
-  image: "/flags/co.png",
-  fields: [
-    { name: "correo", label: "Correo electrónico", type: "text", required: true },
-    { name: "san", label: "SAN", type: "text", required: true },
-    {
-      name: "medio_comunicacion",
-      label: "Medio de comunicación",
-      type: "select",
-      options: [
-        { label: "Llamada telefónica", value: "llamada" },
-        { label: "Gestión WhatsApp", value: "whatsapp" },
-        { label: "Gestión correo", value: "correo" },
-      ],
-    },
-    {
-      name: "tipo_asignacion",
-      label: "Tipo de asignación",
-      type: "select",
-      options: [
-        { label: "Terminación programada", value: "terminacion" },
-        { label: "Winback", value: "winback" },
-        { label: "Entrante", value: "entrante" },
-        { label: "Asignado por correo", value: "correo" },
-        { label: "Asignado por cartera", value: "cartera" },
-        { label: "PQR", value: "pqr" },
-      ],
-    },
-    {
-      name: "motivo_cancelacion",
-      label: "Motivo de cancelación del cliente",
-      type: "select",
-      options: [
-        { label: "Dificultades financieras", value: "financieras" },
-        { label: "Falla velocidad", value: "velocidad" },
-        { label: "Cobertura", value: "cobertura" },
-        { label: "Inconformidad con las facturas", value: "facturas" },
-        { label: "Retoma presencialidad", value: "presencialidad" },
-        { label: "Cambio de proveedor", value: "proveedor" },
-        { label: "Inconformidad con el servicio", value: "servicio" },
-        { label: "No necesita el servicio", value: "innecesario" },
-        { label: "Cambio de residencia", value: "residencia" },
-        { label: "No aplica", value: "na" },
-      ],
-    },
-    {
-      name: "codigo_gestion",
-      label: "Código de gestión",
-      type: "select",
-      options: [
-        { label: "Retención", value: "retencion" },
-        { label: "No acepta retención", value: "no_retencion" },
-        { label: "Cliente ya retenido", value: "retenido" },
-        { label: "Posible retención", value: "posible" },
-        { label: "Volver a llamar", value: "llamar" },
-        { label: "Mensaje de voz", value: "voz" },
-        { label: "Fuera de servicio", value: "fuera_servicio" },
-        { label: "No aplica", value: "na" },
-      ],
-    },
-    { name: "resumen", label: "Resumen de la gestión", type: "text", required: false },
-    { name: "fecha_proxima", label: "Fecha próxima gestión", type: "date" },
-  ],
-}
+import FormGenerator from "@/components/formgenerator";
+import { retencionesColombia } from "@/config/forms/retenciones-colombia";
 
 export default function RetencionesColombiaPage() {
-  return <FormGenerator config={config} />
+  return (
+    <FormGenerator
+      config={{
+        ...retencionesColombia,
+        title: "Retenciones – Colombia",
+        image: "/flags/co.png", // 👈 bandera Colombia
+        fields: retencionesColombia.fields.map((field) =>
+          field.name === "pais"
+            ? { ...field, options: [{ label: "Colombia", value: "Colombia" }] }
+            : field
+        ),
+      }}
+    />
+  );
 }

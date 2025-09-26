@@ -2,9 +2,7 @@
 
 import { 
   Users, FileText, BarChart3, UserPlus, UserCheck,
-  CheckSquare, Briefcase, XCircle, FileSpreadsheet,
-  Moon, Sun, Trash2, Search, Filter, Edit, Shield,
-  ChevronRight, MoreVertical, Phone
+  Moon, Sun, Trash2, Search, Edit, Shield, Phone
 } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useState, useEffect } from "react"
@@ -393,15 +391,15 @@ export default function AdminDashboardPage() {
 // Componente para la vista de formularios (simplificado)
 const VistaFormularios: React.FC<VistaFormulariosProps> = ({ 
   registros, 
-  loading, 
-  busqueda, 
-  setBusqueda, 
-  filtros, 
-  setFiltros, 
-  paginaActual, 
-  setPaginaActual, 
-  registrosPorPagina 
-}) => {
+//   loading, 
+//   busqueda, 
+//   setBusqueda, 
+//   filtros, 
+//   setFiltros, 
+//   paginaActual, 
+//   setPaginaActual, 
+//   registrosPorPagina 
+ }) => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
       <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">

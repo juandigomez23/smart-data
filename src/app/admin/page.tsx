@@ -3,11 +3,11 @@
 import Link from "next/link"
 import Image from "next/image"
 import { 
-  Users, FileText, BarChart3,
+  Users, FileText,
   ClipboardList, CheckSquare, Briefcase, 
   XCircle, FileSpreadsheet, Moon, Sun, Download,
-  Trash2, Search, Filter, ChevronLeft, ChevronRight,
-  Check, X, MoreVertical
+  Trash2, Search, Filter, ChevronLeft, ChevronRight
+
 } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useState, useEffect } from "react"
@@ -253,7 +253,7 @@ export default function AdminDashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">Dashboard Administrador</h1>
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">Menú Administrador</h1>
           <p className="text-gray-600 dark:text-gray-400">Supervisa asesores, formularios y auditorías</p>
         </div>
         <div className="flex items-center gap-3">

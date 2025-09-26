@@ -1,8 +1,8 @@
-import NextAuth from "next-auth"
+import NextAuth, { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
-import pool from "@/lib/db" // tu conexión a PostgreSQL
+import pool from "@/lib/db"
 
-const handler = NextAuth({
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -15,25 +15,15 @@ const handler = NextAuth({
 
         // 🔹 Admin fijo
         if (credentials.username === "admin" && credentials.password === "123") {
-          return {
-            id: "1",
-            username: "admin",
-            email: "admin@empresa.com",
-            role: "admin",
-          }
+          return { id: "1", username: "admin", email: "admin@empresa.com", role: "admin" }
         }
 
         // 🔹 Auditor fijo
         if (credentials.username === "auditor" && credentials.password === "123") {
-          return {
-            id: "2",
-            username: "auditor",
-            email: "auditor@empresa.com",
-            role: "auditor",
-          }
+          return { id: "2", username: "auditor", email: "auditor@empresa.com", role: "auditor" }
         }
 
-        // 🔹 Asesores desde BD (clave genérica)
+        // 🔹 Asesores en BD
         try {
           const result = await pool.query(
             `SELECT id, nombre, email, rol, estado 
@@ -44,8 +34,6 @@ const handler = NextAuth({
 
           const asesor = result.rows[0]
           if (!asesor) return null
-
-          // Validación con clave genérica
           if (credentials.password !== "123") return null
 
           return {
@@ -94,6 +82,8 @@ const handler = NextAuth({
   },
 
   secret: process.env.NEXTAUTH_SECRET,
-})
+}
+
+const handler = NextAuth(authOptions)
 
 export { handler as GET, handler as POST }
