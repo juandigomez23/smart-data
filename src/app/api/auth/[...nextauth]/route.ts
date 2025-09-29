@@ -13,17 +13,17 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.username || !credentials.password) return null
 
-        // 🔹 Admin fijo
+        
         if (credentials.username === "admin" && credentials.password === "123") {
           return { id: "1", username: "admin", email: "admin@empresa.com", role: "admin" }
         }
 
-        // 🔹 Auditor fijo
+        
         if (credentials.username === "auditor" && credentials.password === "123") {
           return { id: "2", username: "auditor", email: "auditor@empresa.com", role: "auditor" }
         }
 
-        // 🔹 Asesores en BD
+        
         try {
           const result = await pool.query(
             `SELECT id, nombre, email, rol, estado 

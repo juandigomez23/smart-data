@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import pool from "@/lib/db"
 
-// Interface para el error de PostgreSQL
+
 interface PostgreSQLError extends Error {
   code?: string
 }
 
-// Type guard para verificar si es error de PostgreSQL
+
 function isPostgreSQLError(error: unknown): error is PostgreSQLError {
   return error instanceof Error && "code" in error
 }
@@ -28,6 +28,7 @@ export async function GET() {
         ultimo_acceso as "ultimoAcceso",
         formularios_completados as "formulariosCompletados",
         eficiencia,
+        formularios_permitidos,
         created_at,
         updated_at
       FROM asesores
@@ -54,7 +55,7 @@ export async function POST(request: NextRequest) {
   try {
     const data = await request.json()
 
-    // Validar datos requeridos
+    
     if (!data.nombre || !data.email) {
       return NextResponse.json(
         { success: false, error: "Nombre y email son requeridos" },
@@ -102,7 +103,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Error creando asesor:", error)
 
-    // Manejar error de duplicado de email
+   
     if (isPostgreSQLError(error) && error.code === "23505") {
       return NextResponse.json(
         { success: false, error: "El email ya está registrado" },

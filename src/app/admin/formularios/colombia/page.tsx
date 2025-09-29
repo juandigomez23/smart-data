@@ -9,7 +9,7 @@ export default function RetencionesColombiaPage() {
       config={{
         ...retencionesColombia,
         title: "Retenciones – Colombia",
-        image: "/flags/co.png", // 👈 bandera Colombia
+        image: "/flags/co.png",
         fields: retencionesColombia.fields.map((field) =>
           field.name === "pais"
             ? { ...field, options: [{ label: "Colombia", value: "Colombia" }] }

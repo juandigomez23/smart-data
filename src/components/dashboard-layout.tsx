@@ -120,7 +120,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </aside>
 
       <div className="flex-1 flex flex-col">
-        {/* Navbar */}
+        
         <nav className="bg-blue-600 text-white px-4 py-3 flex justify-between items-center shadow-md relative">
           <div className="flex items-center gap-3 md:hidden">
             <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 rounded hover:bg-blue-500 transition">
@@ -156,7 +156,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           )}
         </nav>
 
-        {/* Mobile Navbar */}
+        
         <Transition as={Fragment} show={mobileMenuOpen} enter="transition ease-out duration-300" enterFrom="opacity-0 -translate-y-2" enterTo="opacity-100 translate-y-0" leave="transition ease-in duration-200" leaveFrom="opacity-100 translate-y-0" leaveTo="opacity-0 -translate-y-2">
           <div className="md:hidden bg-blue-600 flex flex-col gap-1 p-2">
             {navItems.map((item) =>

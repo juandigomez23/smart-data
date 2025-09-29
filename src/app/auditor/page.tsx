@@ -10,7 +10,7 @@ export default function AuditorDashboard() {
     loading,
     createNewAudit,
     updateAuditStatus,
-    deleteAudit, // Importar la nueva función
+    deleteAudit, 
     generateReport
   } = useAuditorDashboard()
 
@@ -36,13 +36,13 @@ export default function AuditorDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      {/* Header */}
+      {}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Dashboard Auditor</h1>
         <p className="text-gray-600">Resumen general de actividades de auditoría</p>
       </div>
 
-      {/* Stats Grid */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {statsData.map((stat, index) => (
           <div key={index} className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-shadow">
@@ -60,9 +60,9 @@ export default function AuditorDashboard() {
         ))}
       </div>
 
-      {/* Main Content Grid */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Chart Section */}
+        {}
         <div className="bg-white rounded-xl shadow-sm border p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-6">Auditorías por Mes</h2>
           <div className="space-y-4">
@@ -141,7 +141,7 @@ export default function AuditorDashboard() {
         </div>
       </div>
 
-      {/* Quick Actions */}
+      {}
       <div className="mt-8 bg-white rounded-xl shadow-sm border p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Acciones Rápidas</h2>
         <div className="flex flex-wrap gap-4">

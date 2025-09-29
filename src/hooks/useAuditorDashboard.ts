@@ -55,12 +55,10 @@ export const useAuditorDashboard = () => {
 
   const [loading, setLoading] = useState(true)
 
-  // Simular carga inicial
   setTimeout(() => {
     setLoading(false)
   }, 1000)
 
-  // Calcular stats automáticamente cuando audits cambie
   const stats = useMemo(() => {
     const total = audits.length
     const pending = audits.filter(a => a.status === 'Pendiente').length

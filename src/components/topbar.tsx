@@ -26,20 +26,20 @@ export default function Topbar() {
 
   return (
     <header className="fixed top-0 left-0 right-0 h-16 flex items-center justify-between px-6 bg-gray-800 shadow-md z-50">
-      {/* Logo o título */}
+      
       <div className="flex items-center gap-2">
         <span className="font-bold text-xl text-white">   </span>
       </div>
 
-      {/* Usuario + Cerrar sesión */}
+      
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-3">
-          {/* Avatar */}
+          
           <div className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-500 text-white font-bold shadow">
             {initials}
           </div>
 
-          {/* Info */}
+          
           <div className="flex flex-col items-end">
             <span className="font-semibold text-white">
               Bienvenido, {username}
@@ -50,7 +50,7 @@ export default function Topbar() {
           </div>
         </div>
 
-        {/* Botón cerrar sesión */}
+        
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
           className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md text-sm shadow-md transition"

@@ -1,21 +1,17 @@
-// app/api/asesores/[id]/route.ts
+
 import { NextRequest, NextResponse } from "next/server"
 import pool from "@/lib/db"
 
-// Interface para error de PostgreSQL
 interface PostgreSQLError extends Error {
   code?: string
 }
 
-// Type guard para detectar errores de PostgreSQL
+
 function isPostgreSQLError(error: unknown): error is PostgreSQLError {
   return error instanceof Error && "code" in error
 }
 
-/**
- * 📌 GET /api/asesores/[id]
- * Obtener datos de un asesor por ID
- */
+
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
@@ -73,10 +69,7 @@ export async function GET(
   }
 }
 
-/**
- * 📌 PATCH /api/asesores/[id]
- * Actualizar datos de un asesor
- */
+
 export async function PATCH(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
@@ -144,10 +137,7 @@ export async function PATCH(
   }
 }
 
-/**
- * 📌 DELETE /api/asesores/[id]
- * Eliminar un asesor por ID
- */
+
 export async function DELETE(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }

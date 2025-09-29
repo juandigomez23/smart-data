@@ -1,27 +1,21 @@
 "use client"
-
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { signOut } from "next-auth/react"
-import { LayoutDashboard, Users, FileText, LogOut } from "lucide-react"
+import { LayoutDashboard, Users, FileSpreadsheet } from "lucide-react"
 
 const links = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { name: "Asesores", href: "/admin/users", icon: Users },
-  { name: "Reportes", href: "/admin/reports", icon: FileText },
+  { name: "Gestión Asesores", href: "/admin/users", icon: Users },
+  { name: "Exportar Formularios", href: "/admin/exportar", icon: FileSpreadsheet },
 ]
 
-export default function Sidebar() {
+export default function AdminSidebar() {
   const pathname = usePathname()
-
   return (
     <aside className="w-64 h-screen bg-gray-900 text-gray-100 flex flex-col fixed">
-      
-      <div className="px-6 py-4 text-xl font-bold border-b border-gray-700">
-        Smart Data
+      <div className="px-06 py-4 text-2xl font-bold border-b border-gray-700">
+        Smart Data Admin
       </div>
-
-      
       <nav className="flex-1 px-4 py-6 space-y-2">
         {links.map((link) => {
           const isActive = pathname === link.href
@@ -39,17 +33,6 @@ export default function Sidebar() {
           )
         })}
       </nav>
-
-      
-      <div className="p-4 border-t border-gray-700">
-        <button
-          onClick={() => signOut({ callbackUrl: "/" })}
-          className="flex items-center gap-2 text-red-400 hover:text-red-300 w-full"
-        >
-          <LogOut className="w-5 h-5" />
-          Cerrar sesión
-        </button>
-      </div>
     </aside>
   )
 }

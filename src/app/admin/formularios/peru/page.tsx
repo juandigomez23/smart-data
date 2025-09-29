@@ -9,7 +9,7 @@ export default function RetencionesPeruPage() {
       config={{
         ...retencionesPeru,
         title: "Retenciones – Perú",
-        image: "/flags/pe.png", // 👈 bandera Perú
+        image: "/flags/pe.png",
         fields: retencionesPeru.fields.map((field) =>
           field.name === "pais"
             ? { ...field, options: [{ label: "Perú", value: "Perú" }] }

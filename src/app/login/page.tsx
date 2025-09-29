@@ -62,8 +62,7 @@ export default function LoginPage() {
         </h1>
 
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Usuario */}
-          {/* Usuario */}
+          
 <div className="relative">
   <HiOutlineUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
   <input
@@ -79,7 +78,7 @@ export default function LoginPage() {
   )}
 </div>
 
-{/* Contraseña */}
+{}
 <div className="relative">
   <HiOutlineLockClosed className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
   <input
@@ -103,10 +102,10 @@ export default function LoginPage() {
 </div>
 
 
-          {/* Error global */}
+          {}
           {error && <p className="text-red-600 text-center">{error}</p>}
 
-          {/* Botón */}
+          
           <button
             type="submit"
             className="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white py-3 rounded-xl shadow-lg hover:from-blue-700 hover:to-blue-600 active:scale-95 transition-all font-semibold text-lg flex items-center justify-center gap-2"
@@ -123,7 +122,7 @@ export default function LoginPage() {
         </p>
       </div>
 
-      {/* Animación de fondo */}
+      {}
       <style jsx>{`
         .animate-gradient-x {
           background-size: 200% 200%;

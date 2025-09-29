@@ -2,12 +2,11 @@
 
 import { 
   Users, FileText, BarChart3, UserPlus, UserCheck,
-  Moon, Sun, Trash2, Search, Edit, Shield, Phone
+  Moon, Sun, Trash2, Search, Edit, Shield,
 } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useState, useEffect } from "react"
 
-// Interfaces
 interface Formulario {
   id: number
   tipo: string
@@ -21,8 +20,7 @@ interface Asesor {
   id: number
   nombre: string
   email: string
-  telefono: string
-  pais: string
+  cedula: string
   estado: 'activo' | 'inactivo' | 'vacaciones'
   rol: 'asesor' | 'supervisor' | 'administrador'
   fechaRegistro: string
@@ -39,7 +37,7 @@ interface Filtros {
   fechaHasta: string
 }
 
-// Props para los componentes
+
 interface VistaFormulariosProps {
   registros: Formulario[]
   loading: boolean
@@ -100,7 +98,7 @@ export default function AdminDashboardPage() {
     setTheme(dark ? "light" : "dark")
   }
 
-  // 🔄 Cargar datos
+
   useEffect(() => {
     fetchData()
     fetchAsesores()
@@ -131,14 +129,13 @@ export default function AdminDashboardPage() {
     }
   }
 
-  // 📊 Datos de ejemplo para asesores
+
   const datosAsesoresEjemplo: Asesor[] = [
     {
       id: 1,
       nombre: "asesor_demo",
       email: "asesor@empresa.com",
-      telefono: "+57 300 123 4567",
-      pais: "Colombia",
+      cedula: "123456789",
       estado: "activo",
       rol: "asesor",
       fechaRegistro: "2024-01-15",
@@ -150,8 +147,7 @@ export default function AdminDashboardPage() {
       id: 2,
       nombre: "maria_gonzalez",
       email: "maria.gonzalez@empresa.com",
-      telefono: "+51 987 654 321",
-      pais: "Perú",
+      cedula: "987654321",
       estado: "activo",
       rol: "supervisor",
       fechaRegistro: "2024-02-20",
@@ -163,8 +159,7 @@ export default function AdminDashboardPage() {
       id: 3,
       nombre: "carlos_rodriguez",
       email: "c.rodriguez@empresa.com",
-      telefono: "+56 9 8765 4321",
-      pais: "Chile",
+      cedula: "87654321",
       estado: "vacaciones",
       rol: "asesor",
       fechaRegistro: "2024-03-10",
@@ -176,8 +171,7 @@ export default function AdminDashboardPage() {
       id: 4,
       nombre: "ana_martinez",
       email: "a.martinez@empresa.com",
-      telefono: "+593 98 765 4321",
-      pais: "Ecuador",
+      cedula: "7654321",
       estado: "inactivo",
       rol: "asesor",
       fechaRegistro: "2024-01-08",
@@ -187,12 +181,12 @@ export default function AdminDashboardPage() {
     }
   ]
 
-  // 🔍 Filtros y búsquedas para asesores
+
   const asesoresFiltrados = asesores.filter(asesor => {
     const coincideBusqueda = 
       asesor.nombre.toLowerCase().includes(busquedaAsesores.toLowerCase()) ||
       asesor.email.toLowerCase().includes(busquedaAsesores.toLowerCase()) ||
-      asesor.pais.toLowerCase().includes(busquedaAsesores.toLowerCase())
+      asesor.cedula.toLowerCase().includes(busquedaAsesores.toLowerCase())
     
     const coincideEstado = !filtroEstadoAsesor || asesor.estado === filtroEstadoAsesor
     const coincideRol = !filtroRolAsesor || asesor.rol === filtroRolAsesor
@@ -200,7 +194,7 @@ export default function AdminDashboardPage() {
     return coincideBusqueda && coincideEstado && coincideRol
   })
 
-  // 🎯 Métricas generales
+
   const metricasGenerales = [
     { 
       titulo: "Total Formularios", 
@@ -230,7 +224,7 @@ export default function AdminDashboardPage() {
     },
   ]
 
-  // 👥 Funciones de gestión de asesores
+
   const crearAsesor = () => {
     setAsesorEditando(null)
     setMostrarModalAsesor(true)
@@ -290,7 +284,7 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* Navegación entre vistas */}
+      {}
       <div className="flex gap-4 mb-6">
         <button
           onClick={() => setVistaActiva('formularios')}
@@ -314,7 +308,7 @@ export default function AdminDashboardPage() {
         </button>
       </div>
 
-      {/* Métricas */}
+      {}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
         {metricasGenerales.map((m, i) => (
           <div key={i} className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 flex justify-between items-center">
@@ -327,7 +321,7 @@ export default function AdminDashboardPage() {
         ))}
       </div>
 
-      {/* VISTA DE FORMULARIOS */}
+      {}
       {vistaActiva === 'formularios' && (
         <VistaFormularios
           registros={registros}
@@ -342,7 +336,7 @@ export default function AdminDashboardPage() {
         />
       )}
 
-      {/* VISTA DE GESTIÓN DE ASESORES */}
+      {}
       {vistaActiva === 'asesores' && (
         <VistaGestionAsesores
           asesores={asesoresFiltrados}
@@ -359,17 +353,17 @@ export default function AdminDashboardPage() {
         />
       )}
 
-      {/* Modal de Asesor */}
+      {}
       {mostrarModalAsesor && (
         <ModalAsesor
           asesor={asesorEditando}
           onClose={() => setMostrarModalAsesor(false)}
           onSave={(asesorData) => {
             if (asesorEditando) {
-              // Editar asesor existente
+    
               setAsesores(prev => prev.map(a => a.id === asesorEditando.id ? { ...a, ...asesorData } : a))
             } else {
-              // Crear nuevo asesor
+              
               const nuevoAsesor: Asesor = {
                 id: Math.max(...asesores.map(a => a.id)) + 1,
                 ...asesorData,
@@ -388,7 +382,7 @@ export default function AdminDashboardPage() {
   )
 }
 
-// Componente para la vista de formularios (simplificado)
+
 const VistaFormularios: React.FC<VistaFormulariosProps> = ({ 
   registros, 
 //   loading, 
@@ -408,12 +402,11 @@ const VistaFormularios: React.FC<VistaFormulariosProps> = ({
       <p className="text-gray-600 dark:text-gray-400">
         Mostrando {registros.length} formularios
       </p>
-      {/* Aquí iría el código completo de la tabla de formularios */}
+      {}
     </div>
   )
 }
 
-// Componente para la gestión de asesores - CORREGIDO CON ESTILOS VISIBLES
 const VistaGestionAsesores: React.FC<VistaGestionAsesoresProps> = ({
   asesores,
   busquedaAsesores,
@@ -429,7 +422,7 @@ const VistaGestionAsesores: React.FC<VistaGestionAsesoresProps> = ({
 }) => {
   return (
     <div className="space-y-6">
-      {/* Controles de búsqueda y filtros - CORREGIDOS */}
+      {}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
         <div className="flex flex-col lg:flex-row gap-4 mb-4">
           <div className="flex-1 relative">
@@ -475,11 +468,11 @@ const VistaGestionAsesores: React.FC<VistaGestionAsesoresProps> = ({
         </div>
       </div>
 
-      {/* Tarjetas de asesores */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {asesores.map((asesor) => (
           <div key={asesor.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
-            {/* Header de la tarjeta */}
+            {}
             <div className="flex justify-between items-start mb-4">
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">{asesor.nombre}</h3>
@@ -503,11 +496,11 @@ const VistaGestionAsesores: React.FC<VistaGestionAsesoresProps> = ({
               </div>
             </div>
 
-            {/* Información del asesor */}
+            {}
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-gray-400" />
-                <span className="text-sm text-gray-600 dark:text-gray-400">{asesor.telefono}</span>
+                <FileText className="w-4 h-4 text-gray-400" />
+                <span className="text-sm text-gray-600 dark:text-gray-400">{asesor.cedula}</span>
               </div>
               
               <div className="flex items-center gap-2">
@@ -523,11 +516,19 @@ const VistaGestionAsesores: React.FC<VistaGestionAsesoresProps> = ({
                 }`}>
                   {asesor.estado}
                 </span>
-                
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   {asesor.eficiencia}% eficiencia
                 </span>
               </div>
+            </div>
+
+            {/* Estado de conexión y última conexión */}
+            <div className="mt-2">
+              {asesor.estado === 'activo' ? (
+                <span className="text-xs font-semibold text-green-700 dark:text-green-300">Conectado ahora</span>
+              ) : (
+                <span className="text-xs text-gray-600 dark:text-gray-400">Última conexión: {asesor.ultimoAcceso ? new Date(asesor.ultimoAcceso).toLocaleString('es-ES') : 'Sin registro'}</span>
+              )}
             </div>
 
             {/* Métricas */}
@@ -544,7 +545,7 @@ const VistaGestionAsesores: React.FC<VistaGestionAsesoresProps> = ({
               </div>
             </div>
 
-            {/* Acciones rápidas - SELECT CORREGIDO */}
+            {}
             <div className="flex gap-2 mt-4">
               <select
                 value={asesor.estado}
@@ -570,13 +571,12 @@ const VistaGestionAsesores: React.FC<VistaGestionAsesoresProps> = ({
   )
 }
 
-// Modal para crear/editar asesores - CORREGIDO CON ESTILOS VISIBLES
+
 const ModalAsesor: React.FC<ModalAsesorProps> = ({ asesor, onClose, onSave }) => {
   const [formData, setFormData] = useState({
     nombre: asesor?.nombre || '',
     email: asesor?.email || '',
-    telefono: asesor?.telefono || '',
-    pais: asesor?.pais || '',
+    cedula: asesor?.cedula || '',
     estado: (asesor?.estado as 'activo' | 'inactivo' | 'vacaciones') || 'activo',
     rol: (asesor?.rol as 'asesor' | 'supervisor' | 'administrador') || 'asesor'
   })
@@ -622,36 +622,17 @@ const ModalAsesor: React.FC<ModalAsesorProps> = ({ asesor, onClose, onSave }) =>
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Teléfono
-              </label>
-              <input
-                type="tel"
-                value={formData.telefono}
-                onChange={(e) => setFormData({...formData, telefono: e.target.value})}
-                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="+57 300 123 4567"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                País
-              </label>
-              <select
-                value={formData.pais}
-                onChange={(e) => setFormData({...formData, pais: e.target.value})}
-                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Seleccionar país</option>
-                <option value="Colombia">Colombia</option>
-                <option value="Perú">Perú</option>
-                <option value="Chile">Chile</option>
-                <option value="Ecuador">Ecuador</option>
-              </select>
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Cédula
+            </label>
+            <input
+              type="text"
+              value={formData.cedula}
+              onChange={(e) => setFormData({...formData, cedula: e.target.value})}
+              className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Cédula del asesor"
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">

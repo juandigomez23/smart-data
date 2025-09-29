@@ -1,4 +1,14 @@
-/* src/app/globals.css */
+
+.dark input, .dark textarea {
+  background-color: #374151;
+  color: #fff;
+  border-color: #4b5563;
+}
+
+.dark input::placeholder, .dark textarea::placeholder {
+  color: #a1a1aa;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -27,7 +37,7 @@ body {
     rgb(var(--background-start-rgb));
 }
 
-/* ✅ Fix para selects y options en todos los formularios */
+
 select {
   background-color: white;
   color: black;
@@ -38,14 +48,14 @@ select option {
   color: black;
 }
 
-/* 🌙 En modo oscuro */
+
 .dark select {
-  background-color: #374151; /* gray-700 */
+  background-color: #374151;
   color: white;
 }
 
 .dark select option {
-  background-color: #374151; /* gray-700 */
+  background-color: #374151; 
   color: white;
 }
 

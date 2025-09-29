@@ -15,14 +15,14 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json())
 export default function AsesorDashboardPage() {
   const { data: session } = useSession()
 
-  // 🔹 Traer métricas en tiempo real
+
   const { data: metrics } = useSWR(
     "/api/asesores/[id]/metricas",
     fetcher,
     { refreshInterval: 10000 }
   )
 
-  // 🔹 Traer datos del asesor (incluye formularios_permitidos)
+  
   const { data: asesorData } = useSWR(
     session?.user?.id ? `/api/asesores/${session.user.id}` : null,
     fetcher
@@ -41,7 +41,7 @@ export default function AsesorDashboardPage() {
     { title: "Otras Gestiones", code: "og", href: "/asesor/formularios/otras-gestiones", color: "bg-gray-100 text-gray-700", icon: <FileSpreadsheet className="w-6 h-6" /> },
   ];
 
-  // Filtrar formularios permitidos
+  
   const permitidos = asesorData?.data?.formularios_permitidos;
   const formulariosFiltrados = permitidos
     ? formularios.filter(f => permitidos.includes(f.code))
@@ -50,7 +50,8 @@ export default function AsesorDashboardPage() {
   return (
     <div className="p-8 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
       <div className="max-w-6xl mx-auto">
-        {/* Bienvenida */}
+       
+        {}
         <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2 flex items-center gap-2">
           Hola, {session?.user?.username || "Asesor"} 👋
         </h1>
@@ -58,7 +59,7 @@ export default function AsesorDashboardPage() {
           Aquí puedes acceder a tus formularios y revisar tus gestiones.
         </p>
 
-        {/* Métricas en tiempo real */}
+        {}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md flex items-center gap-4">
             <Activity className="w-8 h-8 text-blue-500" />
@@ -88,8 +89,19 @@ export default function AsesorDashboardPage() {
             </div>
           </div>
         </div>
+         {}
+        <div className="flex justify-center mb-10">
+        <Link href="/asesor/formularios">
+          <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-400 text-white rounded-xl shadow-lg hover:from-blue-700 hover:to-blue-500 font-semibold text-lg transition-all duration-200">
+            <span className="inline-flex items-center gap-2">
+              <FileSpreadsheet className="w-5 h-5" />
+              Ver formularios llenados hoy
+            </span>
+          </button>
+        </Link>
+      </div>
 
-        {/* Menú de formularios */}
+        {}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {formulariosFiltrados.map((f) => (
             <Link key={f.code} href={f.href}>

@@ -3,7 +3,7 @@
 import { useForm, FieldValues } from "react-hook-form"
 import Image from "next/image"
 import { useState } from "react"
-import { useAsesor } from "@/hooks/useAsesor"  // 👈 importar hook
+import { useAsesor } from "@/hooks/useAsesor"
 
 export type FieldConfig = {
   name: string
@@ -15,8 +15,8 @@ export type FieldConfig = {
 
 export type FormConfig = {
   title: string
-  tipo: string   // 👈 OBLIGATORIO - tipo de formulario
-  image?: string // Bandera o ícono opcional
+  tipo: string   
+  image?: string 
   fields: FieldConfig[]
 }
 
@@ -50,7 +50,7 @@ export default function FormGenerator({ config }: { config: FormConfig }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           tipo: tipoFormulario,
-          asesor: asesorId, // 👈 ahora se manda el ID real del asesor
+          asesor: asesorId, 
           datos: data,
         }),
       })
@@ -103,7 +103,7 @@ export default function FormGenerator({ config }: { config: FormConfig }) {
         <h2 className="text-2xl font-bold text-gray-800">{config.title}</h2>
       </div>
 
-      {/* Mostrar asesor activo */}
+      
       {asesorNombre && (
         <p className="mb-4 text-sm text-gray-600">
           Sesión activa: <strong>{asesorNombre}</strong>
@@ -171,7 +171,7 @@ export default function FormGenerator({ config }: { config: FormConfig }) {
           </div>
         ))}
 
-        {/* Botones */}
+        
         <div className="flex justify-end gap-4">
           <button
             type="reset"
@@ -190,7 +190,7 @@ export default function FormGenerator({ config }: { config: FormConfig }) {
         </div>
       </form>
 
-      {/* Mensaje */}
+      
       {message && (
         <p
           className={`mt-4 text-sm font-medium text-center ${

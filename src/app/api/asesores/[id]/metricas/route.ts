@@ -3,7 +3,7 @@ import pool from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-// 📌 GET: métricas en tiempo real del asesor autenticado
+
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -18,7 +18,7 @@ export async function GET() {
       );
     }
 
-    // 🔹 Formularios completados HOY
+
     const gestionesHoy = await pool.query(
       `SELECT COUNT(*)::int AS total
        FROM public.formularios
@@ -27,7 +27,6 @@ export async function GET() {
       [asesorId]
     );
 
-    // 🔹 Total de formularios del asesor
     const totalFormularios = await pool.query(
       `SELECT COUNT(*)::int AS total
        FROM public.formularios
@@ -53,7 +52,7 @@ export async function GET() {
       metrics: {
         gestionesHoy: gestionesHoy.rows[0].total,
         totalFormularios: totalFormularios.rows[0].total,
-        eficiencia: 0, // ⚡ pendiente definir fórmula
+        eficiencia: 0,
       },
     });
   } catch (error) {

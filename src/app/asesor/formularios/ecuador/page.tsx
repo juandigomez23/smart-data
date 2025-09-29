@@ -9,7 +9,7 @@ export default function RetencionesEcuadorPage() {
       config={{
         ...retencionesEcuador,
         title: "Retenciones – Ecuador",
-        image: "/flags/ec.png", // 👈 bandera Ecuador
+        image: "/flags/ec.png", 
         fields: retencionesEcuador.fields.map((field) =>
           field.name === "pais"
             ? { ...field, options: [{ label: "Ecuador", value: "Ecuador" }] }

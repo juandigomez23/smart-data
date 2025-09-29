@@ -42,12 +42,12 @@ export default function Navbar() {
 
   return (
     <nav className="bg-blue-600 text-white px-4 py-3 flex justify-between items-center relative shadow-md">
-      {/* Marca */}
+      
       <Link href="/" className="font-bold text-lg">
       
       </Link>
 
-      {/* Enlaces Desktop */}
+      
       <div className="hidden md:flex gap-3 items-center">
         {navItems.map((item) => (
           <Link key={item.href} href={item.href} className={navLinkClass(item.href)}>
@@ -56,7 +56,7 @@ export default function Navbar() {
         ))}
       </div>
 
-      {/* User menu Desktop */}
+      
       {session && (
         <div className="hidden md:flex relative">
           <button
@@ -92,7 +92,7 @@ export default function Navbar() {
         </div>
       )}
 
-      {/* Mobile menu button */}
+      
       <button
         className="md:hidden p-2 rounded hover:bg-blue-500 transition"
         onClick={() => setMenuOpen(!menuOpen)}
@@ -100,7 +100,7 @@ export default function Navbar() {
         <Menu size={24} />
       </button>
 
-      {/* Mobile menu */}
+      
       <Transition
         as={Fragment}
         show={menuOpen}

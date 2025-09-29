@@ -78,7 +78,7 @@ export async function POST(req: Request) {
 }
 
 // 📌 GET: obtener formularios del asesor autenticado
-export async function GET() {
+export async function GET(req: Request) {
   try {
     const session = await getServerSession(authOptions);
     const user = session?.user;
@@ -90,19 +90,47 @@ export async function GET() {
       );
     }
 
-    let result;
-    if (user.role === "admin" || user.role === "auditor") {
-      // Admin y auditor ven todos los formularios
-      result = await pool.query(
-        `SELECT f.id, f.tipo, f.asesor_nombre as asesor, f.datos, f.created_at FROM public.formularios f ORDER BY f.created_at DESC`
-      );
-    } else {
-      // Asesor solo ve los suyos
-      result = await pool.query(
-        `SELECT f.id, f.tipo, f.asesor_nombre as asesor, f.datos, f.created_at FROM public.formularios f WHERE f.asesor_id = $1 ORDER BY f.created_at DESC`,
-        [user.id]
-      );
+    // Leer filtros de la query
+    const { searchParams } = new URL(req.url);
+    const tipo = searchParams.get("tipo") || "";
+    const asesor = searchParams.get("asesor") || "";
+    const fechaDesde = searchParams.get("fechaDesde") || "";
+    const fechaHasta = searchParams.get("fechaHasta") || "";
+
+    // Construir consulta dinámica
+  const where: string[] = [];
+  const params: (string | number)[] = [];
+    let idx = 1;
+
+    if (user.role !== "admin" && user.role !== "auditor") {
+      where.push(`f.asesor_id = $${idx}`);
+      params.push(user.id);
+      idx++;
     }
+    if (tipo) {
+      where.push(`f.tipo ILIKE $${idx}`);
+      params.push(`%${tipo}%`);
+      idx++;
+    }
+    if (asesor) {
+      where.push(`f.asesor_nombre ILIKE $${idx}`);
+      params.push(`%${asesor}%`);
+      idx++;
+    }
+    if (fechaDesde) {
+      where.push(`f.created_at >= $${idx}`);
+      params.push(fechaDesde);
+      idx++;
+    }
+    if (fechaHasta) {
+      where.push(`f.created_at <= $${idx}`);
+      params.push(fechaHasta);
+      idx++;
+    }
+
+    const whereClause = where.length ? `WHERE ${where.join(" AND ")}` : "";
+    const query = `SELECT f.id, f.tipo, f.asesor_nombre as asesor, f.datos, f.created_at FROM public.formularios f ${whereClause} ORDER BY f.created_at DESC`;
+    const result = await pool.query(query, params);
 
     return NextResponse.json({
       success: true,

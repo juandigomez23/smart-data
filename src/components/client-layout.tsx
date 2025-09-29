@@ -6,7 +6,7 @@ import Topbar from "@/components/topbar"
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
 
-  // Ocultar topbar en home y login
+  
   const hideTopbar = pathname === "/" || pathname === "/login"
 
   return (

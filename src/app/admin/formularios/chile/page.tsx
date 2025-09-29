@@ -9,7 +9,7 @@ export default function RetencionesChilePage() {
       config={{
         ...retencionesChile,
         title: "Retenciones – Chile",
-        image: "/flags/cl.png", // 👈 bandera Chile
+        image: "/flags/cl.png",
         fields: retencionesChile.fields.map((field) =>
           field.name === "pais"
             ? { ...field, options: [{ label: "Chile", value: "Chile" }] }
