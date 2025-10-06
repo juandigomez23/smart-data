@@ -12,8 +12,8 @@ const links = [
 export default function AdminSidebar() {
   const pathname = usePathname()
   return (
-    <aside className="w-64 h-screen bg-gray-900 text-gray-100 flex flex-col fixed">
-      <div className="px-06 py-4 text-2xl font-bold border-b border-gray-700">
+  <aside className="w-64 h-screen bg-gray-900 text-gray-100 flex flex-col fixed left-0 top-0 z-50">
+      <div className="py-4 text-2xl font-bold border-b border-gray-700 flex items-center justify-center">
         Smart Data Admin
       </div>
       <nav className="flex-1 px-4 py-6 space-y-2">

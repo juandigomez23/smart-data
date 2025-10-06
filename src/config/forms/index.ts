@@ -1,8 +1,5 @@
 // Retenciones
-export { retencionesColombia } from "./retenciones-colombia"
-export { retencionesChile } from "./retenciones-chile"
-export { retencionesEcuador } from "./retenciones-ecuador"
-export { retencionesPeru } from "./retenciones-peru"
+export { retencionesForm } from "./retenciones"
 
 // Auditorías
 export { auditoriaPrewelcomeForm } from "./auditoria-prewelcome"

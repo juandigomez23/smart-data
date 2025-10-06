@@ -4,7 +4,7 @@ export const equipoComercialForm: FormConfig = {
   title: "Equipo Comercial",
   tipo: "equipo-comercial",
   fields: [
-    { name: "correo", label: "Correo electrónico", type: "text", required: true },
+    { name: "correo", label: "Correo electrónico", type: "text", required: true, auto: true },
     { name: "san", label: "SAN", type: "text", required: true },
     {
       name: "pais",
@@ -171,7 +171,7 @@ export const equipoComercialForm: FormConfig = {
         { label: "Acepta retención", value: "acepta_retencion" }
       ],
     },
-    { name: "observaciones", label: "Observaciones", type: "text" },
+    { name: "observaciones", label: "Observaciones", type: "text", description: "Agrega cualquier comentario relevante." },
     { name: "sugerencias", label: "Sugerencias o recomendaciones", type: "text" }
   ],
 }

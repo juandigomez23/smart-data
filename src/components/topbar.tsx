@@ -25,7 +25,7 @@ export default function Topbar() {
     .slice(0, 2)
 
   return (
-    <header className="fixed top-0 left-0 right-0 h-16 flex items-center justify-between px-6 bg-gray-800 shadow-md z-50">
+  <header className="fixed top-0 left-0 right-0 h-16 flex items-center justify-between px-6 bg-gray-800 shadow-md z-40 w-full">
       
       <div className="flex items-center gap-2">
         <span className="font-bold text-xl text-white">   </span>

@@ -4,9 +4,8 @@ export const gestionFcrForm: FormConfig = {
   title: "Gestión FCR",
   tipo: "gestion-fcr",
   fields: [
-    { name: "correo", label: "Correo electrónico", type: "text", required: true },
+    { name: "correo", label: "Correo electrónico", type: "text", required: true, auto: true },
     { name: "san", label: "SAN", type: "text", required: true },
-    { name: "fso", label: "FSO", type: "text" },
     {
       name: "pais",
       label: "País",
@@ -73,6 +72,6 @@ export const gestionFcrForm: FormConfig = {
         { label: "Cancelación FSO cliente en mora", value: "cancelacion_mora" }
       ],
     },
-    { name: "observaciones", label: "Observaciones", type: "text" }
+    { name: "observaciones", label: "Observaciones", type: "text", description: "Agrega cualquier comentario relevante." }
   ],
 }

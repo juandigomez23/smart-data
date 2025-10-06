@@ -200,13 +200,13 @@ export default function AdminDashboardPage() {
       titulo: "Total Formularios", 
       valor: registros.length.toString(), 
       icono: <FileText className="w-6 h-6" />, 
-      color: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200" 
+  color: "bg-blue-100 text-blue-700" 
     },
     { 
       titulo: "Asesores Activos", 
       valor: `${asesores.filter(a => a.estado === 'activo').length} de ${asesores.length}`, 
       icono: <UserCheck className="w-6 h-6" />, 
-      color: "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200" 
+  color: "bg-green-100 text-green-700" 
     },
     { 
       titulo: "Eficiencia Promedio", 
@@ -214,13 +214,13 @@ export default function AdminDashboardPage() {
         ? `${Math.round(asesores.reduce((acc, a) => acc + a.eficiencia, 0) / asesores.length)}%` 
         : "0%", 
       icono: <BarChart3 className="w-6 h-6" />, 
-      color: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200" 
+  color: "bg-yellow-100 text-yellow-700" 
     },
     { 
       titulo: "Supervisores", 
       valor: asesores.filter(a => a.rol === 'supervisor').length.toString(), 
       icono: <Shield className="w-6 h-6" />, 
-      color: "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200" 
+  color: "bg-purple-100 text-purple-700" 
     },
   ]
 
@@ -270,17 +270,12 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="p-8 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+  <div className="min-h-screen transition-colors">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">Dashboard Administrador</h1>
-          <p className="text-gray-600 dark:text-gray-400">Supervisa usuarios, formularios y auditorías</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button onClick={toggleTheme} className="p-2 rounded-full bg-gray-200 dark:bg-gray-700">
-            {dark ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5 text-gray-800" />}
-          </button>
+          <h1 className="text-3xl font-bold text-gray-800">Dashboard Administrador</h1>
+          <p className="text-gray-600">Supervisa usuarios, formularios y auditorías</p>
         </div>
       </div>
 
@@ -471,7 +466,7 @@ const VistaGestionAsesores: React.FC<VistaGestionAsesoresProps> = ({
       {}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {asesores.map((asesor) => (
-          <div key={asesor.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
+          <div key={asesor.id} className="bg-gray-100 dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
             {}
             <div className="flex justify-between items-start mb-4">
               <div>

@@ -215,7 +215,7 @@ export default function AdminDashboardPage() {
   });
 
 
-  const hoy = fechaFiltroChart;
+  //const hoy = fechaFiltroChart;
 
 
   const esFechaFiltroChart = useCallback((fechaStr: string) => {
@@ -288,7 +288,7 @@ export default function AdminDashboardPage() {
 
       {}
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-  <div className="bg-[#1e40af] rounded-2xl shadow-lg p-8 flex flex-col items-center border border-[#1e3a8a]">
+  <div className="bg-[#909296] rounded-2xl shadow-lg p-8 flex flex-col items-center border border-[#1e3a8a]">
     <Users className="w-10 h-10 text-white mb-2" />
     <span className="text-4xl font-extrabold text-white animate-pulse">
       {asesoresActivosHoy.length}
@@ -304,7 +304,7 @@ export default function AdminDashboardPage() {
     <span className="text-base text-white/80 mt-2">Asesores inactivos hoy</span>
   </div>
 
-  <div className="bg-[#0f172a] rounded-2xl shadow-lg p-8 flex flex-col items-center border border-[#1e293b]">
+  <div className="bg-[#38435c] rounded-2xl shadow-lg p-8 flex flex-col items-center border border-[#1e293b]">
     <Users className="w-10 h-10 text-white mb-2" />
     <span className="text-4xl font-extrabold text-white">
       {asesoresTodos.length}
@@ -312,7 +312,7 @@ export default function AdminDashboardPage() {
     <span className="text-base text-white/80 mt-2">Total asesores</span>
   </div>
 
-  <div className="bg-[#15803d] rounded-2xl shadow-lg p-8 flex flex-col items-center border border-[#166534]">
+  <div className="bg-[#4ea86f] rounded-2xl shadow-lg p-8 flex flex-col items-center border border-[#166534]">
     <FileText className="w-10 h-10 text-white mb-2" />
     <span className="text-4xl font-extrabold text-white">
       {registros.filter(r => esHoyLocal(r.created_at)).length}
@@ -550,7 +550,7 @@ export default function AdminDashboardPage() {
             <select
               value={filtros.tipo}
               onChange={(e) => setFiltros({...filtros, tipo: e.target.value})}
-              className="p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600"
+              className="p-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-400 dark:bg-gray-600"
             >
               <option value="">Todos los tipos</option>
               {tiposUnicos.map(tipo => (

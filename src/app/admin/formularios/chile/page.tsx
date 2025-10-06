@@ -1,16 +1,16 @@
 "use client";
 
 import FormGenerator from "@/components/formgenerator";
-import { retencionesChile } from "@/config/forms/retenciones-chile";
+import { retencionesForm } from "@/config/forms/retenciones";
 
 export default function RetencionesChilePage() {
   return (
     <FormGenerator
       config={{
-        ...retencionesChile,
+  ...retencionesForm,
         title: "Retenciones – Chile",
         image: "/flags/cl.png",
-        fields: retencionesChile.fields.map((field) =>
+  fields: retencionesForm.fields.map((field) =>
           field.name === "pais"
             ? { ...field, options: [{ label: "Chile", value: "Chile" }] }
             : field

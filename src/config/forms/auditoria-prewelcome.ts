@@ -8,7 +8,8 @@ export const auditoriaPrewelcomeForm: FormConfig = {
       name: "correo", 
       label: "Correo electrónico", 
       type: "text", 
-      required: true 
+      required: true,
+      auto: true
     },
     {
       name: "pais",
@@ -121,49 +122,8 @@ export const auditoriaPrewelcomeForm: FormConfig = {
       label: "Tipo de venta",
       type: "select",
       options: [
-        { label: "Persona natural", value: "natural" },
+  { label: "Persona natural", value: "persona_natural" },
         { label: "PYME", value: "pyme" }
-      ],
-    },
-    {
-      name: "validacion_id",
-      label: "Validación ID",
-      type: "select",
-      options: [
-        { label: "Si", value: "si" },
-        { label: "No", value: "no" }
-      ],
-    },
-    {
-      name: "factura_carta",
-      label: "Factura o carta",
-      type: "select",
-      options: [
-        { label: "Si", value: "si" },
-        { label: "No", value: "no" },
-        { label: "No aplica", value: "no_aplica" }
-      ],
-    },
-    {
-      name: "historial_crediticio",
-      label: "Historial crediticio",
-      type: "select",
-      options: [
-        { label: "Aprobado", value: "aprobado" },
-        { label: "Rechazado", value: "rechazado" },
-        { label: "No aplica", value: "no_aplica" },
-        { label: "No info", value: "no_info" }
-      ],
-    },
-    {
-      name: "confirmacion_contrato",
-      label: "Confirmación del contrato",
-      type: "select",
-      options: [
-        { label: "Firmado", value: "firmado" },
-        { label: "Pendiente", value: "pendiente" },
-        { label: "Error del Sistema", value: "error_sistema" },
-        { label: "Contrato call", value: "contrato_call" }
       ],
     },
     {
@@ -228,7 +188,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
         { label: "Pendiente de pago", value: "pendiente_pago" },
         { label: "Cupón vencido", value: "cupon_vencido" },
         { label: "Cancelada por el MD", value: "cancelada_md" },
-        { label: "SAN asignada TP", value: "san_tp" }
+        { label: "SAN asignada IP", value: "san_tp" }
       ],
     },
     { 
@@ -247,9 +207,10 @@ export const auditoriaPrewelcomeForm: FormConfig = {
       ],
     },
     { 
-      name: "observacion", 
+      name: "observaciones", 
       label: "Observación", 
-      type: "text" 
+      type: "text",
+      description: "Agrega cualquier comentario relevante." 
     }
   ],
 }

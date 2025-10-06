@@ -4,7 +4,7 @@ export const rechazoDebitoForm: FormConfig = {
   title: "Rechazo Débito",
   tipo: "rechazo-debito",
   fields: [
-    { name: "correo", label: "Correo electrónico", type: "text", required: true },
+    { name: "correo", label: "Correo electrónico", type: "text", required: true, auto: true },
     {
       name: "pais",
       label: "País",
@@ -86,6 +86,6 @@ export const rechazoDebitoForm: FormConfig = {
         { label: "SAN inactiva", value: "san_inactiva" }
       ],
     },
-    { name: "observaciones", label: "Observaciones", type: "text" }
+    { name: "observaciones", label: "Observaciones", type: "text", description: "Agrega cualquier comentario relevante." }
   ],
 }

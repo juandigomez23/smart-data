@@ -12,12 +12,9 @@ export default function AdminLayout({
       <Sidebar />
 
       {}
-      <div className="flex-1 ml-64 min-h-screen flex flex-col">
-        {/* Topbar */}
-        <Topbar />
-
-        {}
-        <main className="flex-1 p-6 bg-gray-100">{children}</main>
+  <div className="flex-1 ml-64 min-h-screen flex flex-col">
+    <Topbar />
+    <main className="flex-1 bg-gray-100" style={{marginTop: '1rem'}}>{children}</main>
       </div>
     </div>
   )

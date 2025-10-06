@@ -48,42 +48,42 @@ export default function AsesorDashboardPage() {
     : formularios;
 
   return (
-    <div className="p-8 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+  <div className="p-8 bg-gray-50 min-h-screen transition-colors">
       <div className="max-w-6xl mx-auto">
        
         {}
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2 flex items-center gap-2">
+  <h1 className="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-2">
           Hola, {session?.user?.username || "Asesor"} 👋
         </h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-8">
+  <p className="text-gray-600 mb-8">
           Aquí puedes acceder a tus formularios y revisar tus gestiones.
         </p>
 
         {}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md flex items-center gap-4">
+          <div className="bg-white p-6 rounded-xl shadow-md flex items-center gap-4">
             <Activity className="w-8 h-8 text-blue-500" />
             <div>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">Gestiones Hoy</p>
-              <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+              <p className="text-gray-500 text-sm">Gestiones Hoy</p>
+              <h3 className="text-xl font-bold text-gray-800">
                 {metrics?.metrics?.gestionesHoy ?? 0}
               </h3>
             </div>
           </div>
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md flex items-center gap-4">
+          <div className="bg-white p-6 rounded-xl shadow-md flex items-center gap-4">
             <CheckSquare className="w-8 h-8 text-green-500" />
             <div>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">Total Formularios</p>
-              <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+              <p className="text-gray-500 text-sm">Total Formularios</p>
+              <h3 className="text-xl font-bold text-gray-800">
                 {metrics?.metrics?.totalFormularios ?? 0}
               </h3>
             </div>
           </div>
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md flex items-center gap-4">
+          <div className="bg-white p-6 rounded-xl shadow-md flex items-center gap-4">
             <FileSpreadsheet className="w-8 h-8 text-purple-500" />
             <div>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">Eficiencia</p>
-              <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+              <p className="text-gray-500 text-sm">Eficiencia</p>
+              <h3 className="text-xl font-bold text-gray-800">
                 {metrics?.metrics?.eficiencia ?? "0%"}
               </h3>
             </div>
@@ -105,7 +105,7 @@ export default function AsesorDashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {formulariosFiltrados.map((f) => (
             <Link key={f.code} href={f.href}>
-              <div className="cursor-pointer bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition transform hover:-translate-y-1">
+              <div className="cursor-pointer bg-white rounded-xl shadow-md p-6 border border-gray-200 hover:shadow-lg transition transform hover:-translate-y-1">
                 <div className="flex items-center gap-4">
                   <div className={`p-3 rounded-full ${f.color}`}>
                     {f.flag ? (
@@ -115,11 +115,11 @@ export default function AsesorDashboardPage() {
                     )}
                   </div>
                   <div>
-                    <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                    <h2 className="text-lg font-semibold text-gray-800">
                       {f.title}{" "}
                       <span className="uppercase text-gray-500 text-sm">{f.code}</span>
                     </h2>
-                    <p className="text-gray-500 dark:text-gray-400 text-sm">Completar y revisar registros</p>
+                    <p className="text-gray-500 text-sm">Completar y revisar registros</p>
                   </div>
                 </div>
               </div>

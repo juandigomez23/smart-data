@@ -4,8 +4,7 @@ export const otrasGestionesForm: FormConfig = {
   title: "Otras Gestiones",
   tipo: "otras-gestiones",
   fields: [
-    { name: "correo", label: "Correo electrónico", type: "text", required: true },
-    { name: "hora_inicio", label: "Hora inicio de gestión", type: "text" },
+    { name: "correo", label: "Correo electrónico", type: "text", required: true, auto: true },
     {
       name: "pais",
       label: "País",
@@ -77,6 +76,6 @@ export const otrasGestionesForm: FormConfig = {
         { label: "FCR -- FCR", value: "fcr" }
       ],
     },
-    { name: "observacion", label: "Observación", type: "text" }
+    { name: "observacion", label: "Observación", type: "text", description: "Agrega cualquier comentario relevante." }
   ],
 }
