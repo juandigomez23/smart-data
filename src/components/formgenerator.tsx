@@ -11,7 +11,7 @@ export interface FieldConfig {
   type: "text" | "number" | "select" | "checkbox" | "date" | "info";
   required?: boolean;
   options?: { label: string; value: string }[];
-  showIf?: Record<string, string | number | boolean>;
+  showIf?: Record<string, string | number | boolean> | ((values: FieldValues) => boolean);
   auto?: boolean;
   image?: string;
   description?: string;
@@ -30,11 +30,19 @@ export type FormConfig = {
 
 function shouldShowField(field: FieldConfig, values: FieldValues) {
   if (!field.showIf) return true
+  if (typeof field.showIf === "function") return field.showIf(values)
   return Object.entries(field.showIf).every(([key, val]) => values[key] === val)
 }
 
 export default function FormGenerator({ config }: { config: FormConfig }) {
+  // ...existing code...
   const { register, handleSubmit, reset, setValue, watch, formState } = useForm<FieldValues>()
+
+  // Resetear el formulario cada vez que cambia el config (nuevo formulario) o se monta el componente
+  useEffect(() => {
+    reset();
+  }, [config, reset]);
+
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ text: string; type: "success" | "error" | "warning" } | null>(null)
   const { id: asesorId, nombre: asesorNombre, email: asesorEmail, autenticado, cargando } = useAsesor()
@@ -57,7 +65,14 @@ export default function FormGenerator({ config }: { config: FormConfig }) {
     setLoading(true)
     setMessage(null)
     try {
-      const tipoFormulario = config.tipo || "generico"
+      // Detectar país desde el título del formulario
+      let tipoFormulario = config.tipo || "generico";
+      if (config.title) {
+        if (config.title.toLowerCase().includes("colombia")) tipoFormulario = "retenciones_colombia";
+        else if (config.title.toLowerCase().includes("chile")) tipoFormulario = "retenciones_chile";
+        else if (config.title.toLowerCase().includes("ecuador")) tipoFormulario = "retenciones_ecuador";
+        else if (config.title.toLowerCase().includes("perú") || config.title.toLowerCase().includes("peru")) tipoFormulario = "retenciones_peru";
+      }
       const res = await fetch("/api/formularios", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -93,15 +108,30 @@ export default function FormGenerator({ config }: { config: FormConfig }) {
         <p className="mb-4 text-sm text-gray-600">Sesión activa: <strong>{asesorNombre}</strong></p>
       )}
   <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full">
-        {config.fields.filter(field => shouldShowField(field, values)).map(field => (
+        {config.fields.filter(field => shouldShowField(field, values)).map((field, idx) => (
           <div key={field.name} className="flex flex-col w-full">
+            {field.name === "documento_id" && (
+              <div className="relative flex flex-row items-center gap-3 p-4 mb-4 bg-gradient-to-r from-blue-100 via-blue-50 to-blue-100 border-l-8 border-blue-500 text-blue-900 rounded-xl shadow-md">
+                <svg className="w-6 h-6 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="white"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" />
+                </svg>
+                <span className="font-bold text-blue-700 text-lg">Digitacion de datos correctamente</span>
+              </div>
+            )}
             {field.type === "info"
               ? (
-                <div className="relative flex flex-col gap-2 p-4 bg-gradient-to-r from-blue-100 via-blue-50 to-blue-100 border-l-8 border-blue-500 text-blue-900 rounded-xl mb-5 shadow-md">
-                  <span className="font-bold text-lg tracking-wide mb-1">{field.label}</span>
-                  {field.description && (
-                    <span className="block text-base text-blue-700 leading-relaxed pl-2 border-l-2 border-blue-300 bg-blue-50 rounded-md py-2">{field.description}</span>
-                  )}
+                <div className="relative flex flex-row items-start gap-3 p-4 mb-4 bg-gradient-to-r from-blue-100 via-blue-50 to-blue-100 border-l-8 border-blue-500 text-blue-900 rounded-xl shadow-md">
+                  <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="white"/>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" />
+                  </svg>
+                  <div className="flex flex-col">
+                    <span className="font-bold text-blue-700 text-lg mb-1">{field.label}</span>
+                    {field.description && (
+                      <span className="block text-base text-blue-700 leading-relaxed mt-1">{field.description}</span>
+                    )}
+                  </div>
                 </div>
               )
               : (
@@ -119,31 +149,49 @@ export default function FormGenerator({ config }: { config: FormConfig }) {
                   ? (<input type="text" {...register(field.name, { required: field.required })} className="border p-2 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed w-full max-w-lg" placeholder={`Ingrese ${field.label}`} readOnly />)
                   : field.name === "san"
                     ? (<>
-                        <input type="text"
-                          {...register(field.name, {
-                            required: field.required,
-                            validate: value => {
-                              let prefix = "";
-                              if (config.title?.includes("Colombia")) prefix = "HCO";
-                              else if (config.title?.includes("Chile")) prefix = "HCL";
-                              else if (config.title?.includes("Ecuador")) prefix = "HEC";
-                              else if (config.title?.includes("Perú") || config.title?.includes("Peru")) prefix = "HPE";
-                              if (!value) return true;
-                              return value.startsWith(prefix) || `El SAN debe iniciar con ${prefix}`;
-                            }
-                          })}
-                          className={`border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-lg ${formState.errors.san ? 'border-red-500' : ''}`}
-                          placeholder={`Ejemplo: ${(() => {
-                            if (config.title?.includes("Colombia")) return "HCO2000126867";
-                            if (config.title?.includes("Chile")) return "HCL2000751067";
-                            if (config.title?.includes("Ecuador")) return "HEC2000756147";
-                            if (config.title?.includes("Perú") || config.title?.includes("Peru")) return "HPE2000756297";
-                            return "SAN";
-                          })()}`}
-                        />
-                        {formState.errors.san && (
-                          <span className="text-red-600 text-xs mt-1">{formState.errors.san.message as string}</span>
-                        )}
+                        {/** Determinar país seleccionado */}
+                        {(() => {
+                          const pais = values.pais;
+                          let prefix = "";
+                          let ejemplo = "SAN";
+                          //let recomendacion = "Prefijo recomendado: SAN";
+                          if (pais === "colombia") {
+                            prefix = "HCO";
+                            ejemplo = "HCO2000126867";
+                           // recomendacion = "Prefijo recomendado: HCO";
+                          } else if (pais === "chile") {
+                            prefix = "HCL";
+                            ejemplo = "HCL2000751067";
+                           // recomendacion = "Prefijo recomendado: HCL";
+                          } else if (pais === "ecuador") {
+                            prefix = "HEC";
+                            ejemplo = "HEC2000756147";
+                           // recomendacion = "Prefijo recomendado: HEC";
+                          } else if (pais === "peru" || pais === "perú") {
+                            prefix = "HPE";
+                            ejemplo = "HPE2000756297";
+                           // recomendacion = "Prefijo recomendado: HPE";
+                          }
+                          return (
+                            <>
+                              <input type="text"
+                                {...register(field.name, {
+                                  required: field.required,
+                                  validate: value => {
+                                    if (!prefix) return true;
+                                    if (!value) return true;
+                                    return value.startsWith(prefix) || `El SAN debe iniciar con ${prefix}`;
+                                  }
+                                })}
+                                className={`border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-lg ${formState.errors.san ? 'border-red-500' : ''}`}
+                                placeholder={`Ejemplo: ${ejemplo}`}
+                              />
+                              {formState.errors.san && (
+                                <span className="text-red-600 text-xs mt-1">{formState.errors.san.message as string}</span>
+                              )}
+                            </>
+                          );
+                        })()}
                       </>
                     )
                     : (<input type="text" {...register(field.name, { required: field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-lg" placeholder={`Ingrese ${field.label}`} />)
@@ -155,18 +203,72 @@ export default function FormGenerator({ config }: { config: FormConfig }) {
             {field.type === "date" && (
               <input type="date" {...register(field.name, { required: field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 w-full max-w-md" />
             )}
-            {field.type === "select" && field.options && (
+            {field.type === "select" && field.options && field.name === "master_dealer" ? (
               <select {...register(field.name, { required: field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 w-full max-w-md">
-                <option value="">Selecciona una opción</option>
+                <option value="" disabled selected hidden>(Seleccione una opción)</option>
+                {(() => {
+                  const pais = values.pais;
+                  let options = [];
+                  if (pais === "chile") {
+                    options = [
+                      { label: "ANavarrete Dealer MD", value: "anavarrete" },
+                      { label: "HCL-CSepulveda MD Dealer", value: "hcl_csepulveda" },
+                      { label: "HCL-FORTEL CL", value: "hcl_fortel" },
+                      { label: "HCL-JMaraboli MD Dealer", value: "hcl_jmaraboli" },
+                      { label: "HCL-INECOM Dealer MD", value: "hcl_inecom" },
+                      { label: "HCL-IUrrea Dealer MD", value: "hcl_iurrea" },
+                      { label: "HCL-Mjara Dealer MD", value: "hcl_mjara" },
+                      { label: "HCL-M&G Telecom Dealer MD", value: "hcl_mg" },
+                      { label: "HCL-RccGroup MD Dealer", value: "hcl_rcc" },
+                      { label: "HCL-JRiquelme Dealer MD", value: "hcl_jriquelme" }
+                    ];
+                  } else if (pais === "colombia") {
+                    options = [
+                      { label: "HCO - A1 Gaviota Propio", value: "hco_a1gaviota" },
+                      { label: "HCO - Cosering Dealer MD", value: "hco_cosering" },
+                      { label: "HCO - FORTEL CO", value: "hco_fortel" },
+                      { label: "HCO - S&M Dealer MD", value: "hco_sm" },
+                      { label: "HCO - Speedmovil Dealer MD", value: "hco_speedmovil" },
+                      { label: "HCO - TP Call Col", value: "hco_tpcall" }
+                    ];
+                  } else if (pais === "peru" || pais === "perú") {
+                    options = [
+                      { label: "HPE - Adsystel Pyme Retail Dealer", value: "hpe_adsystel" },
+                      { label: "HPE - CC Fortel", value: "hpe_ccfortel" },
+                      { label: "HPE - J&C Soluciones Dealer Norte", value: "hpe_jcsoluciones" },
+                      { label: "HPE - Grupo Ham & Ma Dealer", value: "hpe_grupoham" },
+                      { label: "HPE - Midmarket", value: "hpe_midmarket" },
+                      { label: "HPE - SATELITAL Dealer MD", value: "hpe_satelital" },
+                      { label: "HPE - SICOM Dealer MD", value: "hpe_sicom" },
+                      { label: "HPE - STOF Dealer", value: "hpe_stof" }
+                    ];
+                  } else if (pais === "ecuador") {
+                    options = [
+                      { label: "ECU TP CALL", value: "ecu_tpcall" },
+                      { label: "S&M ECUADOR VENTAS", value: "sm_ecuador" },
+                      { label: "HEC - FORTEL EC", value: "hec_fortel" }
+                    ];
+                  } else {
+                    options = field.options;
+                  }
+                  return options.map(opt => (
+                    <option key={opt.value} value={opt.value} className="text-gray-900">{opt.label}</option>
+                  ));
+                })()}
+              </select>
+            ) : field.type === "select" && field.options ? (
+              <select {...register(field.name, { required: field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 w-full max-w-md">
+                <option value="" disabled selected hidden>(Seleccione una opción)</option>
                 {field.options.map(opt => (
                   <option key={opt.value} value={opt.value} className="text-gray-900">{opt.label}</option>
                 ))}
               </select>
-            )}
+            ) : null}
             {field.type === "checkbox" && (
               <div className="flex items-center space-x-2 text-gray-900">
                 <input type="checkbox" {...register(field.name)} className="h-4 w-4" />
                 <span>{field.label}</span>
+                <span className="ml-2 text-gray-400 text-xs">(Seleccione una opción)</span>
               </div>
             )}
 
@@ -215,7 +317,7 @@ export default function FormGenerator({ config }: { config: FormConfig }) {
                         )}
                         {subField.type === "select" && subField.options && (
                           <select {...register(subField.name, { required: subField.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 w-full max-w-md">
-                            <option value="">Selecciona una opción</option>
+                            <option value="" disabled selected hidden>(Seleccione una opción)</option>
                             {subField.options.map(opt => (
                               <option key={opt.value} value={opt.value} className="text-gray-900">{opt.label}</option>
                             ))}
@@ -262,7 +364,7 @@ export default function FormGenerator({ config }: { config: FormConfig }) {
                                     )}
                                     {nestedField.type === "select" && nestedField.options && (
                                       <select {...register(nestedField.name, { required: nestedField.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 w-full max-w-md">
-                                        <option value="">Selecciona una opción</option>
+                                        <option value="" disabled selected hidden>(Seleccione una opción)</option>
                                         {nestedField.options.map(opt => (
                                           <option key={opt.value} value={opt.value} className="text-gray-900">{opt.label}</option>
                                         ))}
