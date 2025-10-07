@@ -6,6 +6,18 @@ export const otrasGestionesForm: FormConfig = {
   fields: [
     { name: "correo", label: "Correo electrónico", type: "text", required: true, auto: true },
     {
+      name: "hora_inicio_gestion_info",
+      label: "Hora inicio de gestión",
+      type: "info"
+    },
+    {
+      name: "hora_inicio_gestion",
+      label: "Hora inicio de gestión",
+      type: "time",
+      required: true,
+      //description: "Selecciona la hora en formato militar."
+    },
+    {
       name: "pais",
       label: "País",
       type: "select",
@@ -76,6 +88,6 @@ export const otrasGestionesForm: FormConfig = {
         { label: "FCR -- FCR", value: "fcr" }
       ],
     },
-    { name: "observacion", label: "Observación", type: "text", description: "Agrega cualquier comentario relevante." }
+  { name: "observacion", label: "Observación", type: "text", description: "Agrega cualquier comentario relevante.", multiline: true }
   ],
 }

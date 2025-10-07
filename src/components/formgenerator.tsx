@@ -8,7 +8,7 @@ import { useAsesor } from "@/hooks/useAsesor"
 export interface FieldConfig {
   name: string;
   label: string;
-  type: "text" | "number" | "select" | "checkbox" | "date" | "info";
+  type: "text" | "number" | "select" | "checkbox" | "date" | "info" | "time";
   required?: boolean;
   options?: { label: string; value: string }[];
   showIf?: Record<string, string | number | boolean> | ((values: FieldValues) => boolean);
@@ -23,10 +23,10 @@ export interface FieldConfig {
 }
 
 export type FormConfig = {
-  title: string
-  tipo?: string
-  image?: string
-  fields: FieldConfig[]
+  title: string;
+  tipo?: string;
+  image?: string;
+  fields: FieldConfig[];
 }
 
 function shouldShowField(field: FieldConfig, values: FieldValues) {
@@ -36,6 +36,8 @@ function shouldShowField(field: FieldConfig, values: FieldValues) {
 }
 
 export default function FormGenerator({ config }: { config: FormConfig }) {
+            // ...existing code...
+            // ...existing code...
   // ...existing code...
   const { register, handleSubmit, reset, setValue, watch, formState } = useForm<FieldValues>()
 
@@ -109,7 +111,7 @@ export default function FormGenerator({ config }: { config: FormConfig }) {
         <p className="mb-4 text-sm text-gray-600">Sesión activa: <strong>{asesorNombre}</strong></p>
       )}
   <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full">
-        {config.fields.filter(field => shouldShowField(field, values)).map((field,) => (
+        {config.fields.filter(field => shouldShowField(field, values)).map((field) => (
           <div key={field.name} className="flex flex-col w-full">
             {field.name === "documento_id" && (
               <div className="relative flex flex-row items-center gap-3 p-4 mb-4 bg-gradient-to-r from-blue-100 via-blue-50 to-blue-100 border-l-8 border-blue-500 text-blue-900 rounded-xl shadow-md">
@@ -120,15 +122,15 @@ export default function FormGenerator({ config }: { config: FormConfig }) {
                 <span className="font-bold text-blue-700 text-lg">Digitacion de datos correctamente</span>
               </div>
             )}
-              {field.name === "documento_cliente" && (
-                <div className="relative flex flex-row items-center gap-3 p-4 mb-4 bg-gradient-to-r from-blue-100 via-blue-50 to-blue-100 border-l-8 border-blue-500 text-blue-900 rounded-xl shadow-md">
-                  <svg className="w-6 h-6 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="white"/>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" />
-                  </svg>
-                  <span className="font-bold text-blue-700 text-lg">Datos del cliente</span>
-                </div>
-              )}
+            {field.name === "documento_cliente" && (
+              <div className="relative flex flex-row items-center gap-3 p-4 mb-4 bg-gradient-to-r from-blue-100 via-blue-50 to-blue-100 border-l-8 border-blue-500 text-blue-900 rounded-xl shadow-md">
+                <svg className="w-6 h-6 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="white"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" />
+                </svg>
+                <span className="font-bold text-blue-700 text-lg">Datos del cliente</span>
+              </div>
+            )}
             {field.type === "info"
               ? (
                 <div className="relative flex flex-row items-start gap-3 p-4 mb-4 bg-gradient-to-r from-blue-100 via-blue-50 to-blue-100 border-l-8 border-blue-500 text-blue-900 rounded-xl shadow-md">
@@ -203,6 +205,9 @@ export default function FormGenerator({ config }: { config: FormConfig }) {
                       )
                       : (<input type="text" {...register(field.name, { required: field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-lg" placeholder={`Ingrese ${field.label}`} />)
                 )
+            )}
+            {field.type === "time" && (
+              <input type="time" {...register(field.name, { required: field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 w-full max-w-md" step="60" />
             )}
             {field.type === "number" && (
               <input type="number" {...register(field.name, { required: field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-md" placeholder={`Ingrese ${field.label}`} />
