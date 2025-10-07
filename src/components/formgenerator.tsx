@@ -15,6 +15,7 @@ export interface FieldConfig {
   auto?: boolean;
   image?: string;
   description?: string;
+  multiline?: boolean;
   conditionalFields?: Array<{
     condition: { field: string; value: string };
     fields: FieldConfig[];
@@ -108,7 +109,7 @@ export default function FormGenerator({ config }: { config: FormConfig }) {
         <p className="mb-4 text-sm text-gray-600">Sesión activa: <strong>{asesorNombre}</strong></p>
       )}
   <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full">
-        {config.fields.filter(field => shouldShowField(field, values)).map((field, idx) => (
+        {config.fields.filter(field => shouldShowField(field, values)).map((field,) => (
           <div key={field.name} className="flex flex-col w-full">
             {field.name === "documento_id" && (
               <div className="relative flex flex-row items-center gap-3 p-4 mb-4 bg-gradient-to-r from-blue-100 via-blue-50 to-blue-100 border-l-8 border-blue-500 text-blue-900 rounded-xl shadow-md">
@@ -119,6 +120,15 @@ export default function FormGenerator({ config }: { config: FormConfig }) {
                 <span className="font-bold text-blue-700 text-lg">Digitacion de datos correctamente</span>
               </div>
             )}
+              {field.name === "documento_cliente" && (
+                <div className="relative flex flex-row items-center gap-3 p-4 mb-4 bg-gradient-to-r from-blue-100 via-blue-50 to-blue-100 border-l-8 border-blue-500 text-blue-900 rounded-xl shadow-md">
+                  <svg className="w-6 h-6 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="white"/>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" />
+                  </svg>
+                  <span className="font-bold text-blue-700 text-lg">Datos del cliente</span>
+                </div>
+              )}
             {field.type === "info"
               ? (
                 <div className="relative flex flex-row items-start gap-3 p-4 mb-4 bg-gradient-to-r from-blue-100 via-blue-50 to-blue-100 border-l-8 border-blue-500 text-blue-900 rounded-xl shadow-md">
@@ -143,59 +153,56 @@ export default function FormGenerator({ config }: { config: FormConfig }) {
                 </>
               )}
             {field.type === "text" && (
-              (field.name === "resumen_gestion"
-                ? (<textarea {...register(field.name, { required: field.required })} rows={5} className="border p-3 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-2xl resize-vertical" placeholder={`Ingrese ${field.label}`} />)
-                : field.name === "correo"
-                  ? (<input type="text" {...register(field.name, { required: field.required })} className="border p-2 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed w-full max-w-lg" placeholder={`Ingrese ${field.label}`} readOnly />)
-                  : field.name === "san"
-                    ? (<>
-                        {/** Determinar país seleccionado */}
-                        {(() => {
-                          const pais = values.pais;
-                          let prefix = "";
-                          let ejemplo = "SAN";
-                          //let recomendacion = "Prefijo recomendado: SAN";
-                          if (pais === "colombia") {
-                            prefix = "HCO";
-                            ejemplo = "HCO2000126867";
-                           // recomendacion = "Prefijo recomendado: HCO";
-                          } else if (pais === "chile") {
-                            prefix = "HCL";
-                            ejemplo = "HCL2000751067";
-                           // recomendacion = "Prefijo recomendado: HCL";
-                          } else if (pais === "ecuador") {
-                            prefix = "HEC";
-                            ejemplo = "HEC2000756147";
-                           // recomendacion = "Prefijo recomendado: HEC";
-                          } else if (pais === "peru" || pais === "perú") {
-                            prefix = "HPE";
-                            ejemplo = "HPE2000756297";
-                           // recomendacion = "Prefijo recomendado: HPE";
-                          }
-                          return (
-                            <>
-                              <input type="text"
-                                {...register(field.name, {
-                                  required: field.required,
-                                  validate: value => {
-                                    if (!prefix) return true;
-                                    if (!value) return true;
-                                    return value.startsWith(prefix) || `El SAN debe iniciar con ${prefix}`;
-                                  }
-                                })}
-                                className={`border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-lg ${formState.errors.san ? 'border-red-500' : ''}`}
-                                placeholder={`Ejemplo: ${ejemplo}`}
-                              />
-                              {formState.errors.san && (
-                                <span className="text-red-600 text-xs mt-1">{formState.errors.san.message as string}</span>
-                              )}
-                            </>
-                          );
-                        })()}
-                      </>
-                    )
-                    : (<input type="text" {...register(field.name, { required: field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-lg" placeholder={`Ingrese ${field.label}`} />)
-              )
+              field.multiline
+                ? (<textarea {...register(field.name, { required: field.required })} rows={6} className="border p-3 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-2xl resize-vertical" placeholder={`Ingrese ${field.label}`} />)
+                : (field.name === "resumen_gestion"
+                  ? (<textarea {...register(field.name, { required: field.required })} rows={5} className="border p-3 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-2xl resize-vertical" placeholder={`Ingrese ${field.label}`} />)
+                  : field.name === "correo"
+                    ? (<input type="text" {...register(field.name, { required: field.required })} className="border p-2 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed w-full max-w-lg" placeholder={`Ingrese ${field.label}`} readOnly />)
+                    : field.name === "san"
+                      ? (<>
+                          {/** Determinar país seleccionado */}
+                          {(() => {
+                            const pais = values.pais;
+                            let prefix = "";
+                            let ejemplo = "SAN";
+                            if (pais === "colombia") {
+                              prefix = "HCO";
+                              ejemplo = "HCO2000126867";
+                            } else if (pais === "chile") {
+                              prefix = "HCL";
+                              ejemplo = "HCL2000751067";
+                            } else if (pais === "ecuador") {
+                              prefix = "HEC";
+                              ejemplo = "HEC2000756147";
+                            } else if (pais === "peru" || pais === "perú") {
+                              prefix = "HPE";
+                              ejemplo = "HPE2000756297";
+                            }
+                            return (
+                              <>
+                                <input type="text"
+                                  {...register(field.name, {
+                                    required: field.required,
+                                    validate: value => {
+                                      if (!prefix) return true;
+                                      if (!value) return true;
+                                      return value.startsWith(prefix) || `El SAN debe iniciar con ${prefix}`;
+                                    }
+                                  })}
+                                  className={`border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-lg ${formState.errors.san ? 'border-red-500' : ''}`}
+                                  placeholder={`Ejemplo: ${ejemplo}`}
+                                />
+                                {formState.errors.san && (
+                                  <span className="text-red-600 text-xs mt-1">{formState.errors.san.message as string}</span>
+                                )}
+                              </>
+                            );
+                          })()}
+                        </>
+                      )
+                      : (<input type="text" {...register(field.name, { required: field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-lg" placeholder={`Ingrese ${field.label}`} />)
+                )
             )}
             {field.type === "number" && (
               <input type="number" {...register(field.name, { required: field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-md" placeholder={`Ingrese ${field.label}`} />
@@ -204,8 +211,8 @@ export default function FormGenerator({ config }: { config: FormConfig }) {
               <input type="date" {...register(field.name, { required: field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 w-full max-w-md" />
             )}
             {field.type === "select" && field.options && field.name === "master_dealer" ? (
-              <select {...register(field.name, { required: field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 w-full max-w-md">
-                <option value="" disabled selected hidden>(Seleccione una opción)</option>
+              <select defaultValue="" {...register(field.name, { required: field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 w-full max-w-md">
+                <option value="" disabled hidden>(Seleccione una opción)</option>
                 {(() => {
                   const pais = values.pais;
                   let options = [];
@@ -257,8 +264,8 @@ export default function FormGenerator({ config }: { config: FormConfig }) {
                 })()}
               </select>
             ) : field.type === "select" && field.options ? (
-              <select {...register(field.name, { required: field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 w-full max-w-md">
-                <option value="" disabled selected hidden>(Seleccione una opción)</option>
+              <select defaultValue="" {...register(field.name, { required: field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 w-full max-w-md">
+                <option value="" disabled hidden>(Seleccione una opción)</option>
                 {field.options.map(opt => (
                   <option key={opt.value} value={opt.value} className="text-gray-900">{opt.label}</option>
                 ))}
@@ -316,8 +323,8 @@ export default function FormGenerator({ config }: { config: FormConfig }) {
                           <input type="date" {...register(subField.name, { required: subField.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 w-full max-w-md" />
                         )}
                         {subField.type === "select" && subField.options && (
-                          <select {...register(subField.name, { required: subField.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 w-full max-w-md">
-                            <option value="" disabled selected hidden>(Seleccione una opción)</option>
+                          <select defaultValue="" {...register(subField.name, { required: subField.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 w-full max-w-md">
+                            <option value="" disabled hidden>(Seleccione una opción)</option>
                             {subField.options.map(opt => (
                               <option key={opt.value} value={opt.value} className="text-gray-900">{opt.label}</option>
                             ))}
@@ -363,8 +370,8 @@ export default function FormGenerator({ config }: { config: FormConfig }) {
                                       <input type="date" {...register(nestedField.name, { required: nestedField.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 w-full max-w-md" />
                                     )}
                                     {nestedField.type === "select" && nestedField.options && (
-                                      <select {...register(nestedField.name, { required: nestedField.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 w-full max-w-md">
-                                        <option value="" disabled selected hidden>(Seleccione una opción)</option>
+                                      <select defaultValue="" {...register(nestedField.name, { required: nestedField.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 w-full max-w-md">
+                                        <option value="" disabled hidden>(Seleccione una opción)</option>
                                         {nestedField.options.map(opt => (
                                           <option key={opt.value} value={opt.value} className="text-gray-900">{opt.label}</option>
                                         ))}
