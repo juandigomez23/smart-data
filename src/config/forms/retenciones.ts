@@ -6,6 +6,7 @@ export const retencionesForm: FormConfig = {
   title: "Retenciones",
   tipo: "retenciones",
   fields: [
+    // Aplica required: true a todos los campos
     { name: "correo", label: "Correo electrónico", type: "text", required: true, auto: true },
     { name: "san", label: "SAN", type: "text", required: true },
     {
@@ -16,7 +17,8 @@ export const retencionesForm: FormConfig = {
       options: [
         { label: "Llamada telefónica", value: "llamada" },
         { label: "Gestión WhatsApp", value: "whatsapp" },
-        { label: "Gestión correo", value: "correo" }
+        { label: "Gestión correo", value: "correo" },
+        { label: " Correo electrónico", value: "correoe" }
       ]
     },
     {
@@ -102,6 +104,7 @@ export const retencionesForm: FormConfig = {
       name: "matriz_retencion_info",
       label: "Si cliente acepta retención",
       type: "info",
+      required: true,
       description: "Recuerde que debe seleccionar la opción de retención que más se ajuste a la situación del cliente.",
       showIf: (values) => values.codigo_gestion === "retencion" || values.codigo_gestion === "oferta_especial_winback"
     },
@@ -109,6 +112,7 @@ export const retencionesForm: FormConfig = {
       name: "matriz_retencion",
       label: "Matriz de retención",
       type: "select",
+      required: true,
       options: [
         { label: "Descuentos escalonados", value: "descuentos_escalonados" },
         { label: "Descuento del 50% sobre la factura", value: "descuento_50" },
@@ -127,6 +131,7 @@ export const retencionesForm: FormConfig = {
       name: "descuentos_escalonados_info",
       label: "Descuentos escalonados",
       type: "info",
+      required: true,
       description: "Si el cliente aceptó descuento, por favor indique cuál fue el aceptado.",
       showIf: { matriz_retencion: "descuentos_escalonados" }
     },
@@ -160,6 +165,7 @@ export const retencionesForm: FormConfig = {
       name: "cambio_plan_info",
       label: "Cambio de plan",
       type: "info",
+      required: true,
       description: "Esta opción la usaremos cuando se realice alguna modificación en el plan que se tenga.",
       showIf: { matriz_retencion: "cambio_plan" }
     },
@@ -176,16 +182,10 @@ export const retencionesForm: FormConfig = {
       showIf: { matriz_retencion: "cambio_plan" }
     },
     {
-      name: "no_acepta_info",
-      label: "Si cliente no acepta retención",
-      type: "info",
-      description: "Recuerden que el cliente puede tener varios motivos por los cuales no nos acepte la retención, pero en esta oportunidad vamos a seleccionar la de mayor relevancia (Los demás motivos los especificamos en las observaciones)",
-      showIf: { codigo_gestion: "no_acepta" }
-    },
-    {
       name: "motivo_no_acepta",
       label: "Motivo por el cual no acepta retención",
       type: "select",
+      required: true,
       options: [
         { label: "Disminución de ingresos", value: "disminucion_ingresos" },
         { label: "Incumplimiento de la matriz de retención", value: "incumplimiento_matriz" },
@@ -208,14 +208,15 @@ export const retencionesForm: FormConfig = {
       name: "sustituye_servicio",
       label: "¿Con qué va a sustituir su servicio de internet?",
       type: "text",
+      required: true,
       description: "La idea con esta pregunta es que indaguemos con qué va reemplazar el internet, ya que no nos aceptó la retención y desea retirar el servicio.",
       showIf: { codigo_gestion: "no_acepta" }
     },
-    // Bloque de cierre de llamada para no acepta retención
     {
       name: "cierre_llamada_info_no_acepta",
       label: "Cierre de la llamada",
       type: "info",
+      required: true,
       description: "Si se tuvo contacto directo con el cliente, independientemente de si aceptó o no la retención, llene la siguiente información.",
       showIf: (values) => values.codigo_gestion === "no_acepta"
     },
@@ -223,12 +224,14 @@ export const retencionesForm: FormConfig = {
       name: "linea_principal_no_acepta",
       label: "Línea principal del cliente donde se tuvo contacto",
       type: "text",
+      required: true,
       showIf: (values) => values.codigo_gestion === "no_acepta"
     },
     {
       name: "actualiza_datos_no_acepta",
       label: "¿Actualiza datos?",
       type: "select",
+      required: true,
       options: [
         { label: "Sí", value: "si" },
         { label: "No", value: "no" }
@@ -239,6 +242,7 @@ export const retencionesForm: FormConfig = {
       name: "recomienda_hughesnet_no_acepta",
       label: "¿Recomendaría Hughesnet?",
       type: "select",
+      required: true,
       options: [
         { label: "Sí", value: "si" },
         { label: "No", value: "no" }
@@ -249,6 +253,7 @@ export const retencionesForm: FormConfig = {
       name: "mejor_horario_no_acepta",
       label: "Mejor horario para atendernos",
       type: "select",
+      required: true,
       options: [
         { label: "En la mañana", value: "manana" },
         { label: "En la tarde", value: "tarde" },
@@ -260,6 +265,7 @@ export const retencionesForm: FormConfig = {
       name: "medio_contacto_futuro_no_acepta",
       label: "¿Cuál es el medio más efectivo para tener contacto a futuro?",
       type: "select",
+      required: true,
       options: [
         { label: "Telefónico", value: "telefonico" },
         { label: "Whatsapp", value: "whatsapp" },
@@ -270,89 +276,97 @@ export const retencionesForm: FormConfig = {
 
 
     {
-  name: "debito_automatico_info",
-  label: "Aviso débito automático",
-  type: "info",
-  description: "Recuerde informar al cliente que si tiene débito automático, debe verificar que la retención se aplique correctamente en su próxima factura.",
-  showIf: (values) => values.codigo_gestion === "retencion" || values.codigo_gestion === "oferta_especial_winback"
-},
-{
-  name: "debito_automatico",
-  label: "¿Cliente tiene débito automático?",
-  type: "select",
-  options: [
-    { label: "Sí", value: "si" },
-    { label: "No", value: "no" }
-  ],
-  showIf: (values) => values.codigo_gestion === "retencion" || values.codigo_gestion === "oferta_especial_winback"
-},
+      name: "debito_automatico_info",
+      label: "Aviso débito automático",
+      type: "info",
+      required: true,
+      description: "Recuerde informar al cliente que si tiene débito automático, debe verificar que la retención se aplique correctamente en su próxima factura.",
+      showIf: (values) => values.codigo_gestion === "retencion" || values.codigo_gestion === "oferta_especial_winback"
+    },
+    {
+      name: "debito_automatico",
+      label: "¿Cliente tiene débito automático?",
+      type: "select",
+      required: true,
+      options: [
+        { label: "Sí", value: "si" },
+        { label: "No", value: "no" }
+      ],
+      showIf: (values) => values.codigo_gestion === "retencion" || values.codigo_gestion === "oferta_especial_winback"
+    },
 
 
 
 
-    // ...existing code...
     // Después de 'no acepta retención', sigue cierre de llamada y resultado de la gestión
     {
       name: "cierre_llamada_info",
       label: "Cierre de la llamada",
       type: "info",
+      required: true,
       description: "Si se tuvo contacto directo con el cliente, independientemente de si aceptó o no la retención, llene la siguiente información.",
       showIf: (values) => values.codigo_gestion === "retencion" || values.codigo_gestion === "oferta_especial_winback"
-    },
+  },
     {
       name: "linea_principal",
       label: "Línea principal del cliente donde se tuvo contacto",
       type: "text",
+      required: true,
       showIf: (values) => values.codigo_gestion === "retencion" || values.codigo_gestion === "oferta_especial_winback"
-    },
+  },
     {
       name: "actualiza_datos",
       label: "¿Actualiza datos?",
       type: "select",
+      required: true,
       options: [
         { label: "Sí", value: "si" },
         { label: "No", value: "no" }
       ],
       showIf: (values) => values.codigo_gestion === "retencion" || values.codigo_gestion === "oferta_especial_winback"
-    },
+  },
     {
       name: "recomienda_hughesnet",
       label: "¿Recomendaría Hughesnet?",
       type: "select",
+      required: true,
       options: [
         { label: "Sí", value: "si" },
         { label: "No", value: "no" }
       ],
       showIf: (values) => values.codigo_gestion === "retencion" || values.codigo_gestion === "oferta_especial_winback"
-    },
+  },
     {
       name: "mejor_horario",
       label: "Mejor horario para atendernos",
       type: "select",
+      required: true,
       options: [
         { label: "En la mañana", value: "manana" },
         { label: "En la tarde", value: "tarde" },
         { label: "En la noche", value: "noche" }
       ],
       showIf: (values) => values.codigo_gestion === "retencion" || values.codigo_gestion === "oferta_especial_winback"
-    },
+  },
     {
       name: "medio_contacto_futuro",
       label: "¿Cuál es el medio más efectivo para tener contacto a futuro?",
       type: "select",
+      required: true,
       options: [
         { label: "Telefónico", value: "telefonico" },
         { label: "Whatsapp", value: "whatsapp" },
         { label: "Correo electrónico", value: "correo" }
       ],
       showIf: (values) => values.codigo_gestion === "retencion" || values.codigo_gestion === "oferta_especial_winback"
-    },
+  },
 
 
     {
   name: "resultado_gestion_info",
   label: "Resultado de la gestión",
   type: "info",
+  required: true,
   description: "Seamos muy detallistas en el momento de redactar la gestión, no olviden que esta información es vital para HughesNet (Número de contacto donde logramos ubicar el cliente, persona encargada de los pagos, beneficios otorgados, horarios donde nos podemos comunicar, motivo de cancelación, entre otros).",
   showIf: (values) => values.codigo_gestion === "retencion" || values.codigo_gestion === "oferta_especial_winback"
 },
@@ -360,6 +374,7 @@ export const retencionesForm: FormConfig = {
   name: "resumen_gestion",
   label: "Resumen de la gestión",
   type: "text",
+  required: true,
   description: "Redacta aquí el resumen completo de la gestión realizada.",
   showIf: (values) => values.codigo_gestion === "retencion" || values.codigo_gestion === "oferta_especial_winback"
 },
@@ -367,6 +382,7 @@ export const retencionesForm: FormConfig = {
   name: "fecha_proxima_gestion",
   label: "Fecha próxima gestión",
   type: "date",
+  required: true,
   showIf: (values) => values.codigo_gestion === "retencion" || values.codigo_gestion === "oferta_especial_winback"
 },
 
@@ -375,6 +391,7 @@ export const retencionesForm: FormConfig = {
       name: "resultado_gestion_info",
       label: "Resultado de la gestión",
       type: "info",
+      required: true,
       description: "Seamos muy detallistas en el momento de redactar la gestión, no olviden que esta información es vital para HughesNet (Número de contacto donde logramos ubicar el cliente, persona encargada de los pagos, beneficios otorgados, horarios donde nos podemos comunicar, motivo de cancelación, entre otros).",
       showIf: (values) => values.codigo_gestion && values.codigo_gestion !== "retencion" && values.codigo_gestion !== "oferta_especial_winback"
     },
@@ -382,6 +399,7 @@ export const retencionesForm: FormConfig = {
       name: "resumen_gestion",
       label: "Resumen de la gestión",
       type: "text",
+      required: true,
       description: "Redacta aquí el resumen completo de la gestión realizada.",
       showIf: (values) => values.codigo_gestion && values.codigo_gestion !== "retencion" && values.codigo_gestion !== "oferta_especial_winback"
     },
@@ -389,6 +407,7 @@ export const retencionesForm: FormConfig = {
       name: "fecha_proxima_gestion",
       label: "Fecha próxima gestión",
       type: "date",
+      required: true,
       showIf: (values) => values.codigo_gestion && values.codigo_gestion !== "retencion" && values.codigo_gestion !== "oferta_especial_winback"
     },
   ]

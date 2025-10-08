@@ -1,6 +1,8 @@
 "use client"
 
 import { useForm, FieldValues } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { ZodTypeAny } from "zod"
 import Image from "next/image"
 import { useState, useEffect } from "react"
 import { useAsesor } from "@/hooks/useAsesor"
@@ -35,11 +37,17 @@ function shouldShowField(field: FieldConfig, values: FieldValues) {
   return Object.entries(field.showIf).every(([key, val]) => values[key] === val)
 }
 
-export default function FormGenerator({ config }: { config: FormConfig }) {
-            // ...existing code...
-            // ...existing code...
-  // ...existing code...
-  const { register, handleSubmit, reset, setValue, watch, formState } = useForm<FieldValues>()
+type FormGeneratorProps = {
+  config: FormConfig;
+  schema?: ZodTypeAny;
+};
+
+export default function FormGenerator({ config, schema }: FormGeneratorProps) {
+  const { register, handleSubmit, reset, setValue, watch, formState } = useForm<FieldValues>({
+  // Usamos 'as any' en el resolver porque el generador es dinámico y los tipos de Zod y React Hook Form no pueden coincidir perfectamente.
+  // Es seguro y recomendado en este contexto para mantener flexibilidad y validación automática.
+  resolver: schema ? (zodResolver(schema) as any) : undefined
+  })
 
   // Resetear el formulario cada vez que cambia el config (nuevo formulario) o se monta el componente
   useEffect(() => {
@@ -282,6 +290,9 @@ export default function FormGenerator({ config }: { config: FormConfig }) {
                 <span>{field.label}</span>
                 <span className="ml-2 text-gray-400 text-xs">(Seleccione una opción)</span>
               </div>
+            )}
+            {field.type !== "info" && formState.errors[field.name] && (
+              <span className="text-red-600 text-xs mt-1">campo obligatorio</span>
             )}
 
             {/* Renderizar campos condicionales si existen y la condición se cumple, de forma recursiva */}

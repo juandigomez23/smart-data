@@ -202,11 +202,16 @@ export default function AdminDashboardPage() {
 
   
   
-  const [fechaActual, setFechaActual] = useState(new Date())
+  const [fechaActualStr, setFechaActualStr] = useState("");
   useEffect(() => {
-    const timer = setInterval(() => setFechaActual(new Date()), 1000)
-    return () => clearInterval(timer)
-  }, [])
+    const updateFecha = () => {
+      const fecha = new Date();
+      setFechaActualStr(`${fecha.toLocaleDateString()} ${fecha.toLocaleTimeString()}`);
+    };
+    updateFecha();
+    const timer = setInterval(updateFecha, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
  
   const [fechaFiltroChart, setFechaFiltroChart] = useState(() => {
@@ -228,11 +233,12 @@ export default function AdminDashboardPage() {
 
   
   const esHoyLocal = useCallback((fechaStr: string) => {
-    const fecha = new Date(fechaStr)
-    return fecha.getFullYear() === fechaActual.getFullYear() &&
-      fecha.getMonth() === fechaActual.getMonth() &&
-      fecha.getDate() === fechaActual.getDate()
-  }, [fechaActual])
+    const fecha = new Date(fechaStr);
+    const hoy = new Date();
+    return fecha.getFullYear() === hoy.getFullYear() &&
+      fecha.getMonth() === hoy.getMonth() &&
+      fecha.getDate() === hoy.getDate();
+  }, [])
 
   
   const { data: asesoresData } = useSWR("/api/asesores", fetcher);
@@ -275,7 +281,7 @@ export default function AdminDashboardPage() {
         </div>
         <div className="flex items-center gap-6">
           <div className="flex flex-col items-end">
-            <span className="text-xs text-gray-500 dark:text-gray-400">{fechaActual.toLocaleDateString()} {fechaActual.toLocaleTimeString()}</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">{fechaActualStr}</span>
             <button
               onClick={toggleTheme}
               className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 mt-2"
