@@ -19,18 +19,18 @@ export const equipoComercialForm: FormConfig = {
       ],
     },
     {
-      name: "tipo_servicio",
-      label: "Tipo de servicio",
-      type: "select",
+    name: "tipo_servicio",
+    label: "Tipo de servicio",
+    type: "select",
       options: [
         { label: "Persona natural", value: "natural" },
         { label: "PYME", value: "pyme" }
       ],
     },
     {
-      name: "medio_contacto",
-      label: "Medio de contacto",
-      type: "select",
+    name: "medio_contacto",
+    label: "Medio de contacto",
+    type: "select",
       options: [
         { label: "Estaqueue", value: "estaqueue" },
         { label: "WhatsApp", value: "whatsapp" },
@@ -61,14 +61,28 @@ export const equipoComercialForm: FormConfig = {
         { label: "No", value: "no" },
         { label: "Ya se recibió solución desde SAC", value: "solucion_sac" },
         { label: "Ya se recibió solución de retención", value: "solucion_retencion" },
-        { label: "Se realiza validación interna", value: "validacion_interna" }
+        { label: "Se realiza validación interna (Envío de correos, Mesa operativa, mora, TRM)", value: "validacion_interna" }
       ],
+    }
+    ,
+    // Campos condicionales si logra_contacto === 'si'
+    {
+      name: "info_si_contacto",
+      type: "info",
+      label: "Si se logra contacto",
+  showIf: (values) => values.logra_contacto === "si"
     },
-    { name: "numero_contacto", label: "Número por el cual se logró contacto", type: "text" },
+    {
+      name: "numero_contacto",
+      label: "Número por el cual se logró contacto",
+      type: "text",
+  showIf: (values) => values.logra_contacto === "si"
+    },
     {
       name: "motivo_reincidencia",
       label: "Motivo de reincidencia",
       type: "select",
+  showIf: (values) => values.logra_contacto === "si",
       options: [
         { label: "Información de facturación", value: "info_facturacion" },
         { label: "Información de pago / cobrar pago", value: "info_pago" },
@@ -83,14 +97,12 @@ export const equipoComercialForm: FormConfig = {
         { label: "Información general", value: "info_general" },
         { label: "Actualizar información de la cuenta", value: "actualizar_info" },
         { label: "Cambiar plan de servicio", value: "cambiar_plan" },
-        { label: "Cancelación de orden", value: "cancelacion_orden" },
         { label: "Inconvenientes con el ingreso a la plataforma", value: "problemas_plataforma" },
         { label: "No puede encontrar la red WI-FI", value: "no_encuentra_wifi" },
         { label: "Comprar tokens", value: "comprar_tokens" },
         { label: "Orden de instalación", value: "orden_instalacion" },
         { label: "Preguntas de uso", value: "preguntas_uso" },
         { label: "Posible fraude", value: "posible_fraude" },
-        { label: "Campaña M5-M10-M11", value: "campana_m5" },
         { label: "Inactivo", value: "inactivo" }
       ],
     },
@@ -98,6 +110,7 @@ export const equipoComercialForm: FormConfig = {
       name: "solucion_recibida",
       label: "¿Qué solución recibió?",
       type: "select",
+  showIf: (values) => values.logra_contacto === "si",
       options: [
         { label: "Se brinda información de la factura", value: "info_factura" },
         { label: "Cambio de contraseña", value: "cambio_password" },
@@ -127,9 +140,10 @@ export const equipoComercialForm: FormConfig = {
       name: "escala_a",
       label: "Se escala a",
       type: "select",
+  showIf: (values) => values.logra_contacto === "si",
       options: [
         { label: "Retención", value: "retencion" },
-        { label: "Soporte técnico", value: "soporte_tecnico" },
+        { label: "Area encargada", value: "area_encargada" },
         { label: "No se escala / se brindó solución", value: "no_escala" }
       ],
     },
@@ -137,6 +151,7 @@ export const equipoComercialForm: FormConfig = {
       name: "acepta_pat",
       label: "¿Acepta PAT?",
       type: "select",
+      showIf: (values) => values.logra_contacto === "si",
       options: [
         { label: "Si", value: "si" },
         { label: "No", value: "no" },
@@ -145,9 +160,23 @@ export const equipoComercialForm: FormConfig = {
       ],
     },
     {
+      name: "info_post_pat",
+      type: "info",
+      label: "¡Ten en cuenta!\nRecordar el Chat Bot correspondiente a cada país:\nColombia: +57 1 6072936\nChile: +56 2 3210 7622\nPerú: +51 1 7097858\nConfirmar datos\nPreguntar si tiene sugerencias o recomendaciones",
+      showIf: (values) => values.logra_contacto === "si"
+    },
+    // ...existing code...
+    {
+      name: "info_cierre",
+      type: "info",
+      label: "Cierre",
+  showIf: (values) => values.logra_contacto !== undefined
+    },
+    {
       name: "codigo_gestion",
       label: "Código de gestión",
       type: "select",
+  showIf: (values) => values.logra_contacto !== undefined,
       options: [
         { label: "Acepta información", value: "acepta_info" },
         { label: "No recibe información", value: "no_recibe_info" },
@@ -164,14 +193,26 @@ export const equipoComercialForm: FormConfig = {
         { label: "Validación de cumplimiento", value: "validacion_cumplimiento" },
         { label: "Se escala por correo", value: "escala_correo" },
         { label: "Cliente en mora", value: "cliente_mora" },
-        { label: "Se escala a mesa operativa", value: "escala_mesa" },
         { label: "Volver a llamar", value: "volver_llamar" },
         { label: "Ya recibió solución desde retención", value: "solucion_retencion" },
         { label: "Cliente solicita información por medios electrónicos", value: "info_electronica" },
         { label: "Acepta retención", value: "acepta_retencion" }
       ],
     },
-    { name: "observaciones", label: "Observaciones", type: "text", description: "Agrega cualquier comentario relevante." },
-    { name: "sugerencias", label: "Sugerencias o recomendaciones", type: "text" }
+    {
+      name: "observaciones",
+      label: "Observaciones",
+  type: "text",
+  multiline: true,
+      showIf: (values) => values.logra_contacto !== undefined,
+      description: "Agrega cualquier comentario relevante."
+    },
+    {
+      name: "sugerencias",
+      label: "Sugerencias o recomendaciones",
+  type: "text",
+  multiline: true,
+  showIf: (values) => values.logra_contacto !== undefined
+    }
   ],
 }

@@ -139,7 +139,7 @@ export default function FormGenerator({ config }: { config: FormConfig }) {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" />
                   </svg>
                   <div className="flex flex-col">
-                    <span className="font-bold text-blue-700 text-lg mb-1">{field.label}</span>
+                    <span className="font-bold text-blue-700 text-lg mb-1 whitespace-pre-line">{field.label}</span>
                     {field.description && (
                       <span className="block text-base text-blue-700 leading-relaxed mt-1">{field.description}</span>
                     )}
