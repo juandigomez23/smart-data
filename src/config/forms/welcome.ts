@@ -11,6 +11,7 @@ export const welcomeForm: FormConfig = {
   { label: "Perú", value: "peru" },
 ] },
     { name: "avis_peru_inicio", label: "Perú inicio de gestión", type: "info", showIf: { pais: "peru" } },
+       
     { name: "tipo_servicio_peru", label: "Tipo de servicio Perú", type: "select", showIf: { pais: "peru" }, options: [
       { label: "Persona natural", value: "natural" },
       { label: "PYME", value: "pyme" }
@@ -48,6 +49,7 @@ export const welcomeForm: FormConfig = {
       { label: "No", value: "no" }
     ] },
     { name: "satisfecho_servicio_peru", label: "¿Se encuentra satisfecho con el servicio? Perú", type: "select", showIf: { pais: "peru" }, options: [
+      
       { label: "Si", value: "si" },
       { label: "No", value: "no" },
       { label: "Aun no ha usado el servicio", value: "no_usado" },
@@ -56,7 +58,10 @@ export const welcomeForm: FormConfig = {
       { label: "Seguimiento", value: "seguimiento" },
       { label: "Mensaje con tercero", value: "mensaje_tercero" }
     ] },
-    { name: "motivo_no_satisfecho_peru", label: "Indique el/los motivos por los cuales no se encuentra satisfecho con el servicio, Perú", type: "select", showIf: { pais: "peru", satisfecho_servicio_peru: "no" }, options: [
+    
+       { name: "info_no_satisfecho_peru", label: "No está satisfecho con el servicio", type: "info", showIf: { pais: "peru", satisfecho_servicio_peru: "no" } },
+     
+      { name: "motivo_no_satisfecho_peru", label: "Indique el/los motivos por los cuales no se encuentra satisfecho con el servicio, Perú", type: "select", showIf: { pais: "peru", satisfecho_servicio_peru: "no" }, options: [
       { label: "Es muy intermitente", value: "intermitente" },
       { label: "Actualmente no tiene internet", value: "sin_internet" },
       { label: "Su plan se consumió muy rápido", value: "plan_rapido" },
@@ -82,8 +87,12 @@ export const welcomeForm: FormConfig = {
       { label: "Si", value: "si" },
       { label: "No", value: "no" },
       { label: "No aplica", value: "no_aplica" }
+      
     ] },
-    { name: "uso_servicio_peru_continuar", label: "¿Qué uso le da al servicio? Perú", type: "select", showIf: { pais: "peru", continuar_servicio_peru: "si" }, options: [
+
+    { name: "info_satisfecho_peru", label: "Si está satisfecho con el servicio y desea continuar", type: "info", showIf: { pais: "peru", satisfecho_servicio_peru: "si" } },
+     
+      { name: "uso_servicio_peru_continuar", label: "¿Qué uso le da al servicio? Perú", type: "select", showIf: { pais: "peru", continuar_servicio_peru: "si" }, options: [
       { label: "Estudiar", value: "estudiar" },
       { label: "Trabajar", value: "trabajar" },
       { label: "Redes sociales", value: "redes" },
@@ -213,6 +222,7 @@ export const welcomeForm: FormConfig = {
     ] },
     { name: "numero_contacto_peru", label: "Número por el cual se logró contacto, Perú", type: "text", showIf: { pais: "peru", satisfecho_servicio_peru: "si" } },
     { name: "avis_ecuador_inicio", label: "Ecuador inicio de gestión", type: "info", showIf: { pais: "ecuador" } },
+    
     { name: "tipo_servicio_ecuador", label: "Tipo de servicio Ecuador", type: "select", showIf: { pais: "ecuador" }, options: [
       { label: "Persona natural", value: "natural" },
       { label: "PYME", value: "pyme" }
@@ -247,7 +257,9 @@ export const welcomeForm: FormConfig = {
       { label: "Seguimiento", value: "seguimiento" },
       { label: "Mensaje con tercero", value: "mensaje_tercero" }
     ] },
-    { name: "motivo_no_satisfecho_ecuador", label: "¿Por qué no se encuentra satisfecho con el servicio? Ecuador", type: "select", showIf: { pais: "ecuador", satisfecho_servicio_ecuador: "no" }, options: [
+      { name: "info_satisfecho_ecuador", label: "Si está satisfecho con el servicio", type: "info", showIf: { pais: "ecuador", satisfecho_servicio_ecuador: "si" } },
+      { name: "info_no_satisfecho_ecuador", label: "No está satisfecho con el servicio", type: "info", showIf: { pais: "ecuador", satisfecho_servicio_ecuador: "no" } },
+      { name: "motivo_no_satisfecho_ecuador", label: "¿Por qué no se encuentra satisfecho con el servicio? Ecuador", type: "select", showIf: { pais: "ecuador", satisfecho_servicio_ecuador: "no" }, options: [
       { label: "Es muy intermitente", value: "intermitente" },
       { label: "Actualmente no tiene internet", value: "sin_internet" },
       { label: "Su plan se consumió muy rápido", value: "plan_rapido" },
@@ -274,7 +286,9 @@ export const welcomeForm: FormConfig = {
       { label: "No", value: "no" },
       { label: "No aplica", value: "no_aplica" }
     ] },
-    { name: "uso_servicio_ecuador_continua", label: "¿Qué uso le da al servicio? Ecuador", type: "select", showIf: { pais: "ecuador", continuar_servicio_ecuador: "si" }, options: [
+      { name: "info_continuar_ecuador", label: "Si está satisfecho y desea continuar con el servicio", type: "info", showIf: { pais: "ecuador", continuar_servicio_ecuador: "si" } },
+
+      { name: "uso_servicio_ecuador_continua", label: "¿Qué uso le da al servicio? Ecuador", type: "select", showIf: { pais: "ecuador", continuar_servicio_ecuador: "si" }, options: [
       { label: "Estudiar", value: "estudiar" },
       { label: "Trabajar", value: "trabajar" },
       { label: "Redes sociales", value: "redes" },
@@ -360,6 +374,8 @@ export const welcomeForm: FormConfig = {
       { label: "Ya está inscrito al débito automático", value: "inscrito" },
       { label: "No aplica", value: "no_aplica" }
     ] },
+
+    { name: "numero_contacto_ecuador", label: "Número por el cual se logró contacto, Ecuador", type: "text", showIf: { pais: "ecuador" } },
     { name: "motivo_no_debito_ecuador", label: "Si la respuesta es NO indague el motivo por el cual no está interesado", type: "select", showIf: { pais: "ecuador", satisfecho_servicio_ecuador: "si", como_debito_ecuador_si: "no_acepto" }, options: [
       { label: "Si aceptó", value: "si_acepto" },
       { label: "No tiene tarjeta", value: "no_tarjeta" },
@@ -374,6 +390,8 @@ export const welcomeForm: FormConfig = {
     ] },
 
     { name: "avis_chile_inicio", label: "Chile inicio de gestión", type: "info", showIf: { pais: "chile" } },
+   
+    
     { name: "tipo_servicio_chile", label: "Tipo de servicio Chile", type: "select", showIf: { pais: "chile" }, options: [
       { label: "Persona natural", value: "natural" },
       { label: "PYME", value: "pyme" }
@@ -396,31 +414,15 @@ export const welcomeForm: FormConfig = {
       { label: "REGIONAL NORTE RCC", value: "regional_norte_rcc" },
       { label: "TEMUTEL CL", value: "temutel_cl" },
       { label: "TEMUTEL MD", value: "temutel_md" },
-      { label: "TEMUTEL REGIONAL", value: "temutel_regional" },
-      { label: "KIWOX CL", value: "kiwox_cl" },
-      { label: "ISLANET CL", value: "islanet_cl" },
-      { label: "BACKOFFICE RCC", value: "backoffice_rcc" },
       { label: "ÁLEX NAVARRETE CÁCERES", value: "alex_navarrete_caceres" },
       { label: "JONATHAN MARABOLI VILLA", value: "jonathan_maraboli_villa" },
       { label: "CARMEN GLORIA SEPÚLVEDA SEGUEL", value: "carmen_gloria_sepulveda_seguel" },
-      { label: "JUAN SALAZAR – RUTH ULLOA", value: "juan_salazar_ruth_ulloa" },
-      { label: "MÓNICA PACHECO OVIEDO", value: "monica_pacheco_oviedo" },
       { label: "ALEJANDRO CURIHUAL", value: "alejandro_curihual" },
-      { label: "ERNESTO THER THER", value: "ernesto_ther_ther" },
-      { label: "ISABEL URREA NAHUELHUAL", value: "isabel_urrea_nahuelhual" },
       { label: "JUAN RIQUELME TORRES", value: "juan_riquelme_torres" },
       { label: "MAURICIO JARA SOTO", value: "mauricio_jara_soto" },
-      { label: "MARCELA HURTADO THER", value: "marcela_hurtado_ther" },
-      { label: "REINSTALL CL", value: "reinstall_cl" },
       { label: "MG TELECOM CL", value: "mg_telecom_cl" },
-      { label: "TECPLAN CL", value: "tecplan_cl" },
-      { label: "INECOM CL", value: "inecom_cl" },
-      { label: "CS SERVICIOS CL", value: "cs_servicios_cl" }
-    ] },
-    { name: "pago_primera_boleta_chile", label: "¿Pagó la 1er Boleta? Chile", type: "select", showIf: { pais: "chile" }, options: [
-      { label: "Si", value: "si" },
-      { label: "No", value: "no" }
-    ] },
+      ] },
+   
     { name: "satisfecho_servicio_chile", label: "¿Se encuentra satisfecho con el servicio? Chile", type: "select", showIf: { pais: "chile" }, options: [
       { label: "Si", value: "si" },
       { label: "No", value: "no" },
@@ -429,7 +431,9 @@ export const welcomeForm: FormConfig = {
       { label: "No se realiza llamada", value: "no_llamada" },
       { label: "Seguimiento", value: "seguimiento" }
     ] },
-    { name: "motivo_no_satisfecho_chile", label: "Indique el/los motivos por los cuales no se encuentra satisfecho con los servicios, Chile", type: "select", showIf: { pais: "chile", satisfecha_servicio_chile: "no" }, options: [
+          { name: "info_no_satisfecho_chile", label: "No está satisfecho con el servicio", type: "info", showIf: { pais: "chile", satisfecho_servicio_chile: "no" } },
+ { name: "info_satisfecho_chile", label: "Si está satisfecho con el servicio", type: "info", showIf: { pais: "chile", satisfecho_servicio_chile: "si" } },
+  { name: "motivo_no_satisfecho_chile", label: "Indique el/los motivos por los cuales no se encuentra satisfecho con los servicios, Chile", type: "select", showIf: { pais: "chile", satisfecho_servicio_chile: "no" }, options: [
       { label: "Es muy intermitente", value: "intermitente" },
       { label: "Actualmente no tiene internet", value: "sin_internet" },
       { label: "Su plan se consumió muy rápido", value: "plan_rapido" },
@@ -440,30 +444,26 @@ export const welcomeForm: FormConfig = {
       { label: "No le funciona para VPN", value: "no_vpn" },
       { label: "No le funciona para cámaras IPV4", value: "no_camaras_ipv4" },
       { label: "No le ha funcionado desde la instalación", value: "no_funciona_desde_instalacion" },
-      { label: "No tenía conocimiento del plan (valores, pago anticipado, entre otras)", value: "no_conocimiento_plan" },
-      { label: "Le parece muy costoso su plan", value: "costoso" },
-      { label: "Le brindaron mal servicio al cliente", value: "mal_servicio_cliente" },
-      { label: "No tuvo servicio y solicita descuento por días sin consumo", value: "descuento_sin_consumo" },
       { label: "Novedad/caso especial", value: "novedad" },
-      { label: "No apto para TVD", value: "no_tvd" },
       { label: "No aplica", value: "no_aplica" }
     ] },
-    { name: "escala_soporte_chile", label: "¿Se escala a soporte técnico?", type: "select", showIf: { pais: "chile", satisfecha_servicio_chile: "no" }, options: [
+  { name: "escala_soporte_chile", label: "¿Se escala a soporte técnico?", type: "select", showIf: { pais: "chile", satisfecho_servicio_chile: "no" }, options: [
       { label: "Si", value: "si" },
       { label: "No", value: "no" },
       { label: "No aplica", value: "no_aplica" }
     ] },
-    { name: "escala_contacto_chile", label: "¿Se escala a contacto HughesNet?", type: "select", showIf: { pais: "chile", satisfecha_servicio_chile: "no" }, options: [
+  { name: "escala_contacto_chile", label: "¿Se escala a contacto HughesNet?", type: "select", showIf: { pais: "chile", satisfecho_servicio_chile: "no" }, options: [
       { label: "Si", value: "si" },
       { label: "No", value: "no" },
       { label: "No aplica", value: "no_aplica" }
     ] },
-    { name: "continuar_servicio_chile", label: "¿Desea continuar con el servicio?", type: "select", showIf: { pais: "chile", satisfecha_servicio_chile: "no" }, options: [
+  { name: "continuar_servicio_chile", label: "¿Desea continuar con el servicio?", type: "select", showIf: { pais: "chile", satisfecho_servicio_chile: "no" }, options: [
       { label: "Si", value: "si" },
       { label: "No", value: "no" },
       { label: "No aplica", value: "no_aplica" }
     ] },
-    { name: "uso_servicio_chile_continua", label: "¿Qué uso le da al servicio? Chile", type: "select", showIf: { pais: "chile", continuar_servicio_chile: "si" }, options: [
+    { name: "info_continuar_chile", label: "Si está satisfecho y desea continuar con el servicio", type: "info", showIf: { pais: "chile", continuar_servicio_chile: "si" } },
+      { name: "uso_servicio_chile_continua", label: "¿Qué uso le da al servicio? Chile", type: "select", showIf: { pais: "chile", continuar_servicio_chile: "si" }, options: [
       { label: "Estudiar", value: "estudiar" },
       { label: "Trabajar", value: "trabajar" },
       { label: "Redes sociales", value: "redes" },
@@ -472,18 +472,7 @@ export const welcomeForm: FormConfig = {
       { label: "Diversión (Netflix, videos, juegos)", value: "diversion" },
       { label: "No aplica", value: "no_aplica" }
     ] },
-    { name: "cuando_pago_chile_continua", label: "¿Cuénteme para cuando va a realizar el pago?", type: "select", showIf: { pais: "chile", continuar_servicio_chile: "si" }, options: [
-      { label: "Hoy realizo el pago", value: "hoy" },
-      { label: "Lo realizare en el próximo corte", value: "proximo_corte" },
-      { label: "Lo realizare la próxima semana", value: "proxima_semana" },
-      { label: "Ya realizo el pago", value: "ya_pago" },
-      { label: "No aplica", value: "no_aplica" }
-    ] },
     { name: "medio_pago_chile_continua", label: "¿De qué manera pagó o pagará su boleta? Chile", type: "select", showIf: { pais: "chile", continuar_servicio_chile: "si" }, options: [
-      { label: "En línea", value: "en_linea" },
-      { label: "Presencial", value: "presencial" },
-      { label: "Transferencia al banco Santander", value: "santander" },
-      { label: "Cliente se encuentra inscrito al PAT", value: "pat" },
       { label: "Mes gratis", value: "mes_gratis" },
       { label: "No aplica", value: "no_aplica" }
     ] },
@@ -525,23 +514,24 @@ export const welcomeForm: FormConfig = {
       { label: "No aplica", value: "no_aplica" }
     ] },
    
-    { name: "uso_servicio_chile", label: "¿Qué uso le da al servicio? Chile", type: "select", showIf: { pais: "chile", satisfecha_servicio_chile: "si" }, options: [
+  { name: "uso_servicio_chile", label: "¿Qué uso le da al servicio? Chile", type: "select", showIf: { pais: "chile", satisfecho_servicio_chile: "si" }, options: [
       { label: "Estudiar", value: "estudiar" },
       { label: "Trabajar", value: "trabajar" },
+      { label: "Hogar", value: "hogar" },
       { label: "Redes sociales", value: "redes" },
       { label: "Cámaras de seguridad", value: "camaras" },
       { label: "Comunicación", value: "comunicacion" },
       { label: "Diversión (Netflix, videos, juegos)", value: "diversion" },
       { label: "No aplica", value: "no_aplica" }
     ] },
-    { name: "cuando_pago_chile", label: "¿Cuénteme para cuando va a realizar el pago?", type: "select", showIf: { pais: "chile", satisfecha_servicio_chile: "si" }, options: [
+  { name: "cuando_pago_chile", label: "¿Cuénteme para cuando va a realizar el pago?", type: "select", showIf: { pais: "chile", satisfecho_servicio_chile: "si" }, options: [
       { label: "Hoy realizo el pago", value: "hoy" },
       { label: "Lo realizare en el próximo corte", value: "proximo_corte" },
       { label: "Lo realizare la próxima semana", value: "proxima_semana" },
       { label: "Ya realizo el pago", value: "ya_pago" },
       { label: "No aplica", value: "no_aplica" }
     ] },
-    { name: "medio_pago_chile", label: "¿De qué manera pagó o pagará su boleta? Chile", type: "select", showIf: { pais: "chile", satisfecha_servicio_chile: "si" }, options: [
+  { name: "medio_pago_chile", label: "¿De qué manera pagó o pagará su boleta? Chile", type: "select", showIf: { pais: "chile", satisfecho_servicio_chile: "si" }, options: [
       { label: "En línea", value: "en_linea" },
       { label: "Presencial", value: "presencial" },
       { label: "Transferencia al banco Santander", value: "santander" },
@@ -549,43 +539,47 @@ export const welcomeForm: FormConfig = {
       { label: "Mes gratis", value: "mes_gratis" },
       { label: "No aplica", value: "no_aplica" }
     ] },
-    { name: "fecha_pago_chile", label: "Si el cliente no ha realizado el pago, confirmar ¿qué día va a pagar? (fecha)", type: "date", showIf: { pais: "chile", satisfecha_servicio_chile: "si", cuando_pago_chile: "hoy" } },
-    { name: "acepta_pat_chile", label: "¿Acepta PAT?", type: "select", showIf: { pais: "chile", satisfecha_servicio_chile: "si" }, options: [
+  { name: "fecha_pago_chile", label: "Si el cliente no ha realizado el pago, confirmar ¿qué día va a pagar? (fecha)", type: "date", showIf: { pais: "chile", satisfecho_servicio_chile: "si", cuando_pago_chile: "hoy" } },
+  { name: "acepta_pat_chile", label: "¿Acepta PAT?", type: "select", showIf: { pais: "chile", satisfecho_servicio_chile: "si" }, options: [
       { label: "Si", value: "si" },
       { label: "No", value: "no" },
       { label: "Ya se encuentra inscrito al PAT", value: "inscrito" },
       { label: "No aplica", value: "no_aplica" }
     ] },
-    { name: "como_pat_chile_si", label: "Si el cliente aceptó el PAT, seleccione de que manera se realizó o realizará el proceso", type: "select", showIf: { pais: "chile", satisfecha_servicio_chile: "si", acepta_pat_chile: "si" }, options: [
-      { label: "No aceptó", value: "no_acepto" },
+
+  { name: "motivo_no_pat_chile", label: "Si la respuesta es NO, indague el motivo por el cual no está interesado", type: "select", showIf: { pais: "chile", satisfecho_servicio_chile: "si", acepta_pat_chile: "no" }, options: [
+    { label: "Si aceptó", value: "si_acepto" },
+    { label: "No tiene tarjeta de crédito", value: "no_credito" },
+    { label: "No tiene tarjeta crédito sino debito", value: "solo_debito" },
+    { label: "No tiene cupo en la tarjeta", value: "sin_cupo" },
+    { label: "Prefiere pagar de manera manual", value: "manual" },
+    { label: "Ha tenido malas experiencias con este tipo de sistema", value: "malas_experiencias" },
+    { label: "No cree en los beneficios (desconfía)", value: "desconfia" },
+    { label: "Tiene la tarjeta bloqueada", value: "bloqueada" },
+    { label: "No sabe manejar la tarjeta", value: "no_sabe" },
+    { label: "Es PYME, paga por otro medio", value: "pyme_otro_medio" },
+    { label: "Le preguntará a otra persona", value: "preguntara_otro" },
+    { label: "No aplica", value: "no_aplica" }
+  ] },
+
+  { name: "numero_contacto_chile", label: "Número por el cual se logró contacto, Chile", type: "text", showIf: { pais: "chile" } },
+
+ 
+  { name: "como_pat_chile_si", label: "Si el cliente aceptó el PAT, seleccione de que manera se realizó o realizará el proceso", type: "select", showIf: { pais: "chile", satisfecho_servicio_chile: "si", acepta_pat_chile: "si" }, options: [
+   { label: "No aceptó", value: "no_acepto" },
       { label: "En linea(a travez de la app o portal)", value: "en_linea" },
       { label: "Se transfiere al IVR", value: "ivr" },
       { label: "Cliente indica que lo hace después y solicita el instructivo por correo", value: "instructivo" },
       { label: "Ya se encuentra inscrito al PAT", value: "inscrito" },
       { label: "No aplica", value: "no_aplica" }
-    ] },
-    { name: "como_pat_chile_inscrito", label: "Si el cliente aceptó el PAT, seleccione de que manera se realizó o realizará el proceso", type: "select", showIf: { pais: "chile", satisfecha_servicio_chile: "si", acepta_pat_chile: "inscrito" }, options: [
-      { label: "No aceptó", value: "no_acepto" },
-      { label: "En linea(a travez de la app o portal)", value: "en_linea" },
-      { label: "Se transfiere al IVR", value: "ivr" },
-      { label: "Cliente indica que lo hace después y solicita el instructivo por correo", value: "instructivo" },
-      { label: "Ya se encuentra inscrito al PAT", value: "inscrito" },
-      { label: "No aplica", value: "no_aplica" }
-    ] },
-    { name: "motivo_no_pat_chile", label: "Si la respuesta es NO, indague el motivo por el cual no está interesado", type: "select", showIf: { pais: "chile", satisfecha_servicio_chile: "si", acepta_pat_chile: "no" }, options: [
-      { label: "Si aceptó", value: "si_acepto" },
-      { label: "No tiene tarjeta de crédito", value: "no_credito" },
-      { label: "No tiene tarjeta crédito sino debito", value: "solo_debito" },
-      { label: "No tiene cupo en la tarjeta", value: "sin_cupo" },
-      { label: "Prefiere pagar de manera manual", value: "manual" },
-      { label: "Ha tenido malas experiencias con este tipo de sistema", value: "malas_experiencias" },
-      { label: "No cree en los beneficios (desconfía)", value: "desconfia" },
-      { label: "Tiene la tarjeta bloqueada", value: "bloqueada" },
-      { label: "No sabe manejar la tarjeta", value: "no_sabe" },
-      { label: "Es PYME, paga por otro medio", value: "pyme_otro_medio" },
-      { label: "Le preguntará a otra persona", value: "preguntara_otro" },
-      { label: "No aplica", value: "no_aplica" }
-    ] },
+  ]
+},
+  
+  
+    // Eliminado completamente el objeto duplicado de 'motivo_no_pat_chile' sin showIf
+// ...existing code...
+
+    
     
     { name: "avis_colombia_inicio", label: "Colombia inicio de gestión", type: "info", showIf: { pais: "colombia" } },
     { name: "tipo_servicio_colombia", label: "Tipo de servicio Colombia", type: "select", showIf: { pais: "colombia" }, options: [
@@ -630,7 +624,10 @@ export const welcomeForm: FormConfig = {
       { label: "Seguimiento", value: "seguimiento" },
       { label: "Mensaje con tercero", value: "mensaje_tercero" }
     ] },
-    { name: "motivo_no_satisfecho_colombia", label: "¿Por qué no se encuentra satisfecho con el servicio? Colombia", type: "select", showIf: { pais: "colombia", satisfecho_servicio_colombia: "no" }, options: [
+      { name: "info_satisfecho_colombia", label: "Si está satisfecho con el servicio", type: "info", showIf: { pais: "colombia", satisfecho_servicio_colombia: "si" } },
+      { name: "info_no_satisfecho_colombia", label: "No está satisfecho con el servicio", type: "info", showIf: { pais: "colombia", satisfecho_servicio_colombia: "no" } },
+
+      { name: "motivo_no_satisfecho_colombia", label: "¿Por qué no se encuentra satisfecho con el servicio? Colombia", type: "select", showIf: { pais: "colombia", satisfecho_servicio_colombia: "no" }, options: [
       { label: "Es muy intermitente", value: "intermitente" },
       { label: "Actualmente no tiene internet", value: "sin_internet" },
       { label: "Su plan se consumió muy rápido", value: "plan_rapido" },
@@ -657,7 +654,9 @@ export const welcomeForm: FormConfig = {
       { label: "No", value: "no" },
       { label: "No aplica", value: "no_aplica" }
     ] },
-    { name: "uso_servicio_colombia_continua", label: "¿Qué uso le da al servicio? Colombia", type: "select", showIf: { pais: "colombia", continuar_servicio_colombia: "si" }, options: [
+      { name: "info_continuar_colombia", label: "Si está satisfecho y desea continuar con el servicio", type: "info", showIf: { pais: "colombia", continuar_servicio_colombia: "si" } },
+
+      { name: "uso_servicio_colombia_continua", label: "¿Qué uso le da al servicio? Colombia", type: "select", showIf: { pais: "colombia", continuar_servicio_colombia: "si" }, options: [
       { label: "Estudiar", value: "estudiar" },
       { label: "Trabajar", value: "trabajar" },
       { label: "Redes sociales", value: "redes" },
@@ -784,12 +783,17 @@ export const welcomeForm: FormConfig = {
       { label: "No aplica", value: "no_aplica" }
     ] },
     { name: "numero_contacto_colombia", label: "Número por el cual se logró contacto, Colombia", type: "text", showIf: { pais: "colombia", satisfecho_servicio_colombia: "si" } },
+
+    { name: "se_escala_chile", label: "Se escala", type: "checkbox", options: [
+      { label: "Soporte técnico", value: "soporte_tecnico" },
+      { label: "Contacto Hughesnet", value: "contacto_hughesnet" },
+      { label: "No aplica", value: "no_aplica" }
+    ], showIf: { pais: "chile" } },
     { name: "codigo_gestion", label: "Código de gestión", type: "select", options: [
       { label: "Se realiza encuesta", value: "encuesta" },
       { label: "No recibe información", value: "no_info" },
       { label: "Solicita información por correo", value: "correo" },
       { label: "Volver a llamar", value: "volver_llamar" },
-      { label: "Re – llamada", value: "re_llamada" },
       { label: "No contesta", value: "no_contesta" },
       { label: "Buzón de mensaje", value: "buzon" },
       { label: "Fuera de servicio (número fuera de servicio)", value: "fuera_servicio" },
@@ -799,15 +803,11 @@ export const welcomeForm: FormConfig = {
       { label: "Solicita retiro del servicio", value: "retiro" },
       { label: "Presenta novedad (se escala a Loreto)", value: "novedad_loreto" },
       { label: "Cliente con TRM activa", value: "trm_activa" },
-      { label: "PYME", value: "pyme" },
       { label: "SAN inactiva", value: "san_inactiva" },
       { label: "Cliente fallecido", value: "fallecido" },
       { label: "Suspensión temporal", value: "suspension" },
       { label: "Se cancela SAN BRM", value: "cancela_san_brm" },
       { label: "Welcome no completado", value: "welcome_no_completado" },
-      { label: "Piloto global", value: "piloto_global" },
-      { label: "Piloto Loreto", value: "piloto_loreto" },
-      { label: "Reinstalación", value: "reinstalacion" }
     ] },
     { name: "observacion", label: "Observación", type: "text", multiline: true },
     { name: "sugerencia", label: "¿Qué sugerencia u observación le dejaría a HughesNet?", type: "text", multiline: true },

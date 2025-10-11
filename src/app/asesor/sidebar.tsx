@@ -2,12 +2,10 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, FilePlus, Users } from "lucide-react"
+import { LayoutDashboard } from "lucide-react"
 
 const links = [
-  { name: "Dashboard", href: "/asesor", icon: LayoutDashboard },
-  { name: "Registrar llamada", href: "/asesor/registrar", icon: FilePlus },
-  { name: "Mis clientes", href: "/asesor/clientes", icon: Users },
+  { name: "Menú principal", href: "/asesor", icon: LayoutDashboard },
 ]
 
 export default function SidebarAsesor() {

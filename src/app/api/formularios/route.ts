@@ -26,8 +26,8 @@ export async function POST(req: Request) {
       );
     }
 
-    // 🔹 Si es asesor => guarda su ID
-    // 🔹 Si es admin/auditor => guarda NULL en asesor_id, y nombre en asesor_nombre
+    //  Si es asesor => guarda su ID
+    //  Si es admin/auditor => guarda NULL en asesor_id, y nombre en asesor_nombre
     let asesorId: number | null = null;
     const asesorNombre: string = user.username;
 
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
       asesorId = Number(user.id);
     }
 
-    // 👉 Guardar formulario
+    //  Guardar formulario
     const result = await pool.query(
       `INSERT INTO public.formularios (tipo, asesor_id, asesor_nombre, datos) 
        VALUES ($1, $2, $3, $4) 
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
       [tipo, asesorId, asesorNombre, JSON.stringify(datos)]
     );
 
-    // 👉 Si es asesor, actualizar métricas en la tabla asesores
+    //  Si es asesor, actualizar métricas en la tabla asesores
     if (asesorId) {
       await pool.query(
         `UPDATE asesores 
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
         [asesorId]
       );
 
-      // 🔥 Aquí más adelante puedes añadir lógica real de eficiencia
+      //  Aquí más adelante puedes añadir lógica real de eficiencia
       // Ejemplo inicial: eficiencia = formularios_completados * 10 (dummy)
       await pool.query(
         `UPDATE asesores
@@ -77,7 +77,7 @@ export async function POST(req: Request) {
   }
 }
 
-// 📌 GET: obtener formularios del asesor autenticado
+//  GET: obtener formularios del asesor autenticado
 export async function GET(req: Request) {
   try {
     const session = await getServerSession(authOptions);

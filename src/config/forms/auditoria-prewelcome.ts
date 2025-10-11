@@ -32,12 +32,14 @@ export const auditoriaPrewelcomeForm: FormConfig = {
     { 
       name: "fecha_creacion_san", 
       label: "Fecha creación SAN", 
-      type: "date" 
+      type: "date",
+      required: true
     },
     {
       name: "master_dealer",
       label: "Master Dealer",
       type: "select",
+      required: true,
       options: [
         { label: "ANavarrete Dealer MD", value: "anavarrete" },
         { label: "HCL-CSepulveda MD Dealer", value: "hcl_csepulveda" },
@@ -55,6 +57,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
       name: "documento_id",
       label: "Documento de ID",
       type: "select",
+      required: true,
       options: [
         { label: "Si", value: "si" },
         { label: "No", value: "no" },
@@ -65,6 +68,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
       name: "correo_electronico",
       label: "Correo electrónico",
       type: "select",
+      required: true,
       options: [
         { label: "Si", value: "si" },
         { label: "No", value: "no" }
@@ -73,12 +77,14 @@ export const auditoriaPrewelcomeForm: FormConfig = {
     { 
       name: "telefono", 
       label: "Teléfono", 
-      type: "text" 
+      type: "text",
+      required: true
     },
     {
       name: "direccion",
       label: "Dirección",
       type: "select",
+      required: true,
       options: [
         { label: "Si", value: "si" },
         { label: "No", value: "no" },
@@ -89,6 +95,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
       name: "total_datos_correctos",
       label: "Total de datos correctos",
       type: "select",
+      required: true,
       options: [
         { label: "0 de 4", value: "0" },
         { label: "1 de 4", value: "1" },
@@ -100,27 +107,32 @@ export const auditoriaPrewelcomeForm: FormConfig = {
     { 
       name: "documento_cliente", 
       label: "Documento cliente", 
-      type: "text" 
+      type: "text",
+      required: true
     },
     { 
       name: "linea_contacto_principal", 
       label: "Línea de contacto principal", 
-      type: "text" 
+      type: "text",
+      required: true
     },
     { 
       name: "linea_contacto_secundaria", 
       label: "Línea de contacto secundaria", 
-      type: "text" 
+      type: "text",
+      required: true
     },
     { 
       name: "email", 
       label: "Email", 
-      type: "text" 
+      type: "text",
+      required: true
     },
     {
       name: "tipo_venta",
       label: "Tipo de venta",
       type: "select",
+      required: true,
       options: [
         { label: "Persona natural", value: "persona_natural" },
         { label: "PYME", value: "pyme" }
@@ -131,12 +143,14 @@ export const auditoriaPrewelcomeForm: FormConfig = {
       name: "documentos_persona_natural",
       label: "Documentos persona natural",
       type: "info",
+      required: true,
       showIf: { tipo_venta: "persona_natural" }
     },
     {
       name: "documento_id_natural",
       label: "Documento de ID",
       type: "select",
+      required: true,
       options: [
         { label: "Si", value: "si" },
         { label: "No", value: "no" }
@@ -147,6 +161,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
       name: "validacion_id_natural",
       label: "Validación ID",
       type: "select",
+      required: true,
       options: [
         { label: "Si", value: "si" },
         { label: "No", value: "no" }
@@ -157,6 +172,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
       name: "factura_carta_natural",
       label: "Factura o carta",
       type: "select",
+      required: true,
       options: [
         { label: "Si", value: "si" },
         { label: "No", value: "no" },
@@ -168,6 +184,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
       name: "historial_crediticio_natural",
       label: "Historial crediticio",
       type: "select",
+      required: true,
       options: [
         { label: "Aprobado", value: "aprobado" },
         { label: "Rechazado", value: "rechazado" },
@@ -180,6 +197,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
       name: "confirmacion_contrato_natural",
       label: "Confirmación del contrato",
       type: "select",
+      required: true,
       options: [
         { label: "Firmado", value: "firmado" },
         { label: "Pendiente", value: "pendiente" },
@@ -193,12 +211,14 @@ export const auditoriaPrewelcomeForm: FormConfig = {
       name: "documentos_pyme",
       label: "Documentos PYME",
       type: "info",
+      required: true,
       showIf: { tipo_venta: "pyme" }
     },
       {
         name: "nit_rut_pyme",
         label: "NIT/RUT",
         type: "select",
+        required: true,
         options: [
           { label: "Si", value: "si" },
           { label: "No", value: "no" }
@@ -209,6 +229,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
         name: "documento_id_representante_pyme",
         label: "Documento de ID del representante legal",
         type: "select",
+        required: true,
         options: [
           { label: "Si", value: "si" },
           { label: "No", value: "no" }
@@ -219,6 +240,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
         name: "validacion_id_representante_pyme",
         label: "Validación ID del representante legal",
         type: "select",
+        required: true,
         options: [
           { label: "Si", value: "si" },
           { label: "No", value: "no" },
@@ -230,6 +252,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
         name: "factura_carta_pyme",
         label: "Factura o carta",
         type: "select",
+        required: true,
         options: [
           { label: "Si", value: "si" },
           { label: "No", value: "no" },
@@ -241,6 +264,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
         name: "autorizacion_tercero_pyme",
         label: "Autorización de tercero",
         type: "select",
+        required: true,
         options: [
           { label: "Si", value: "si" },
           { label: "No", value: "no" },
@@ -252,6 +276,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
         name: "historial_crediticio_pyme",
         label: "Historial crediticio",
         type: "select",
+        required: true,
         options: [
           { label: "Aprobado", value: "aprobado" },
           { label: "Rechazado", value: "rechazado" },
@@ -264,6 +289,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
         name: "confirmacion_contrato_pyme",
         label: "Confirmación del contrato (PYME)",
         type: "select",
+        required: true,
         options: [
           { label: "Firmado", value: "firmado" },
           { label: "Pendiente", value: "pendiente" },
@@ -277,12 +303,14 @@ export const auditoriaPrewelcomeForm: FormConfig = {
         name: "hughespro_truora_pyme",
         label: "HughesPro (Truora)",
         type: "info",
+        required: true,
         showIf: { tipo_venta: "pyme" }
       },
       {
         name: "hughespro_estado_pyme",
         label: "HughesPro",
         type: "select",
+        required: true,
         options: [
           { label: "Confirmado", value: "confirmado" },
           { label: "Pendiente", value: "pendiente" },
@@ -294,6 +322,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
         name: "hughespro_validacion_id_pyme",
         label: "Validación de ID",
         type: "select",
+        required: true,
         options: [
           { label: "Exitoso", value: "exitoso" },
           { label: "Pendiente", value: "pendiente" },
@@ -308,12 +337,14 @@ export const auditoriaPrewelcomeForm: FormConfig = {
         name: "autorizacion_gerencia_info_pyme",
         label: "Autorización de gerencia",
         type: "info",
+        required: true,
         showIf: { tipo_venta: "pyme" }
       },
       {
         name: "autorizacion_gerencia_historial_pyme",
         label: "Aprobado (historial crediticio)",
         type: "select",
+        required: true,
         options: [
           { label: "Excepcionado", value: "excepcionado87" },
           { label: "No", value: "no" },
@@ -325,6 +356,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
         name: "autorizado_gerencia_sin_hughespro_pyme",
         label: "Autorizado por gerencia (sin HughesPro)",
         type: "select",
+        required: true,
         options: [
           { label: "Excepcionado", value: "excepcionado" },
           { label: "No", value: "no" },
@@ -336,6 +368,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
         name: "autorizado_gerencia_mas_servicios_pyme",
         label: "Autorizado por gerencia (cliente con más de un servicio)",
         type: "select",
+        required: true,
         options: [
           { label: "Autorizado sin pago anticipado", value: "sin_pago" },
           { label: "Autorizado pago de 6 meses", value: "pago_6m" },
@@ -349,6 +382,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
         name: "estado_servicio_pyme",
         label: "Estado del servicio",
         type: "select",
+        required: true,
         options: [
           { label: "Pendiente de pago", value: "pendiente_pago" },
           { label: "Cupón vencido", value: "cupon_vencido" },
@@ -367,6 +401,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
         name: "codigo_gestion_pyme",
         label: "Código de gestión",
         type: "select",
+        required: true,
         options: [
           { label: "No pasa auditoria", value: "no_pasa" },
           { label: "Auditoria exitosa", value: "exitosa" },
@@ -379,12 +414,14 @@ export const auditoriaPrewelcomeForm: FormConfig = {
       name: "hughespro_truora",
       label: "HughesPro (Truora)",
       type: "info",
+      required: true,
       showIf: { tipo_venta: "persona_natural" }
     },
     {
       name: "hughespro_estado",
       label: "HughesPro",
       type: "select",
+      required: true,
       options: [
         { label: "Confirmado", value: "confirmado" },
         { label: "Pendiente", value: "pendiente" },
@@ -396,6 +433,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
       name: "hughespro_validacion_id",
       label: "Validación de ID",
       type: "select",
+      required: true,
       options: [
         { label: "Exitoso", value: "exitoso" },
         { label: "Pendiente", value: "pendiente" },
@@ -412,12 +450,14 @@ export const auditoriaPrewelcomeForm: FormConfig = {
       name: "autorizacion_gerencia_info_natural",
       label: "Autorización de gerencia",
       type: "info",
+      required: true,
       showIf: { tipo_venta: "persona_natural" }
     },
     {
       name: "autorizacion_gerencia_historial",
       label: "Aprobado (historial crediticio)",
       type: "select",
+      required: true,
       options: [
         { label: "Excepcionado", value: "excepcionado" },
         { label: "No", value: "no" },
@@ -429,6 +469,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
       name: "autorizado_gerencia_sin_hughespro",
       label: "Autorizado por gerencia (sin HughesPro)",
       type: "select",
+      required: true,
       options: [
         { label: "Excepcionado", value: "excepcionado" },
         { label: "No", value: "no" },
@@ -440,6 +481,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
       name: "autorizado_gerencia_mas_servicios",
       label: "Autorizado por gerencia (cliente con más de un servicio)",
       type: "select",
+      required: true,
       options: [
         { label: "Autorizado sin pago anticipado", value: "sin_pago" },
         { label: "Autorizado pago de 6 meses", value: "pago_6m" },
@@ -453,6 +495,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
       name: "estado_servicio",
       label: "Estado del servicio",
       type: "select",
+      required: true,
       options: [
         { label: "Pendiente de pago", value: "pendiente_pago" },
         { label: "Cupón vencido", value: "cupon_vencido" },
@@ -471,6 +514,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
       name: "codigo_gestion",
       label: "Código de gestión",
       type: "select",
+      required: true,
       options: [
         { label: "No pasa auditoria", value: "no_pasa" },
         { label: "Auditoria exitosa", value: "exitosa" },
@@ -482,6 +526,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
       name: "observacion",
       label: "Observación",
       type: "text",
+      required: true,
       multiline: true,
       showIf: { tipo_venta: "persona_natural" }
     },
@@ -489,6 +534,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
       name: "observacion_pyme",
       label: "Observación",
       type: "text",
+      required: true,
       multiline: true,
       showIf: { tipo_venta: "pyme" }
     }

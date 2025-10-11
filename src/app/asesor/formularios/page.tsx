@@ -1,5 +1,6 @@
 "use client"
 import { useSession } from "next-auth/react";
+import VolverAtras from "@/components/volverAtras";
 import useSWR from "swr";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -25,6 +26,7 @@ export default function FormulariosLlenadosPage() {
   return (
     <div className="p-8 min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
       <div className="max-w-5xl mx-auto">
+        <VolverAtras />
         <h1 className="text-3xl font-bold mb-6 text-gray-800 dark:text-gray-100 text-center">Formularios llenados hoy</h1>
         {formulariosHoy.length === 0 ? (
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-8 text-center">

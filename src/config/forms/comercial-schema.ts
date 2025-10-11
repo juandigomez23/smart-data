@@ -4,26 +4,34 @@ export type ComercialFormData = {
   correo: string;
   san: string;
   pais: string;
-  tipo_servicio?: string;
-  medio_contacto?: string;
-  campana?: string;
-  logra_contacto?: string;
-  numero_contacto?: string;
-  motivo_reincidencia?: string;
-  solucion_recibida?: string;
-  // Agrega aquí más campos opcionales según el config si lo necesitas
+  tipo_servicio: string;
+  medio_contacto: string;
+  campana: string;
+  logra_contacto: string;
+  numero_contacto: string;
+  motivo_reincidencia: string;
+  solucion_recibida: string;
+  escala_a: string;
+  acepta_pat: string;
+  codigo_gestion: string;
+  observaciones: string;
+  sugerencias: string;
 }
 
 export const comercialSchema = z.object({
   correo: z.string().email("Correo inválido"),
   san: z.string().min(3, "SAN obligatorio"),
   pais: z.string().min(1, "País obligatorio"),
-  tipo_servicio: z.string().optional(),
-  medio_contacto: z.string().optional(),
-  campana: z.string().optional(),
-  logra_contacto: z.string().optional(),
-  numero_contacto: z.string().optional(),
-  motivo_reincidencia: z.string().optional(),
-  solucion_recibida: z.string().optional(),
-  // Agrega aquí más validaciones opcionales si lo necesitas
+  tipo_servicio: z.string().min(1, "Campo obligatorio"),
+  medio_contacto: z.string().min(1, "Campo obligatorio"),
+  campana: z.string().min(1, "Campo obligatorio"),
+  logra_contacto: z.string().min(1, "Campo obligatorio"),
+  numero_contacto: z.string().min(1, "Campo obligatorio"),
+  motivo_reincidencia: z.string().min(1, "Campo obligatorio"),
+  solucion_recibida: z.string().min(1, "Campo obligatorio"),
+  escala_a: z.string().min(1, "Campo obligatorio"),
+  acepta_pat: z.string().min(1, "Campo obligatorio"),
+  codigo_gestion: z.string().min(1, "Campo obligatorio"),
+  observaciones: z.string().min(1, "Campo obligatorio"),
+  sugerencias: z.string().min(1, "Campo obligatorio"),
 });

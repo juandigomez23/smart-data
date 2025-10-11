@@ -9,7 +9,7 @@ import { useAsesor } from "@/hooks/useAsesor"
 
 export interface FieldConfig {
   name: string;
-  label: string;
+  label: string | ((args: { values: FieldValues }) => string);
   type: "text" | "number" | "select" | "checkbox" | "date" | "info" | "time";
   required?: boolean;
   options?: { label: string; value: string }[];
@@ -43,10 +43,9 @@ type FormGeneratorProps = {
 };
 
 export default function FormGenerator({ config, schema }: FormGeneratorProps) {
-  const { register, handleSubmit, reset, setValue, watch, formState } = useForm<FieldValues>({
-  // Usamos 'as any' en el resolver porque el generador es dinámico y los tipos de Zod y React Hook Form no pueden coincidir perfectamente.
-  // Es seguro y recomendado en este contexto para mantener flexibilidad y validación automática.
-  resolver: schema ? (zodResolver(schema) as any) : undefined
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { register, handleSubmit, reset, setValue, watch, formState } = useForm({
+    resolver: schema ? (zodResolver(schema as ZodTypeAny) as any) : undefined
   })
 
   // Resetear el formulario cada vez que cambia el config (nuevo formulario) o se monta el componente
@@ -108,18 +107,27 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
   if (!autenticado) return <p className="text-red-600">⚠️ Debes iniciar sesión para usar el formulario</p>
 
   return (
-  <div className="bg-gray-50 p-8 rounded-xl shadow-lg border border-gray-200 max-w-2xl mx-auto">
-      <div className="flex items-center gap-3 mb-4">
-        {config.image && (
-          <Image src={config.image} alt={`${config.title} bandera`} width={40} height={25} className="rounded-sm shadow-sm" />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 py-12 px-2 flex items-center justify-center">
+      <div className="w-full max-w-2xl mx-auto bg-white rounded-3xl shadow-2xl border-2 border-blue-200 p-8">
+        <div className="flex items-center gap-4 mb-6">
+          {config.image && (
+            <span className="inline-block bg-blue-100 rounded-full p-2 shadow">
+              <Image src={config.image} alt={`${config.title} bandera`} width={40} height={25} className="rounded-sm" />
+            </span>
+          )}
+          <h2 className="text-3xl font-extrabold text-blue-700 flex items-center gap-2">
+            <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="white"/><path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" /></svg>
+            {config.title}
+          </h2>
+        </div>
+        {asesorNombre && (
+          <div className="mb-6 flex items-center gap-2 bg-blue-50 rounded-lg px-4 py-2 text-blue-900 text-sm font-medium shadow">
+            <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="white"/><path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" /></svg>
+            Sesión activa: <strong>{asesorNombre}</strong>
+          </div>
         )}
-        <h2 className="text-2xl font-bold text-gray-800">{config.title}</h2>
-      </div>
-      {asesorNombre && (
-        <p className="mb-4 text-sm text-gray-600">Sesión activa: <strong>{asesorNombre}</strong></p>
-      )}
-  <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full">
-        {config.fields.filter(field => shouldShowField(field, values)).map((field) => (
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 w-full">
+          {config.fields.filter(field => shouldShowField(field, values)).map((field) => (
           <div key={field.name} className="flex flex-col w-full">
             {field.name === "documento_id" && (
               <div className="relative flex flex-row items-center gap-3 p-4 mb-4 bg-gradient-to-r from-blue-100 via-blue-50 to-blue-100 border-l-8 border-blue-500 text-blue-900 rounded-xl shadow-md">
@@ -147,7 +155,7 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" />
                   </svg>
                   <div className="flex flex-col">
-                    <span className="font-bold text-blue-700 text-lg mb-1 whitespace-pre-line">{field.label}</span>
+                    <span className="font-bold text-blue-700 text-lg mb-1 whitespace-pre-line">{typeof field.label === "function" ? field.label({ values }) : field.label}</span>
                     {field.description && (
                       <span className="block text-base text-blue-700 leading-relaxed mt-1">{field.description}</span>
                     )}
@@ -157,7 +165,7 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
               : (
                 <>
                   <label className="mb-1 font-medium text-gray-700">
-                    {field.label} {field.required && <span className="text-red-500">*</span>}
+                    {typeof field.label === "function" ? field.label({ values }) : field.label} {field.required && <span className="text-red-500">*</span>}
                   </label>
                   {field.description && <p className="text-xs text-gray-500 mb-2">{field.description}</p>}
                 </>
@@ -287,11 +295,11 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
             {field.type === "checkbox" && (
               <div className="flex items-center space-x-2 text-gray-900">
                 <input type="checkbox" {...register(field.name)} className="h-4 w-4" />
-                <span>{field.label}</span>
+                <span>{typeof field.label === "function" ? field.label({ values }) : field.label}</span>
                 <span className="ml-2 text-gray-400 text-xs">(Seleccione una opción)</span>
               </div>
             )}
-            {field.type !== "info" && formState.errors[field.name] && (
+            {field.type !== "info" && formState.errors[field.name] && field.name !== "san" && (
               <span className="text-red-600 text-xs mt-1">campo obligatorio</span>
             )}
 
@@ -312,7 +320,8 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
                         {subField.type === "info"
                           ? (
                             <div className="relative flex flex-col gap-2 p-4 bg-gradient-to-r from-blue-100 via-blue-50 to-blue-100 border-l-8 border-blue-500 text-blue-900 rounded-xl mb-5 shadow-md">
-                              <span className="font-bold text-lg tracking-wide mb-1">{subField.label}</span>
+                              <span className="font-bold text-lg tracking-wide mb-1">{typeof subField.label === "function" ? subField.label({ values }) : subField.label}</span>
+                            <span className="font-bold text-lg tracking-wide mb-1">{typeof subField.label === "function" ? subField.label({ values }) : subField.label}</span>
                               {subField.description && (
                                 <span className="block text-base text-blue-700 leading-relaxed pl-2 border-l-2 border-blue-300 bg-blue-50 rounded-md py-2">{subField.description}</span>
                               )}
@@ -321,7 +330,7 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
                           : (
                             <>
                               <label className="mb-1 font-medium text-gray-700">
-                                {subField.label} {subField.required && <span className="text-red-500">*</span>}
+                                            {typeof subField.label === "function" ? subField.label({ values }) : subField.label} {subField.required && <span className="text-red-500">*</span>}
                               </label>
                               {subField.description && <p className="text-xs text-gray-500 mb-2">{subField.description}</p>}
                             </>
@@ -349,7 +358,8 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
                         {subField.type === "checkbox" && (
                           <div className="flex items-center space-x-2 text-gray-900">
                             <input type="checkbox" {...register(subField.name)} className="h-4 w-4" />
-                            <span>{subField.label}</span>
+                            <span>{typeof subField.label === "function" ? subField.label({ values }) : subField.label}</span>
+                            <span>{typeof subField.label === "function" ? subField.label({ values }) : subField.label}</span>
                           </div>
                         )}
                         {/* Renderizar condicionales anidados recursivamente */}
@@ -362,7 +372,8 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
                                     {nestedField.type === "info"
                                       ? (
                                         <div className="relative flex flex-col gap-2 p-4 bg-gradient-to-r from-blue-100 via-blue-50 to-blue-100 border-l-8 border-blue-500 text-blue-900 rounded-xl mb-5 shadow-md">
-                                          <span className="font-bold text-lg tracking-wide mb-1">{nestedField.label}</span>
+                                          <span className="font-bold text-lg tracking-wide mb-1">{typeof nestedField.label === "function" ? nestedField.label({ values }) : nestedField.label}</span>
+                                          <span className="font-bold text-lg tracking-wide mb-1">{typeof nestedField.label === "function" ? nestedField.label({ values }) : nestedField.label}</span>
                                           {nestedField.description && (
                                             <span className="block text-base text-blue-700 leading-relaxed pl-2 border-l-2 border-blue-300 bg-blue-50 rounded-md py-2">{nestedField.description}</span>
                                           )}
@@ -371,7 +382,7 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
                                       : (
                                         <>
                                           <label className="mb-1 font-medium text-gray-700">
-                                            {nestedField.label} {nestedField.required && <span className="text-red-500">*</span>}
+                                            {typeof nestedField.label === "function" ? nestedField.label({ values }) : nestedField.label} {nestedField.required && <span className="text-red-500">*</span>}
                                           </label>
                                           {nestedField.description && <p className="text-xs text-gray-500 mb-2">{nestedField.description}</p>}
                                         </>
@@ -396,7 +407,8 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
                                     {nestedField.type === "checkbox" && (
                                       <div className="flex items-center space-x-2 text-gray-900">
                                         <input type="checkbox" {...register(nestedField.name)} className="h-4 w-4" />
-                                        <span>{nestedField.label}</span>
+                                        <span>{typeof nestedField.label === "function" ? nestedField.label({ values }) : nestedField.label}</span>
+                                        <span>{typeof nestedField.label === "function" ? nestedField.label({ values }) : nestedField.label}</span>
                                       </div>
                                     )}
                                   </div>
@@ -419,8 +431,22 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
         </div>
       </form>
       {message && (
-        <p className={`mt-4 text-sm font-medium text-center ${message.type === "success" ? "text-green-600" : message.type === "error" ? "text-red-600" : "text-yellow-600"}`}>{message.text}</p>
+        <div className={`mt-6 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium text-center shadow-lg
+          ${message.type === "success" ? "bg-green-50 text-green-700" : message.type === "error" ? "bg-red-50 text-red-700" : "bg-yellow-50 text-yellow-700"}`}
+        >
+          {message.type === "success" && (
+            <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+          )}
+          {message.type === "error" && (
+            <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+          )}
+          {message.type === "warning" && (
+            <svg className="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01" /></svg>
+          )}
+          <span>{message.text}</span>
+        </div>
       )}
+      </div>
     </div>
   )
 }
