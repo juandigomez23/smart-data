@@ -22,6 +22,7 @@ export interface FieldConfig {
     condition: { field: string; value: string };
     fields: FieldConfig[];
   }>;
+  validate?: (args: { values: unknown, value: unknown }) => true | string;
 }
 
 export type FormConfig = {
@@ -43,9 +44,9 @@ type FormGeneratorProps = {
 };
 
 export default function FormGenerator({ config, schema }: FormGeneratorProps) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { register, handleSubmit, reset, setValue, watch, formState } = useForm({
-    resolver: schema ? (zodResolver(schema as ZodTypeAny) as any) : undefined
+  const { register, handleSubmit, reset, setValue, watch, formState, trigger } = useForm<Record<string, unknown>>({
+    resolver: schema ? zodResolver(schema as ZodTypeAny) : undefined,
+    mode: "onChange"
   })
 
   // Resetear el formulario cada vez que cambia el config (nuevo formulario) o se monta el componente
@@ -60,17 +61,47 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
 
   // Autocompletar campos con auto: true
   useEffect(() => {
+    const correoActual = watch("correo");
     config.fields.forEach(field => {
-      if (field.auto && field.name === "correo" && asesorEmail) {
-        setValue(field.name, asesorEmail)
+      if (field.auto && field.name === "correo" && (correoActual || asesorEmail)) {
+        setValue(field.name, correoActual || asesorEmail);
       }
-    })
-  }, [asesorEmail, config.fields, setValue])
+    });
+  }, [asesorEmail, config.fields, setValue, formState.isSubmitted, watch]);
 
-  const onSubmit = async (data: Record<string, unknown>) => {
+  // Recursivamente obtener los campos visibles (incluyendo condicionales y anidados)
+  // Recursivamente obtiene solo los campos visibles y requeridos, incluyendo condicionales y showIf
+  function getVisibleRequiredFields(fields: FieldConfig[], values: FieldValues): FieldConfig[] {
+    let result: FieldConfig[] = [];
+    for (const field of fields) {
+      if (shouldShowField(field, values)) {
+        if (field.required) result.push(field);
+        // Si el campo tiene condicionales, procesar recursivamente
+        if (field.conditionalFields) {
+          for (const cond of field.conditionalFields) {
+            if (values[field.name] === cond.condition.value) {
+              result = result.concat(getVisibleRequiredFields(cond.fields, values));
+            }
+          }
+        }
+      }
+    }
+    return result;
+  }
+
+  const onSubmit: import("react-hook-form").SubmitHandler<Record<string, unknown>> = async (data) => {
     if (!asesorId) {
-      setMessage({ text: "⚠️ Debes iniciar sesión como asesor", type: "error" })
+      setMessage({ text: " Debes iniciar sesión como asesor", type: "error" })
       return
+    }
+    // Obtener los campos visibles en este momento
+    const valuesNow = watch();
+    const visibleRequiredFields = getVisibleRequiredFields(config.fields, valuesNow);
+    const requiredVisibleFieldNames = visibleRequiredFields.map(f => f.name);
+    const valid = await trigger(requiredVisibleFieldNames);
+    if (!valid) {
+      setMessage({ text: "Completa los campos obligatorios visibles", type: "error" });
+      return;
     }
     setLoading(true)
     setMessage(null)
@@ -92,7 +123,14 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
       if (!res.ok) throw new Error(json.error || "Error del servidor")
       if (json.success) {
         setMessage({ text: "✅ Formulario guardado correctamente", type: "success" })
-        reset()
+        const correoActual = data.correo as string;
+        reset();
+        // Restaurar el correo después del reset
+        config.fields.forEach(field => {
+          if (field.auto && field.name === "correo" && (correoActual || asesorEmail)) {
+            setValue(field.name, correoActual || asesorEmail);
+          }
+        });
       } else {
         throw new Error(json.error || "Error al guardar")
       }
@@ -126,7 +164,7 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
             Sesión activa: <strong>{asesorNombre}</strong>
           </div>
         )}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 w-full">
+  <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 w-full">
           {config.fields.filter(field => shouldShowField(field, values)).map((field) => (
           <div key={field.name} className="flex flex-col w-full">
             {field.name === "documento_id" && (
@@ -172,67 +210,46 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
               )}
             {field.type === "text" && (
               field.multiline
-                ? (<textarea {...register(field.name, { required: field.required })} rows={6} className="border p-3 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-2xl resize-vertical" placeholder={`Ingrese ${field.label}`} />)
+                ? (<textarea {...register(field.name, { required: shouldShowField(field, values) && field.required })} rows={6} className="border p-3 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-2xl resize-vertical" placeholder={`Ingrese ${field.label}`} />)
                 : (field.name === "resumen_gestion"
-                  ? (<textarea {...register(field.name, { required: field.required })} rows={5} className="border p-3 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-2xl resize-vertical" placeholder={`Ingrese ${field.label}`} />)
+                  ? (<textarea {...register(field.name, { required: shouldShowField(field, values) && field.required })} rows={5} className="border p-3 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-2xl resize-vertical" placeholder={`Ingrese ${field.label}`} />)
                   : field.name === "correo"
-                    ? (<input type="text" {...register(field.name, { required: field.required })} className="border p-2 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed w-full max-w-lg" placeholder={`Ingrese ${field.label}`} readOnly />)
+                    ? (<input type="text" {...register(field.name, { required: shouldShowField(field, values) && field.required })} className="border p-2 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed w-full max-w-lg" placeholder={`Ingrese ${field.label}`} readOnly />)
                     : field.name === "san"
                       ? (<>
-                          {/** Determinar país seleccionado */}
-                          {(() => {
-                            const pais = values.pais;
-                            let prefix = "";
-                            let ejemplo = "SAN";
-                            if (pais === "colombia") {
-                              prefix = "HCO";
-                              ejemplo = "HCO2000126867";
-                            } else if (pais === "chile") {
-                              prefix = "HCL";
-                              ejemplo = "HCL2000751067";
-                            } else if (pais === "ecuador") {
-                              prefix = "HEC";
-                              ejemplo = "HEC2000756147";
-                            } else if (pais === "peru" || pais === "perú") {
-                              prefix = "HPE";
-                              ejemplo = "HPE2000756297";
-                            }
-                            return (
-                              <>
-                                <input type="text"
-                                  {...register(field.name, {
-                                    required: field.required,
-                                    validate: value => {
-                                      if (!prefix) return true;
-                                      if (!value) return true;
-                                      return value.startsWith(prefix) || `El SAN debe iniciar con ${prefix}`;
-                                    }
-                                  })}
-                                  className={`border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-lg ${formState.errors.san ? 'border-red-500' : ''}`}
-                                  placeholder={`Ejemplo: ${ejemplo}`}
-                                />
-                                {formState.errors.san && (
-                                  <span className="text-red-600 text-xs mt-1">{formState.errors.san.message as string}</span>
-                                )}
-                              </>
-                            );
-                          })()}
+                          <input
+                            type="text"
+                            {...register(field.name, {
+                              required: shouldShowField(field, values) && field.required,
+                              validate: value => {
+                                if (typeof field.validate === "function") {
+                                  return field.validate({ values, value });
+                                }
+                                return true;
+                              }
+                            })}
+                            className={`border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-lg ${formState.errors.san ? 'border-red-500' : ''}`}
+                            placeholder={typeof field.label === "function" ? field.label({ values }) : "Ejemplo: SAN"}
+                          />
+                          {formState.errors.san && (
+                            <span className="text-red-600 text-xs mt-1">{formState.errors.san.message as string}</span>
+                          )}
                         </>
                       )
-                      : (<input type="text" {...register(field.name, { required: field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-lg" placeholder={`Ingrese ${field.label}`} />)
+                      : (<input type="text" {...register(field.name, { required: shouldShowField(field, values) && field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-lg" placeholder={`Ingrese ${field.label}`} />)
                 )
             )}
             {field.type === "time" && (
-              <input type="time" {...register(field.name, { required: field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 w-full max-w-md" step="60" />
+              <input type="time" {...register(field.name, { required: shouldShowField(field, values) && field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 w-full max-w-md" step="60" />
             )}
             {field.type === "number" && (
-              <input type="number" {...register(field.name, { required: field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-md" placeholder={`Ingrese ${field.label}`} />
+              <input type="number" {...register(field.name, { required: shouldShowField(field, values) && field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-md" placeholder={`Ingrese ${field.label}`} />
             )}
             {field.type === "date" && (
-              <input type="date" {...register(field.name, { required: field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 w-full max-w-md" />
+              <input type="date" {...register(field.name, { required: shouldShowField(field, values) && field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 w-full max-w-md" />
             )}
             {field.type === "select" && field.options && field.name === "master_dealer" ? (
-              <select defaultValue="" {...register(field.name, { required: field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 w-full max-w-md">
+              <select defaultValue="" {...register(field.name, { required: shouldShowField(field, values) && field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 w-full max-w-md">
                 <option value="" disabled hidden>(Seleccione una opción)</option>
                 {(() => {
                   const pais = values.pais;
@@ -285,7 +302,7 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
                 })()}
               </select>
             ) : field.type === "select" && field.options ? (
-              <select defaultValue="" {...register(field.name, { required: field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 w-full max-w-md">
+              <select defaultValue="" {...register(field.name, { required: shouldShowField(field, values) && field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 w-full max-w-md">
                 <option value="" disabled hidden>(Seleccione una opción)</option>
                 {field.options.map(opt => (
                   <option key={opt.value} value={opt.value} className="text-gray-900">{opt.label}</option>
@@ -321,7 +338,7 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
                           ? (
                             <div className="relative flex flex-col gap-2 p-4 bg-gradient-to-r from-blue-100 via-blue-50 to-blue-100 border-l-8 border-blue-500 text-blue-900 rounded-xl mb-5 shadow-md">
                               <span className="font-bold text-lg tracking-wide mb-1">{typeof subField.label === "function" ? subField.label({ values }) : subField.label}</span>
-                            <span className="font-bold text-lg tracking-wide mb-1">{typeof subField.label === "function" ? subField.label({ values }) : subField.label}</span>
+                              <span className="font-bold text-lg tracking-wide mb-1">{typeof subField.label === "function" ? subField.label({ values }) : subField.label}</span>
                               {subField.description && (
                                 <span className="block text-base text-blue-700 leading-relaxed pl-2 border-l-2 border-blue-300 bg-blue-50 rounded-md py-2">{subField.description}</span>
                               )}
@@ -330,25 +347,25 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
                           : (
                             <>
                               <label className="mb-1 font-medium text-gray-700">
-                                            {typeof subField.label === "function" ? subField.label({ values }) : subField.label} {subField.required && <span className="text-red-500">*</span>}
+                                {typeof subField.label === "function" ? subField.label({ values }) : subField.label} {subField.required && <span className="text-red-500">*</span>}
                               </label>
                               {subField.description && <p className="text-xs text-gray-500 mb-2">{subField.description}</p>}
                             </>
                           )}
                         {subField.type === "text" && (
                           (subField.name === "resumen_gestion"
-                            ? (<textarea {...register(subField.name, { required: subField.required })} rows={5} className="border p-3 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-2xl resize-vertical" placeholder={`Ingrese ${subField.label}`} />)
-                            : (<input type="text" {...register(subField.name, { required: subField.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-lg" placeholder={`Ingrese ${subField.label}`} />)
+                            ? (<textarea {...register(subField.name, { required: shouldShowField(subField, values) && subField.required })} rows={5} className="border p-3 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-2xl resize-vertical" placeholder={`Ingrese ${subField.label}`} />)
+                            : (<input type="text" {...register(subField.name, { required: shouldShowField(subField, values) && subField.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-lg" placeholder={`Ingrese ${subField.label}`} />)
                           )
                         )}
                         {subField.type === "number" && (
-                          <input type="number" {...register(subField.name, { required: subField.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-md" placeholder={`Ingrese ${subField.label}`} />
+                          <input type="number" {...register(subField.name, { required: shouldShowField(subField, values) && subField.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-md" placeholder={`Ingrese ${subField.label}`} />
                         )}
                         {subField.type === "date" && (
-                          <input type="date" {...register(subField.name, { required: subField.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 w-full max-w-md" />
+                          <input type="date" {...register(subField.name, { required: shouldShowField(subField, values) && subField.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 w-full max-w-md" />
                         )}
                         {subField.type === "select" && subField.options && (
-                          <select defaultValue="" {...register(subField.name, { required: subField.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 w-full max-w-md">
+                          <select defaultValue="" {...register(subField.name, { required: shouldShowField(subField, values) && subField.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 w-full max-w-md">
                             <option value="" disabled hidden>(Seleccione una opción)</option>
                             {subField.options.map(opt => (
                               <option key={opt.value} value={opt.value} className="text-gray-900">{opt.label}</option>
@@ -388,16 +405,16 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
                                         </>
                                       )}
                                     {nestedField.type === "text" && (
-                                      <input type="text" {...register(nestedField.name, { required: nestedField.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-lg" placeholder={`Ingrese ${nestedField.label}`} />
+                                      <input type="text" {...register(nestedField.name, { required: shouldShowField(nestedField, values) && nestedField.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-lg" placeholder={`Ingrese ${nestedField.label}`} />
                                     )}
                                     {nestedField.type === "number" && (
-                                      <input type="number" {...register(nestedField.name, { required: nestedField.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-md" placeholder={`Ingrese ${nestedField.label}`} />
+                                      <input type="number" {...register(nestedField.name, { required: shouldShowField(nestedField, values) && nestedField.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-md" placeholder={`Ingrese ${nestedField.label}`} />
                                     )}
                                     {nestedField.type === "date" && (
-                                      <input type="date" {...register(nestedField.name, { required: nestedField.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 w-full max-w-md" />
+                                      <input type="date" {...register(nestedField.name, { required: shouldShowField(nestedField, values) && nestedField.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 w-full max-w-md" />
                                     )}
                                     {nestedField.type === "select" && nestedField.options && (
-                                      <select defaultValue="" {...register(nestedField.name, { required: nestedField.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 w-full max-w-md">
+                                      <select defaultValue="" {...register(nestedField.name, { required: shouldShowField(nestedField, values) && nestedField.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 w-full max-w-md">
                                         <option value="" disabled hidden>(Seleccione una opción)</option>
                                         {nestedField.options.map(opt => (
                                           <option key={opt.value} value={opt.value} className="text-gray-900">{opt.label}</option>
@@ -425,10 +442,13 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
             ))}
           </div>
         ))}
-        <div className="flex justify-end gap-4">
-          <button type="reset" className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800" disabled={loading}>Cancelar</button>
-          <button type="submit" className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white" disabled={loading}>{loading ? "Guardando..." : "Guardar"}</button>
-        </div>
+        <button
+            type="submit"
+            className={`mt-6 w-full py-3 px-6 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-700 transition`}
+            disabled={loading}
+          >
+            {loading ? "Guardando..." : "Guardar formulario"}
+          </button>
       </form>
       {message && (
         <div className={`mt-6 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium text-center shadow-lg
