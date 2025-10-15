@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# Smart Data
 
-First, run the development server:
+Aplicativo web para la gestión administrativa y operativa de formularios, usuarios, permisos y reportes. Desarrollado con Next.js, React y Tailwind CSS.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## 1. Descripción General
+
+**Smart Data** es una plataforma que permite la administración eficiente de formularios, usuarios, permisos y reportes para equipos administrativos y asesores. Incluye autenticación, exportación de datos y una interfaz moderna y profesional.
+
+---
+
+## 2. Estructura del Proyecto
+
+```
+smart-data/
+  ├── public/                # Archivos estáticos e imágenes
+  ├── src/
+  │   ├── app/               # Páginas principales y rutas
+  │   ├── components/        # Componentes reutilizables (UI, layouts, formularios)
+  │   ├── config/            # Configuración y esquemas de formularios (Zod)
+  │   ├── hooks/             # Hooks personalizados para lógica de negocio
+  │   ├── lib/               # Utilidades y lógica compartida
+  │   ├── types/             # Tipos globales y personalizados
+  │   └── utils/             # Funciones de utilidad (exportación, etc.)
+  ├── package.json           # Dependencias y scripts
+  ├── tailwind.config.js     # Configuración de Tailwind CSS
+  ├── tsconfig.json          # Configuración de TypeScript
+  └── README.md              # Documentación principal
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 3. Instalación y Ejecución
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Instala las dependencias:
+	```bash
+	npm install
+	```
+2. Ejecuta el servidor de desarrollo:
+	```bash
+	npm run dev
+	```
+3. Accede a la app en [http://localhost:3000](http://localhost:3000).
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 4. Principales Módulos y Funcionalidades
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Formularios Dinámicos:** Configurados en `src/config/forms/`, validados con Zod y renderizados por el componente `FormGenerator`.
+- **Gestión de Usuarios y Permisos:** Vistas en `src/app/admin/users/` y `src/app/admin/permisos/`, con tarjetas y modales para administración.
+- **Reportes y Exportación:** Módulo de reportes en `src/app/admin/reports/` y utilidades en `src/utils/exportutils.ts`.
+- **Autenticación:** Implementada con NextAuth en `src/app/api/auth/[...nextauth]/`.
+- **Hooks Personalizados:** Ejemplo: `useAsesor`, `useAuditorDashboard` para lógica de negocio y estado.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 5. Ejemplo de Uso
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Para agregar un nuevo formulario:
+- Define la configuración en `src/config/forms/[nombre].ts`.
+- Crea el esquema de validación en `src/config/forms/[nombre]-schema.ts` usando Zod.
+- Usa el componente `FormGenerator` en la página correspondiente.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 6. Buenas Prácticas y Convenciones
+
+- Usa tipado estricto con TypeScript en todos los componentes y hooks.
+- Documenta cada función y componente con comentarios JSDoc.
+- Mantén la validación de campos obligatorios en los esquemas Zod.
+- Utiliza los hooks personalizados para lógica compartida.
+
+---
+
+## 7. Despliegue
+
+El proyecto está listo para desplegarse en Vercel o cualquier plataforma compatible con Next.js.
+
+---
+
+## 8. Contacto y Soporte
+
+Para dudas, soporte o colaboración, contacta al responsable del proyecto o revisa la documentación interna.

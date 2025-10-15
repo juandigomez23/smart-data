@@ -6,7 +6,7 @@ export const retencionesForm: FormConfig = {
   title: "Retenciones",
   tipo: "retenciones",
   fields: [
-    // Aplica required: true a todos los campos
+    
     { name: "correo", label: "Correo electrónico", type: "text", required: true, auto: true },
     {
       name: "san",
@@ -122,8 +122,7 @@ export const retencionesForm: FormConfig = {
         { label: "Envio de correo", value: "envio_correo" }
       ]
     },
-    // Campos para 'acepta retención' justo después de 'codigo_gestion'
-    // Bloque para retención
+    
     {
       name: "matriz_retencion_info",
       label: "Si cliente acepta retención",
@@ -322,7 +321,7 @@ export const retencionesForm: FormConfig = {
 
 
 
-    // Después de 'no acepta retención', sigue cierre de llamada y resultado de la gestión
+    
     {
       name: "cierre_llamada_info",
       label: "Cierre de la llamada",
@@ -410,7 +409,7 @@ export const retencionesForm: FormConfig = {
   showIf: (values) => values.codigo_gestion === "retencion" || values.codigo_gestion === "oferta_especial_winback"
 },
 
-    // Mostrar resultado de la gestión solo para las opciones distintas de 'retencion' y 'oferta_especial_winback'
+    
     {
       name: "resultado_gestion_info",
       label: "Resultado de la gestión",

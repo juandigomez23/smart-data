@@ -49,7 +49,7 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
     mode: "onChange"
   })
 
-  // Resetear el formulario cada vez que cambia el config (nuevo formulario) o se monta el componente
+  
   useEffect(() => {
     reset();
   }, [config, reset]);
@@ -59,7 +59,7 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
   const { id: asesorId, nombre: asesorNombre, email: asesorEmail, autenticado, cargando } = useAsesor()
   const values = watch()
 
-  // Autocompletar campos con auto: true
+  
   useEffect(() => {
     const correoActual = watch("correo");
     config.fields.forEach(field => {
@@ -69,14 +69,13 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
     });
   }, [asesorEmail, config.fields, setValue, formState.isSubmitted, watch]);
 
-  // Recursivamente obtener los campos visibles (incluyendo condicionales y anidados)
-  // Recursivamente obtiene solo los campos visibles y requeridos, incluyendo condicionales y showIf
+  
   function getVisibleRequiredFields(fields: FieldConfig[], values: FieldValues): FieldConfig[] {
     let result: FieldConfig[] = [];
     for (const field of fields) {
       if (shouldShowField(field, values)) {
         if (field.required) result.push(field);
-        // Si el campo tiene condicionales, procesar recursivamente
+        
         if (field.conditionalFields) {
           for (const cond of field.conditionalFields) {
             if (values[field.name] === cond.condition.value) {
@@ -94,7 +93,6 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
       setMessage({ text: " Debes iniciar sesión como asesor", type: "error" })
       return
     }
-    // Obtener los campos visibles en este momento
     const valuesNow = watch();
     const visibleRequiredFields = getVisibleRequiredFields(config.fields, valuesNow);
     const requiredVisibleFieldNames = visibleRequiredFields.map(f => f.name);
@@ -106,7 +104,7 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
     setLoading(true)
     setMessage(null)
     try {
-      // Detectar país desde el título del formulario
+      
       let tipoFormulario = config.tipo || "generico";
       if (config.title) {
         if (config.title.toLowerCase().includes("colombia")) tipoFormulario = "retenciones_colombia";
@@ -125,7 +123,7 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
         setMessage({ text: "✅ Formulario guardado correctamente", type: "success" })
         const correoActual = data.correo as string;
         reset();
-        // Restaurar el correo después del reset
+        
         config.fields.forEach(field => {
           if (field.auto && field.name === "correo" && (correoActual || asesorEmail)) {
             setValue(field.name, correoActual || asesorEmail);
@@ -145,26 +143,26 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
   if (!autenticado) return <p className="text-red-600">⚠️ Debes iniciar sesión para usar el formulario</p>
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 py-12 px-2 flex items-center justify-center">
-      <div className="w-full max-w-2xl mx-auto bg-white rounded-3xl shadow-2xl border-2 border-blue-200 p-8">
-        <div className="flex items-center gap-4 mb-6">
+    <div className="min-h-screen bg-neutral-100 py-12 px-2 flex items-center justify-center">
+  <div className="w-full max-w-lg mx-auto bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+  <div className="flex items-center gap-3 mb-6">
           {config.image && (
-            <span className="inline-block bg-blue-100 rounded-full p-2 shadow">
-              <Image src={config.image} alt={`${config.title} bandera`} width={40} height={25} className="rounded-sm" />
+            <span className="inline-block bg-neutral-200 rounded-full p-2 shadow-sm">
+              <Image src={config.image} alt={`${config.title} bandera`} width={40} height={25} className="rounded-md" />
             </span>
           )}
-          <h2 className="text-3xl font-extrabold text-blue-700 flex items-center gap-2">
-            <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="white"/><path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" /></svg>
+          <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+            <svg className="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="white"/><path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" /></svg>
             {config.title}
           </h2>
         </div>
         {asesorNombre && (
-          <div className="mb-6 flex items-center gap-2 bg-blue-50 rounded-lg px-4 py-2 text-blue-900 text-sm font-medium shadow">
+          <div className="mb-4 flex items-center gap-2 bg-neutral-50 rounded-lg px-3 py-1.5 text-gray-700 text-xs font-medium shadow-sm">
             <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="white"/><path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" /></svg>
             Sesión activa: <strong>{asesorNombre}</strong>
           </div>
         )}
-  <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 w-full">
+  <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full">
           {config.fields.filter(field => shouldShowField(field, values)).map((field) => (
           <div key={field.name} className="flex flex-col w-full">
             {field.name === "documento_id" && (
@@ -320,11 +318,11 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
               <span className="text-red-600 text-xs mt-1">campo obligatorio</span>
             )}
 
-            {/* Renderizar campos condicionales si existen y la condición se cumple, de forma recursiva */}
+           
             {field.conditionalFields && field.conditionalFields.map((cond) => (
               values[field.name] === cond.condition.value && (
                 <div key={cond.condition.value} className="flex flex-col ml-4 p-3 rounded-md border-l-4 border-blue-400 bg-white shadow-sm">
-                  {/* Mostrar aviso solo si la opción es retención */}
+                  
                   {cond.condition.value === "retencion" && (
                     <div className="flex items-center mb-2">
                       <svg className="w-5 h-5 text-blue-400 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="white"/><path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" /></svg>
@@ -379,7 +377,7 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
                             <span>{typeof subField.label === "function" ? subField.label({ values }) : subField.label}</span>
                           </div>
                         )}
-                        {/* Renderizar condicionales anidados recursivamente */}
+                        
                         {subField.conditionalFields && subField.conditionalFields.map((nestedCond) => (
                           values[subField.name] === nestedCond.condition.value && (
                             <div key={nestedCond.condition.value} className="flex flex-col ml-4 p-3 rounded-md border-l-4 border-blue-300 bg-blue-50 shadow-sm">
@@ -444,7 +442,7 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
         ))}
         <button
             type="submit"
-            className={`mt-6 w-full py-3 px-6 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-700 transition`}
+            className={`mt-6 w-full py-2.5 px-4 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-700 shadow transition`}
             disabled={loading}
           >
             {loading ? "Guardando..." : "Guardar formulario"}

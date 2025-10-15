@@ -1,6 +1,7 @@
 import { FormConfig } from "@/components/formgenerator";
 export const welcomeForm: FormConfig = {
   title: "Welcome",
+  tipo: "welcome",
   fields: [
     { name: "correo", label: "Correo electrónico", type: "text", required: true, auto: true },
 { name: "san", label: "SAN", type: "text", required: true },
@@ -11,7 +12,7 @@ export const welcomeForm: FormConfig = {
   { label: "Perú", value: "peru" },
 ] },
     { name: "avis_peru_inicio", label: "Perú inicio de gestión", type: "info", showIf: { pais: "peru" } },
-       
+
     { name: "tipo_servicio_peru", label: "Tipo de servicio Perú", type: "select", showIf: { pais: "peru" }, options: [
       { label: "Persona natural", value: "natural" },
       { label: "PYME", value: "pyme" }
@@ -574,10 +575,7 @@ export const welcomeForm: FormConfig = {
       { label: "No aplica", value: "no_aplica" }
   ]
 },
-  
-  
-    // Eliminado completamente el objeto duplicado de 'motivo_no_pat_chile' sin showIf
-// ...existing code...
+
 
     
     

@@ -65,7 +65,7 @@ export const equipoComercialForm: FormConfig = {
       ],
     }
     ,
-    // Campos condicionales si logra_contacto === 'si'
+    
     {
       name: "info_si_contacto",
       type: "info",
@@ -165,7 +165,7 @@ export const equipoComercialForm: FormConfig = {
       label: "¡Ten en cuenta!\nRecordar el Chat Bot correspondiente a cada país:\nColombia: +57 1 6072936\nChile: +56 2 3210 7622\nPerú: +51 1 7097858\nConfirmar datos\nPreguntar si tiene sugerencias o recomendaciones",
       showIf: (values) => values.logra_contacto === "si"
     },
-    // ...existing code...
+    
     {
       name: "info_cierre",
       type: "info",

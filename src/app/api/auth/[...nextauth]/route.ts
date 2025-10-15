@@ -36,6 +36,12 @@ export const authOptions: NextAuthOptions = {
           if (!asesor) return null
           if (credentials.password !== "123") return null
 
+        
+          await pool.query(
+            `UPDATE asesores SET ultimo_acceso = NOW() WHERE id = $1`,
+            [asesor.id]
+          );
+
           return {
             id: asesor.id,
             username: asesor.nombre,

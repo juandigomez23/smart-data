@@ -138,7 +138,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
         { label: "PYME", value: "pyme" }
       ],
     },
-    // Campos para persona natural (sin condicionales)
+    
     {
       name: "documentos_persona_natural",
       label: "Documentos persona natural",
@@ -206,7 +206,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
       ],
       showIf: { tipo_venta: "persona_natural" }
     },
-    // Bloque PYME
+    
     {
       name: "documentos_pyme",
       label: "Documentos PYME",
@@ -298,7 +298,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
         ],
         showIf: { tipo_venta: "pyme" }
       },
-      // Hughespro (Truora) PYME
+      
       {
         name: "hughespro_truora_pyme",
         label: "HughesPro (Truora)",
@@ -332,7 +332,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
         ],
         showIf: { tipo_venta: "pyme" }
       },
-      // Autorización de gerencia PYME
+      
       {
         name: "autorizacion_gerencia_info_pyme",
         label: "Autorización de gerencia",
@@ -409,7 +409,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
         ],
         showIf: { tipo_venta: "pyme" }
       },
-    // Hughespro (Truora)
+    
     {
       name: "hughespro_truora",
       label: "HughesPro (Truora)",
@@ -445,7 +445,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
     },
 
     
-    // Autorización de gerencia
+    
     {
       name: "autorizacion_gerencia_info_natural",
       label: "Autorización de gerencia",

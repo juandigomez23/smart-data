@@ -98,11 +98,20 @@ export async function PATCH(
           cedula = $3,
           estado = $4,
           rol = $5,
+          formularios_permitidos = $6,
           updated_at = CURRENT_TIMESTAMP
-        WHERE id = $6
+        WHERE id = $7
         RETURNING *
         `,
-        [data.nombre, data.email, data.cedula, data.estado, data.rol, id]
+        [
+          data.nombre,
+          data.email,
+          data.cedula,
+          data.estado,
+          data.rol,
+          Array.isArray(data.formularios_permitidos) ? data.formularios_permitidos : [],
+          id
+        ]
       )
 
       if (result.rows.length === 0) {

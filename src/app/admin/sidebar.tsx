@@ -1,11 +1,13 @@
 "use client"
+import React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Users, FileSpreadsheet } from "lucide-react"
+import { LayoutDashboard, Users, FileSpreadsheet, ClipboardList } from "lucide-react"
 
 const links = [
-  { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { name: "Menú", href: "/admin", icon: LayoutDashboard },
   { name: "Gestión Asesores", href: "/admin/users", icon: Users },
+  
   { name: "Exportar Formularios", href: "/admin/exportar", icon: FileSpreadsheet },
 ]
 
@@ -19,13 +21,55 @@ export default function AdminSidebar() {
       <nav className="flex-1 px-4 py-6 space-y-2">
         {links.map((link) => {
           const isActive = pathname === link.href
+          
+          if (link.name === "Gestión Asesores") {
+            return (
+              <React.Fragment key="gestion-asesores-formularios">
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className={`flex items-center gap-3 p-2 rounded transition font-sans text-base font-semibold tracking-wide ${
+                    isActive ? "bg-blue-600 text-white" : "text-gray-100 hover:bg-gray-800"
+                  }`}
+                  style={{ textAlign: 'left' }}
+                >
+                  <link.icon className="w-5 h-5" />
+                  {link.name}
+                </Link>
+                
+                <Link
+                  key="Formularios disponibles"
+                  href="/admin/formularios"
+                  className={`flex items-center gap-3 p-2 rounded transition font-sans text-base font-semibold tracking-wide w-full mt-1 ${
+                    pathname === "/admin/formularios" ? "bg-blue-600 text-white" : "text-gray-100 hover:bg-gray-800"
+                  }`}
+                  style={{ textAlign: 'left' }}
+                >
+                  <ClipboardList className="w-5 h-5" />
+                  Formularios
+                </Link>
+                <Link
+                  key="Permisos de Asesor"
+                  href="/admin/permisos"
+                  className={`flex items-center gap-3 p-2 rounded transition font-sans text-base font-semibold tracking-wide w-full mt-1 ${
+                    pathname === "/admin/permisos" ? "bg-blue-600 text-white" : "text-gray-100 hover:bg-gray-800"
+                  }`}
+                  style={{ textAlign: 'left' }}
+                >
+                  <Users className="w-5 h-5" />
+                  Permisos de Asesor
+                </Link>
+              </React.Fragment>
+            )
+          }
           return (
             <Link
               key={link.name}
               href={link.href}
-              className={`flex items-center gap-3 p-2 rounded transition ${
-                isActive ? "bg-blue-600 text-white" : "hover:bg-gray-800"
+              className={`flex items-center gap-3 p-2 rounded transition font-sans text-base font-semibold tracking-wide ${
+                isActive ? "bg-blue-600 text-white" : "text-gray-100 hover:bg-gray-800"
               }`}
+              style={{ textAlign: 'left' }}
             >
               <link.icon className="w-5 h-5" />
               {link.name}

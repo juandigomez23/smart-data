@@ -8,7 +8,7 @@ export type OtrasGestionesFormData = {
   medio_contacto: string;
   tipo_gestion: string;
   observacion: string;
-  // Agrega aquí más campos obligatorios según el config si lo necesitas
+  
 }
 
 export const otrasGestionesSchema = z.object({
@@ -19,5 +19,5 @@ export const otrasGestionesSchema = z.object({
   medio_contacto: z.string().min(1, "Campo obligatorio"),
   tipo_gestion: z.string().min(1, "Campo obligatorio"),
   observacion: z.string().min(1, "Campo obligatorio"),
-  // Agrega aquí más validaciones obligatorias si lo necesitas
+  
 });

@@ -15,7 +15,7 @@ export const otrasGestionesForm: FormConfig = {
       label: "Hora inicio de gestión",
       type: "time",
       required: true,
-      //description: "Selecciona la hora en formato militar."
+      
     },
     {
       name: "pais",

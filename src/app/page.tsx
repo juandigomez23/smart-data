@@ -25,7 +25,7 @@ export default function HomePage() {
           Bienvenid@ a <span className="text-blue-600">Smart Data</span>
         </h1>
         <p className="text-lg text-gray-600 max-w-2xl mb-8">
-          Plataforma inteligente para la gestión de <b>formularios, auditorías y reportes</b>.
+          Plataforma inteligente para la gestión de <b>formularios</b>.
           Optimiza tu tiempo con una interfaz moderna y segura.
         </p>
         <Link
@@ -42,7 +42,7 @@ export default function HomePage() {
           <Lock className="w-10 h-10 text-blue-600 mb-3" />
           <h3 className="font-bold text-lg text-gray-800 mb-2">Seguridad</h3>
           <p className="text-gray-600 text-sm">
-            Acceso protegido con roles personalizados para <b>admins, asesores y auditores</b>.
+            Acceso protegido con roles personalizados para <b>admins y asesores</b>.
           </p>
         </div>
 
@@ -50,7 +50,7 @@ export default function HomePage() {
           <FileText className="w-10 h-10 text-green-600 mb-3" />
           <h3 className="font-bold text-lg text-gray-800 mb-2">Formularios Inteligentes</h3>
           <p className="text-gray-600 text-sm">
-            Formularios dinámicos para gestionar retenciones, auditorías y más.
+            Formularios dinámicos para gestionar retenciones y más.
           </p>
         </div>
 

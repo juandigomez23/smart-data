@@ -28,7 +28,7 @@ export default function LoginPage() {
       const res = await signIn("credentials", { ...data, redirect: false });
       if (res?.error) throw new Error("Credenciales incorrectas");
 
-      // Obtener la sesión para saber el rol
+     
       const sessionRes = await fetch("/api/auth/session");
       const session = await sessionRes.json();
       const role = session?.user?.role;

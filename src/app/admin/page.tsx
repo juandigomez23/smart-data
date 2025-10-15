@@ -1,13 +1,6 @@
 "use client"
 
-import Link from "next/link"
-import Image from "next/image"
-import { 
-  Users, FileText,
-  ClipboardList, CheckSquare, Briefcase, 
-  XCircle, FileSpreadsheet, Moon, Sun,
-  Trash2, Search, Filter, ChevronLeft, ChevronRight
-} from "lucide-react"
+import { Users, FileText, Moon, Sun, Trash2, Search, Filter, ChevronLeft, ChevronRight, IdCard} from "lucide-react"
 import { useTheme } from "next-themes"
 import { useState, useMemo, useEffect, useCallback } from "react"
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, Cell } from "recharts"
@@ -47,8 +40,11 @@ interface Filtros {
 }
 
 export default function AdminDashboardPage() {
+  const [modalTipo, setModalTipo] = useState<"activos"|"inactivos"|null>(null)
   
-  const [showFormularios, setShowFormularios] = useState(false);
+
+
+  const [asesorFiltroChart, setAsesorFiltroChart] = useState("");
   const { theme, setTheme } = useTheme()
   const [dark, setDark] = useState(theme === "dark")
   const fetcher = (url: string) => fetch(url).then(res => res.json())
@@ -113,61 +109,70 @@ export default function AdminDashboardPage() {
   }
 
 
+  const [mensajeEliminacion, setMensajeEliminacion] = useState<{ text: string; type: "success" | "error" } | null>(null);
+
+  const [modalConfirm, setModalConfirm] = useState<{ id: number | null; multiple: boolean; cantidad?: number } | null>(null);
+
   const eliminarRegistro = async (id: number) => {
-    if (!confirm("¿Estás seguro de que deseas eliminar este registro? Esta acción no se puede deshacer.")) {
-      return
-    }
+    setModalConfirm({ id, multiple: false });
+  };
 
+  const confirmarEliminacion = async () => {
+    if (!modalConfirm || modalConfirm.id == null) return;
     try {
-      const res = await fetch(`/api/formularios/${id}`, {
+      const res = await fetch(`/api/formularios/${modalConfirm.id}`, {
         method: "DELETE"
-      })
-
-      if (res.ok) {
-        setSeleccionados(prev => prev.filter(selectedId => selectedId !== id))
-        alert("✅ Registro eliminado exitosamente")
+      });
+      const json = await res.json();
+      if (res.ok && json.success) {
+        setSeleccionados(prev => prev.filter(selectedId => selectedId !== modalConfirm.id));
+        setMensajeEliminacion({ text: "✅ Registro eliminado exitosamente", type: "success" });
       } else {
-        throw new Error("Error al eliminar")
+        setMensajeEliminacion({ text: `❌ ${json.error || "Error al eliminar el registro"}`, type: "error" });
       }
     } catch (err) {
-      console.error("❌ Error al eliminar registro:", err)
-      alert("❌ Error al eliminar el registro")
+      console.error("❌ Error al eliminar registro:", err);
+      setMensajeEliminacion({ text: "❌ Error al eliminar el registro", type: "error" });
     }
-  }
+    setTimeout(() => setMensajeEliminacion(null), 3500);
+    setModalConfirm(null);
+  };
+
+  const cancelarEliminacion = () => {
+    setModalConfirm(null);
+  };
 
   const eliminarSeleccionados = async () => {
     if (seleccionados.length === 0) {
-      alert("❌ No hay registros seleccionados")
-      return
+      setMensajeEliminacion({ text: "❌ No hay registros seleccionados", type: "error" });
+      setTimeout(() => setMensajeEliminacion(null), 3500);
+      return;
     }
+    setModalConfirm({ id: null, multiple: true, cantidad: seleccionados.length });
+  };
 
-    if (!confirm(`¿Estás seguro de que deseas eliminar ${seleccionados.length} registro(s)? Esta acción no se puede deshacer.`)) {
-      return
-    }
-
+  const confirmarEliminacionMultiple = async () => {
     try {
       const resultados = await Promise.allSettled(
         seleccionados.map(id =>
           fetch(`/api/formularios/${id}`, { method: "DELETE" })
         )
-      )
-
-      const exitosos = resultados.filter(r => r.status === 'fulfilled').length
-      const errores = resultados.filter(r => r.status === 'rejected').length
-
-  
-  setSeleccionados([])
-
+      );
+      const exitosos = resultados.filter(r => r.status === 'fulfilled').length;
+      const errores = resultados.filter(r => r.status === 'rejected').length;
+      setSeleccionados([]);
       if (errores === 0) {
-        alert(`✅ ${exitosos} registro(s) eliminados exitosamente`)
+        setMensajeEliminacion({ text: `✅ ${exitosos} registro(s) eliminados exitosamente`, type: "success" });
       } else {
-        alert(`⚠️ ${exitosos} eliminados, ${errores} con errores`)
+        setMensajeEliminacion({ text: `⚠️ ${exitosos} eliminados, ${errores} con errores`, type: "error" });
       }
     } catch (err) {
-      console.error("❌ Error al eliminar registros:", err)
-      alert("❌ Error al eliminar los registros")
+      console.error("❌ Error al eliminar registros:", err);
+      setMensajeEliminacion({ text: "❌ Error al eliminar los registros", type: "error" });
     }
-  }
+    setTimeout(() => setMensajeEliminacion(null), 3500);
+    setModalConfirm(null);
+  };
 
   
   const limpiarFiltros = () => {
@@ -182,18 +187,6 @@ export default function AdminDashboardPage() {
   }
 
   
-  const formularios = [
-    { title: "Retenciones – Colombia", href: "/admin/formularios/colombia", flag: "/flags/co.png" },
-    { title: "Retenciones – Perú", href: "/admin/formularios/peru", flag: "/flags/pe.png" },
-    { title: "Retenciones – Chile", href: "/admin/formularios/chile", flag: "/flags/cl.png" },
-    { title: "Retenciones – Ecuador", href: "/admin/formularios/ecuador", flag: "/flags/ec.png" },
-    { title: "Auditoría Prewelcome", href: "/admin/formularios/auditoria-prewelcome", icon: ClipboardList, color: "bg-purple-100 text-purple-700" },
-    { title: "Welcome", href: "/admin/formularios/welcome", icon: CheckSquare, color: "bg-green-100 text-green-700" },
-    { title: "Comercial", href: "/admin/formularios/comercial", icon: Briefcase, color: "bg-teal-100 text-teal-700" },
-    { title: "Rechazo Débito", href: "/admin/formularios/rechazo-debito", icon: XCircle, color: "bg-red-100 text-red-700" },
-    { title: "Gestión FCR", href: "/admin/formularios/gestion-fcr", icon: FileText, color: "bg-orange-100 text-orange-700" },
-    { title: "Otras Gestiones", href: "/admin/formularios/otras-gestiones", icon: FileSpreadsheet, color: "bg-gray-100 text-gray-700" },
-  ]
 
   
   const tiposUnicos = Array.from(new Set(registros.map(r => r.tipo))).sort()
@@ -220,7 +213,7 @@ export default function AdminDashboardPage() {
   });
 
 
-  //const hoy = fechaFiltroChart;
+ 
 
 
   const esFechaFiltroChart = useCallback((fechaStr: string) => {
@@ -249,35 +242,70 @@ export default function AdminDashboardPage() {
 
   
   const asesoresActivosHoy = useMemo(() =>
-    asesoresTodos.filter(asesor =>
+    [...asesoresTodos.filter(asesor =>
       registros.some(r => r.asesor === asesor.nombre && esFechaFiltroChart(r.created_at))
-    ), [registros, asesoresTodos, esFechaFiltroChart]
+    )].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })), [registros, asesoresTodos, esFechaFiltroChart]
   );
 
   const asesoresInactivos = useMemo(() =>
-    asesoresTodos.filter(asesor =>
+    [...asesoresTodos.filter(asesor =>
       !registros.some(r => r.asesor === asesor.nombre && esFechaFiltroChart(r.created_at))
-    ), [registros, asesoresTodos, esFechaFiltroChart]
+    )].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })), [registros, asesoresTodos, esFechaFiltroChart]
   );
 
   const actividadHoy = useMemo(() =>
-    asesoresTodos.map(asesor => {
+    [...asesoresTodos.map(asesor => {
       const gestionesHoy = registros.filter(r => r.asesor === asesor.nombre && esFechaFiltroChart(r.created_at)).length;
+    
       let color = "bg-red-500";
-      if (gestionesHoy >= 8) color = "bg-green-500";
-      else if (gestionesHoy >= 5) color = "bg-orange-400";
+      if (gestionesHoy >= 45) color = "bg-green-500";
+      else if (gestionesHoy >= 25) color = "bg-orange-400";
       return { asesor: asesor.nombre, gestionesHoy, color, id: asesor.id };
-    }).sort((a, b) => b.gestionesHoy - a.gestionesHoy),
+    })].sort((a, b) => a.asesor.localeCompare(b.asesor, 'es', { sensitivity: 'base' })),
     [registros, asesoresTodos, esFechaFiltroChart]
   );
 
   return (
-    <div className="p-8 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+
+  <div className="p-8 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors relative">
+      {mensajeEliminacion && (
+        <div className={`fixed inset-0 flex items-center justify-center z-50 pointer-events-none`}>
+          <div className={`px-8 py-6 rounded-2xl shadow-2xl text-center text-lg font-bold border-2 ${mensajeEliminacion.type === "success" ? "bg-green-100 text-green-800 border-green-300" : "bg-red-100 text-red-800 border-red-300"}`} style={{ minWidth: 320, maxWidth: 400 }}>
+            {mensajeEliminacion.text}
+          </div>
+        </div>
+      )}
+      {modalConfirm && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
+          <div className="bg-white dark:bg-gray-900 px-8 py-8 rounded-2xl shadow-2xl text-center border-2 border-blue-300 dark:border-blue-700" style={{ minWidth: 340, maxWidth: 420 }}>
+            <h2 className="text-2xl font-bold text-blue-700 dark:text-blue-200 mb-4">¿Estás seguro?</h2>
+            <p className="text-base text-gray-700 dark:text-gray-100 mb-6">
+              {modalConfirm.multiple
+                ? `¿Deseas eliminar ${modalConfirm.cantidad} registro(s)? Esta acción no se puede deshacer.`
+                : `¿Deseas eliminar este registro? Esta acción no se puede deshacer.`}
+            </p>
+            <div className="flex gap-6 justify-center">
+              <button
+                className="px-6 py-2 rounded-lg bg-red-600 text-white font-bold shadow hover:bg-red-700 transition-colors"
+                onClick={modalConfirm.multiple ? confirmarEliminacionMultiple : confirmarEliminacion}
+              >
+                Sí, eliminar
+              </button>
+              <button
+                className="px-6 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-bold shadow hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                onClick={cancelarEliminacion}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {}
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-4xl font-extrabold text-[#000000] dark:text-[#38bdf8] tracking-tight mb-2">Panel de Administración</h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400">Monitoriza asesores, gestiones y auditorías en tiempo real</p>
+          <p className="text-lg text-gray-600 dark:text-gray-400">Monitoriza asesores y gestiones en tiempo real</p>
         </div>
         <div className="flex items-center gap-6">
           <div className="flex flex-col items-end">
@@ -294,79 +322,127 @@ export default function AdminDashboardPage() {
 
       {}
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-  <div className="bg-[#909296] rounded-2xl shadow-lg p-8 flex flex-col items-center border border-[#1e3a8a]">
-    <Users className="w-10 h-10 text-white mb-2" />
-    <span className="text-4xl font-extrabold text-white animate-pulse">
-      {asesoresActivosHoy.length}
-    </span>
-    <span className="text-base text-white/80 mt-2">Asesores activos hoy</span>
-  </div>
+      <button type="button" onClick={() => setModalTipo("activos")} className="bg-[#909296] rounded-2xl shadow-lg p-8 flex flex-col items-center border border-[#1e3a8a] focus:outline-none hover:scale-105 transition-transform">
+        <Users className="w-10 h-10 text-white mb-2" />
+        <span className="text-4xl font-extrabold text-white animate-pulse">
+          {asesoresActivosHoy.length}
+        </span>
+        <span className="text-base text-white/80 mt-2">Asesores activos hoy</span>
+      </button>
 
-  <div className="bg-[#64748b] rounded-2xl shadow-lg p-8 flex flex-col items-center border border-[#475569]">
-    <Users className="w-10 h-10 text-white mb-2" />
-    <span className="text-4xl font-extrabold text-white">
-      {asesoresInactivos.length}
-    </span>
-    <span className="text-base text-white/80 mt-2">Asesores inactivos hoy</span>
-  </div>
+      <button type="button" onClick={() => setModalTipo("inactivos")} className="bg-[#64748b] rounded-2xl shadow-lg p-8 flex flex-col items-center border border-[#475569] focus:outline-none hover:scale-105 transition-transform">
+        <Users className="w-10 h-10 text-white mb-2" />
+        <span className="text-4xl font-extrabold text-white">
+          {asesoresInactivos.length}
+        </span>
+        <span className="text-base text-white/80 mt-2">Asesores inactivos hoy</span>
+      </button>
 
-  <div className="bg-[#38435c] rounded-2xl shadow-lg p-8 flex flex-col items-center border border-[#1e293b]">
-    <Users className="w-10 h-10 text-white mb-2" />
-    <span className="text-4xl font-extrabold text-white">
-      {asesoresTodos.length}
-    </span>
-    <span className="text-base text-white/80 mt-2">Total asesores</span>
-  </div>
-
-  <div className="bg-[#4ea86f] rounded-2xl shadow-lg p-8 flex flex-col items-center border border-[#166534]">
-    <FileText className="w-10 h-10 text-white mb-2" />
-    <span className="text-4xl font-extrabold text-white">
-      {registros.filter(r => esHoyLocal(r.created_at)).length}
-    </span>
-    <span className="text-base text-white/80 mt-2">Formularios hoy</span>
-  </div>
-</div>
-
-
- <div className="mb-8 flex justify-center">
-        <button
-          onClick={() => setShowFormularios(true)}
-          className="bg-gradient-to-r from-[#2563eb] to-[#0ea5e9] hover:from-[#1e293b] hover:to-[#2563eb] text-white px-10 py-5 rounded-2xl shadow-2xl font-bold flex items-center gap-4 text-2xl transition-all border-2 border-[#2563eb] tracking-wide"
-        >
-          <ClipboardList className="w-8 h-8" /> Formularios disponibles
-        </button>
+      <div className="bg-[#38435c] rounded-2xl shadow-lg p-8 flex flex-col items-center border border-[#1e293b]">
+        <Users className="w-10 h-10 text-white mb-2" />
+        <span className="text-4xl font-extrabold text-white">
+          {asesoresTodos.length}
+        </span>
+        <span className="text-base text-white/80 mt-2">Total asesores</span>
       </div>
+
+      <div className="bg-[#4ea86f] rounded-2xl shadow-lg p-8 flex flex-col items-center border border-[#166534]">
+        <FileText className="w-10 h-10 text-white mb-2" />
+        <span className="text-4xl font-extrabold text-white">
+          {registros.filter(r => esHoyLocal(r.created_at)).length}
+        </span>
+        <span className="text-base text-white/80 mt-2">Formularios hoy</span>
+      </div>
+    </div>
+
+   
+    {modalTipo && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 w-full max-w-3xl mx-4 relative flex flex-col" style={{ maxHeight: '90vh' }}>
+          <button onClick={() => setModalTipo(null)} className="absolute top-4 right-4 text-gray-500 hover:text-gray-900 dark:hover:text-white text-2xl font-bold z-10">×</button>
+          <h2 className="text-2xl font-bold mb-6 text-blue-700 dark:text-blue-300 sticky top-0 bg-white dark:bg-gray-900 z-10 pb-2">
+            {modalTipo === "activos" ? "Asesores activos hoy" : "Asesores inactivos hoy"}
+          </h2>
+          <div className="overflow-y-auto" style={{ maxHeight: '70vh' }}>
+            <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+              {(modalTipo === "activos" ? asesoresActivosHoy : asesoresInactivos).map((asesor) => (
+                <li key={asesor.id} className="py-3 px-2 flex flex-col sm:flex-row sm:items-center gap-2">
+                  <span className="font-bold text-blue-700 dark:text-blue-300">{asesor.nombre}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{asesor.email}</span>
+                  <span className="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                    <IdCard className="w-3 h-3" /> {asesor.cedula}
+                  </span>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                    asesor.rol === 'administrador' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200' :
+                    asesor.rol === 'supervisor' ? 'bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-200' :
+                    'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200'
+                  }`}>
+                    {asesor.rol.charAt(0).toUpperCase() + asesor.rol.slice(1)}
+                  </span>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                    asesor.estado === 'activo' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                    asesor.estado === 'inactivo' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
+                    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                  }`}>
+                    {asesor.estado.charAt(0).toUpperCase() + asesor.estado.slice(1)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            {((modalTipo === "activos" ? asesoresActivosHoy : asesoresInactivos).length === 0) && (
+              <div className="text-center py-12">
+                <Users className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400">No hay asesores en esta categoría hoy</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    )}
+
+
+ 
       {}
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-10 border border-gray-200 dark:border-gray-700 mb-12">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-          <h2 className="text-4xl font-extrabold text-[#000000] dark:text-[#38bdf8]">Gestiones de asesores hoy</h2>
-          <div className="flex gap-2 items-center">
-            <input
-              type="date"
-              value={fechaFiltroChart}
-              onChange={e => setFechaFiltroChart(e.target.value)}
-              className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-            />
-            <select className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-              <option value="">Todos los asesores</option>
-              {asesoresTodos.map(asesor => (
-                <option key={asesor.id} value={asesor.nombre}>{asesor.nombre}</option>
-              ))}
-            </select>
+        {/* Título profesional y centrado para la gráfica */}
+        <div className="flex flex-col items-center mb-6">
+          <div className="flex items-center gap-3 mb-2">
+            <span className="w-8 h-8 rounded-full bg-gradient-to-r from-[#2563eb] to-[#38bdf8] border-2 border-[#2563eb] shadow-lg flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" fill="#fff" /></svg>
+            </span>
+            <span className="text-3xl font-bold text-[#2563eb] dark:text-[#38bdf8] drop-shadow-lg tracking-wide">Gestiones de asesores hoy</span>
           </div>
+        </div>
+        <div className="flex gap-2 items-center justify-center mb-4">
+          <input
+            type="date"
+            value={fechaFiltroChart}
+            onChange={e => setFechaFiltroChart(e.target.value)}
+            className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+          />
+          <select
+            className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            value={asesorFiltroChart}
+            onChange={e => setAsesorFiltroChart(e.target.value)}
+          >
+            <option value="">Todos los asesores</option>
+            {asesoresTodos.map(asesor => (
+              <option key={asesor.id} value={asesor.nombre}>{asesor.nombre}</option>
+            ))}
+          </select>
         </div>
 
 
 
   <ResponsiveContainer width="100%" height={Math.max(asesoresTodos.length * 50, 420)}>
-          <BarChart data={actividadHoy} layout="vertical" margin={{ top: 20, right: 40, left: 0, bottom: 20 }} barCategoryGap={20}>
+    <BarChart data={asesorFiltroChart ? actividadHoy.filter(a => a.asesor === asesorFiltroChart) : actividadHoy} layout="vertical" margin={{ top: 20, right: 40, left: 0, bottom: 20 }} barCategoryGap={20}>
             <XAxis
               type="number"
-              domain={[0, 12]}
+              domain={[0, 45]}
               tick={{ fontSize: 16 }}
               axisLine={false}
               interval={0}
-              ticks={[0,1,2,3,4,5,6,7,8,9,10,11,12]}
+              ticks={[0,5,10,15,20,25,30,35,40,45]}
             />
             <YAxis
               dataKey="asesor"
@@ -395,45 +471,48 @@ export default function AdminDashboardPage() {
               cursor={{ fill: '#2563eb22' }}
             />
             <Legend verticalAlign="top" height={36} iconType="circle" wrapperStyle={{ fontSize: 16, fontWeight: 600 }} />
-              {/* Definir gradientes SVG fuera del ciclo */}
+              
               <defs>
                 {actividadHoy.map((entry, index) => {
                   const gradId = `gradBarra-${index}`;
-                  if (entry.gestionesHoy <= 3) {
-                    // Solo rojo
+                  if (entry.gestionesHoy <= 25) {
+                   
                     return (
                       <linearGradient key={gradId} id={gradId} x1="0" y1="0" x2="1" y2="0">
                         <stop offset="0%" stopColor="#ef4444" />
                         <stop offset="100%" stopColor="#ef4444" />
                       </linearGradient>
                     );
-                  } else if (entry.gestionesHoy <= 8) {
-                    // Rojo a naranja
+                  } else if (entry.gestionesHoy <= 35) {
+                   
                     return (
                       <linearGradient key={gradId} id={gradId} x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor="#ef4444" />
+                        <stop offset="0%" stopColor="#f59e42" />
                         <stop offset="100%" stopColor="#f59e42" />
                       </linearGradient>
                     );
                   } else {
-                    // Rojo a naranja a verde
+                 
                     return (
                       <linearGradient key={gradId} id={gradId} x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor="#ef4444" />
-                        <stop offset="50%" stopColor="#f59e42" />
+                        <stop offset="0%" stopColor="#22c55e" />
                         <stop offset="100%" stopColor="#22c55e" />
                       </linearGradient>
                     );
                   }
                 })}
               </defs>
-              <Bar dataKey="gestionesHoy" name="Gestiones"
+              <Bar dataKey="gestionesHoy" name=""
                 radius={[20, 20, 20, 20]}
                 isAnimationActive={true}
                 animationDuration={1400}
                 barSize={32}
                 label={{ position: 'right', fontSize: 18, fontWeight: 700, fill: '#2563eb', fontFamily: 'Inter, sans-serif' }}
               >
+
+                <text x={20} y={-30} fontSize="22" fontWeight="bold" fill="#2563eb" style={{ fontFamily: 'Inter, sans-serif', letterSpacing: '1px' }}>
+                  Gestiones
+                </text>
                 {actividadHoy.map((entry, index) => {
                   const gradId = `gradBarra-${index}`;
                   return (
@@ -475,9 +554,9 @@ export default function AdminDashboardPage() {
           </BarChart>
         </ResponsiveContainer>
         <div className="flex justify-end mt-4 text-base text-gray-500 dark:text-gray-400 gap-6">
-          <span className="inline-flex items-center"><span className="inline-block w-4 h-4 rounded bg-[#22c55e] mr-2"></span>Meta cumplida (≥8)</span>
-          <span className="inline-flex items-center"><span className="inline-block w-4 h-4 rounded bg-[#f59e42] mr-2"></span>En progreso (3-8)</span>
-          <span className="inline-flex items-center"><span className="inline-block w-4 h-4 rounded bg-[#ef4444] mr-2"></span>Bajo (&lt;3)</span>
+          <span className="inline-flex items-center"><span className="inline-block w-4 h-4 rounded bg-[#22c55e] mr-2"></span>Alto (36-45)</span>
+          <span className="inline-flex items-center"><span className="inline-block w-4 h-4 rounded bg-[#f59e42] mr-2"></span>Medio (26-35)</span>
+          <span className="inline-flex items-center"><span className="inline-block w-4 h-4 rounded bg-[#ef4444] mr-2"></span>Bajo (≤25)</span>
         </div>
       </div>
 
@@ -486,36 +565,7 @@ export default function AdminDashboardPage() {
      
 
       {}
-      {showFormularios && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
-          <div className="bg-gradient-to-br from-[#1e293b] via-[#2563eb] to-[#0ea5e9] dark:from-[#1e293b] dark:via-[#2563eb] dark:to-[#0ea5e9] rounded-2xl shadow-2xl p-8 max-w-2xl w-full relative border-2 border-[#2563eb]">
-            <button
-              onClick={() => setShowFormularios(false)}
-              className="absolute top-4 right-4 text-white hover:text-red-400 text-2xl font-bold"
-              aria-label="Cerrar"
-            >
-              ×
-            </button>
-            <h2 className="text-2xl font-bold text-white dark:text-[#e0f2fe] mb-6 text-center">Formularios Disponibles</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {formularios.map((f, i) => (
-                <Link key={i} href={f.href}>
-                  <div className="cursor-pointer bg-white/80 dark:bg-[#1e293b]/80 rounded-xl shadow-md p-6 border border-[#2563eb] dark:border-[#0ea5e9] hover:shadow-xl transition transform hover:-translate-y-1 flex items-center gap-4">
-                    {f.flag ? (
-                      <Image src={f.flag} alt={f.title} width={40} height={28} className="rounded-md" />
-                    ) : f.icon ? (
-                      <div className={`p-3 rounded-full ${f.color}`}>
-                        <f.icon className="w-6 h-6" />
-                      </div>
-                    ) : null}
-                    <h3 className="text-lg font-medium text-[#2563eb] dark:text-[#38bdf8]">{f.title}</h3>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+      
 
       {}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 mb-6">
@@ -700,10 +750,10 @@ export default function AdminDashboardPage() {
                 <button
                   onClick={() => setPaginaActual(p => Math.max(1, p - 1))}
                   disabled={paginaActual === 1}
-                  className="flex items-center gap-2 px-3 py-1 rounded border border-gray-300 dark:border-gray-600 disabled:opacity-50"
+                  className="flex items-center gap-2 px-3 py-1 rounded border border-gray-300 dark:border-gray-600 disabled:opacity-50 bg-white dark:bg-blue-900 text-blue-700 dark:text-blue-100 font-bold"
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  Anterior
+                  <span className="font-bold">Anterior</span>
                 </button>
                 
                 <div className="flex items-center gap-2">
@@ -720,10 +770,10 @@ export default function AdminDashboardPage() {
                       <button
                         key={pagina}
                         onClick={() => setPaginaActual(pagina)}
-                        className={`w-8 h-8 rounded ${
+                        className={`w-8 h-8 rounded font-bold ${
                           pagina === paginaActual
                             ? 'bg-blue-600 text-white'
-                            : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'
+                            : 'bg-white dark:bg-blue-900 text-blue-700 dark:text-blue-100 hover:bg-blue-100 dark:hover:bg-blue-800'
                         }`}
                       >
                         {pagina}
@@ -735,9 +785,9 @@ export default function AdminDashboardPage() {
                 <button
                   onClick={() => setPaginaActual(p => Math.min(totalPaginas, p + 1))}
                   disabled={paginaActual === totalPaginas}
-                  className="flex items-center gap-2 px-3 py-1 rounded border border-gray-300 dark:border-gray-600 disabled:opacity-50"
+                  className="flex items-center gap-2 px-3 py-1 rounded border border-gray-300 dark:border-gray-600 disabled:opacity-50 bg-white dark:bg-blue-900 text-blue-700 dark:text-blue-100 font-bold"
                 >
-                  Siguiente
+                  <span className="font-bold">Siguiente</span>
                   <ChevronRight className="w-4 h-4" />
                 </button>
               </div>

@@ -34,18 +34,7 @@ export async function GET() {
       [asesorId]
     );
 
-    // 🔹 Eficiencia (a definir)
-    // Ejemplo: porcentaje de formularios con código_gestion = 'retenido'
-    /*
-    const eficiencia = await pool.query(
-      `SELECT 
-         ROUND(100.0 * SUM(CASE WHEN datos->>'codigo_gestion' = 'retenido' THEN 1 ELSE 0 END)::numeric / NULLIF(COUNT(*), 0), 2) AS eficiencia
-       FROM public.formularios
-       WHERE asesor_id = $1`,
-      [asesorId]
-    );
-    const eficienciaValue = eficiencia.rows[0].eficiencia || 0;
-    */
+ 
 
     return NextResponse.json({
       success: true,

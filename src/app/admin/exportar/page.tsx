@@ -1,9 +1,7 @@
 "use client"
 
-// import eliminado porque ya se importa abajo
 import ExcelJS from "exceljs"
 import { saveAs } from "file-saver"
-
 interface FormularioExport {
   id: number;
   tipo: string;
@@ -38,7 +36,7 @@ export default function AdminExportarPage() {
 
   const fetchFormularios = async () => {
     setLoading(true)
-    // Aquí deberías llamar a tu API con los filtros
+
     const res = await fetch(`/api/formularios?tipo=${tipo}&asesor=${asesor}&fechaDesde=${fechaDesde}&fechaHasta=${fechaHasta}`)
   const data = await res.json()
   setRegistros(data.data || [])

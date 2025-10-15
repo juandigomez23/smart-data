@@ -68,9 +68,9 @@ export async function POST(request: NextRequest) {
     const result = await client.query(
       `
       INSERT INTO asesores 
-        (nombre, email, cedula, estado, rol)
+        (nombre, email, cedula, estado, rol, formularios_permitidos)
       VALUES 
-        ($1, $2, $3, $4, $5)
+        ($1, $2, $3, $4, $5, $6)
       RETURNING 
         id,
         nombre,
@@ -81,7 +81,8 @@ export async function POST(request: NextRequest) {
         fecha_registro as "fechaRegistro",
         ultimo_acceso as "ultimoAcceso",
         formularios_completados as "formulariosCompletados",
-        eficiencia
+        eficiencia,
+        formularios_permitidos
       `,
       [
         data.nombre,
@@ -89,6 +90,7 @@ export async function POST(request: NextRequest) {
         data.cedula || null,
         data.estado || "activo",
         data.rol || "asesor",
+        Array.isArray(data.formularios_permitidos) ? data.formularios_permitidos : [],
       ]
     )
 
