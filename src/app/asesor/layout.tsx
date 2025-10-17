@@ -7,11 +7,22 @@ export default function AsesorLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex">
-      <SidebarAsesor />
-      <div className="flex-1 ml-64 min-h-screen flex flex-col">
-        <Topbar />
-           <main className="flex-1 min-h-screen bg-gray-100">{children}</main>
+    <div
+      style={{
+        minHeight: '100vh',
+        width: '100vw',
+        backgroundImage: 'url(/Fondo.jpg)',
+        backgroundRepeat: 'repeat',
+        backgroundSize: 'auto',
+        backgroundPosition: 'top left',
+      }}
+    >
+      <div className="flex">
+        <SidebarAsesor />
+        <div className="flex-1 ml-64 min-h-screen flex flex-col">
+          <Topbar />
+          <main className="flex-1 min-h-screen">{children}</main>
+        </div>
       </div>
     </div>
   )

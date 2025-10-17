@@ -266,8 +266,7 @@ export default function AdminDashboardPage() {
   );
 
   return (
-
-  <div className="p-8 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors relative">
+  <div className="p-8 min-h-screen transition-colors relative">
       {mensajeEliminacion && (
         <div className={`fixed inset-0 flex items-center justify-center z-50 pointer-events-none`}>
           <div className={`px-8 py-6 rounded-2xl shadow-2xl text-center text-lg font-bold border-2 ${mensajeEliminacion.type === "success" ? "bg-green-100 text-green-800 border-green-300" : "bg-red-100 text-red-800 border-red-300"}`} style={{ minWidth: 320, maxWidth: 400 }}>
@@ -276,8 +275,8 @@ export default function AdminDashboardPage() {
         </div>
       )}
       {modalConfirm && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
-          <div className="bg-white dark:bg-gray-900 px-8 py-8 rounded-2xl shadow-2xl text-center border-2 border-blue-300 dark:border-blue-700" style={{ minWidth: 340, maxWidth: 420 }}>
+    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
+  <div className="bg-gray-100/80 dark:bg-gray-900 px-8 py-8 rounded-2xl shadow-2xl text-center border-2 border-blue-300 dark:border-blue-700" style={{ minWidth: 340, maxWidth: 420, backdropFilter: 'blur(2px)' }}>
             <h2 className="text-2xl font-bold text-blue-700 dark:text-blue-200 mb-4">¿Estás seguro?</h2>
             <p className="text-base text-gray-700 dark:text-gray-100 mb-6">
               {modalConfirm.multiple
@@ -357,10 +356,10 @@ export default function AdminDashboardPage() {
 
    
     {modalTipo && (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 w-full max-w-3xl mx-4 relative flex flex-col" style={{ maxHeight: '90vh' }}>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div className="bg-gray-100/80 dark:bg-gray-900 rounded-2xl shadow-2xl p-8 w-full max-w-3xl mx-4 relative flex flex-col" style={{ maxHeight: '90vh', backdropFilter: 'blur(2px)' }}>
           <button onClick={() => setModalTipo(null)} className="absolute top-4 right-4 text-gray-500 hover:text-gray-900 dark:hover:text-white text-2xl font-bold z-10">×</button>
-          <h2 className="text-2xl font-bold mb-6 text-blue-700 dark:text-blue-300 sticky top-0 bg-white dark:bg-gray-900 z-10 pb-2">
+          <h2 className="text-2xl font-bold mb-6 text-blue-700 dark:text-blue-300 sticky top-0 bg-gray-100/80 dark:bg-gray-900 z-10 pb-2">
             {modalTipo === "activos" ? "Asesores activos hoy" : "Asesores inactivos hoy"}
           </h2>
           <div className="overflow-y-auto" style={{ maxHeight: '70vh' }}>
@@ -403,7 +402,7 @@ export default function AdminDashboardPage() {
 
  
       {}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-10 border border-gray-200 dark:border-gray-700 mb-12">
+  <div className="bg-gray-100/80 dark:bg-gray-800 rounded-2xl shadow-xl p-10 border border-gray-200 dark:border-gray-700 mb-12" style={{backdropFilter: 'blur(2px)'}}>
         {/* Título profesional y centrado para la gráfica */}
         <div className="flex flex-col items-center mb-6">
           <div className="flex items-center gap-3 mb-2">
@@ -418,10 +417,10 @@ export default function AdminDashboardPage() {
             type="date"
             value={fechaFiltroChart}
             onChange={e => setFechaFiltroChart(e.target.value)}
-            className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100" style={{background: 'none'}}
           />
           <select
-            className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100" style={{background: 'none'}}
             value={asesorFiltroChart}
             onChange={e => setAsesorFiltroChart(e.target.value)}
           >
@@ -475,31 +474,12 @@ export default function AdminDashboardPage() {
               <defs>
                 {actividadHoy.map((entry, index) => {
                   const gradId = `gradBarra-${index}`;
-                  if (entry.gestionesHoy <= 25) {
-                   
-                    return (
-                      <linearGradient key={gradId} id={gradId} x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor="#ef4444" />
-                        <stop offset="100%" stopColor="#ef4444" />
-                      </linearGradient>
-                    );
-                  } else if (entry.gestionesHoy <= 35) {
-                   
-                    return (
-                      <linearGradient key={gradId} id={gradId} x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor="#f59e42" />
-                        <stop offset="100%" stopColor="#f59e42" />
-                      </linearGradient>
-                    );
-                  } else {
-                 
-                    return (
-                      <linearGradient key={gradId} id={gradId} x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor="#22c55e" />
-                        <stop offset="100%" stopColor="#22c55e" />
-                      </linearGradient>
-                    );
-                  }
+                  return (
+                    <linearGradient key={gradId} id={gradId} x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="#c7d2fe" />
+                      <stop offset="100%" stopColor="#38bdf8" />
+                    </linearGradient>
+                  );
                 })}
               </defs>
               <Bar dataKey="gestionesHoy" name=""
@@ -568,7 +548,7 @@ export default function AdminDashboardPage() {
       
 
       {}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 mb-6">
+  <div className="bg-gray-100/80 dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 mb-6" style={{backdropFilter: 'blur(2px)'}}>
         <div className="flex flex-col lg:flex-row gap-4 mb-4">
           {/* Búsqueda */}
           <div className="flex-1 relative">
@@ -578,7 +558,7 @@ export default function AdminDashboardPage() {
               placeholder="Buscar por ID, tipo, o asesor..."
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-black text-lg bg-white placeholder-black" style={{background: 'none'}}
             />
           </div>
           
@@ -586,14 +566,14 @@ export default function AdminDashboardPage() {
           <div className="flex gap-2">
             <button
               onClick={() => setMostrarFiltros(!mostrarFiltros)}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg text-black"
             >
               <Filter className="w-4 h-4" />
               Filtros
             </button>
             <button
               onClick={limpiarFiltros}
-              className="px-4 py-2 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-800 rounded-lg"
+              className="px-4 py-2 bg-red-100 dark:bg-red-900 text-black hover:bg-red-200 dark:hover:bg-red-800 rounded-lg"
             >
               Limpiar
             </button>
@@ -606,7 +586,7 @@ export default function AdminDashboardPage() {
             <select
               value={filtros.tipo}
               onChange={(e) => setFiltros({...filtros, tipo: e.target.value})}
-              className="p-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-400 dark:bg-gray-600"
+              className="p-2 border border-gray-300 dark:border-gray-600 rounded text-black text-lg bg-white" style={{background: 'none'}}
             >
               <option value="">Todos los tipos</option>
               {tiposUnicos.map(tipo => (
@@ -617,7 +597,7 @@ export default function AdminDashboardPage() {
             <select
               value={filtros.asesor}
               onChange={(e) => setFiltros({...filtros, asesor: e.target.value})}
-              className="p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600"
+              className="p-2 border border-gray-300 dark:border-gray-600 rounded text-black text-lg bg-white" style={{background: 'none'}}
             >
               <option value="">Todos los asesores</option>
               {usuariosUnicos.map(asesor => (
@@ -630,14 +610,14 @@ export default function AdminDashboardPage() {
                 type="date"
                 value={filtros.fechaDesde}
                 onChange={(e) => setFiltros({...filtros, fechaDesde: e.target.value})}
-                className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600"
+                className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded" style={{background: 'none'}}
                 placeholder="Desde"
               />
               <input
                 type="date"
                 value={filtros.fechaHasta}
                 onChange={(e) => setFiltros({...filtros, fechaHasta: e.target.value})}
-                className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600"
+                className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded" style={{background: 'none'}}
                 placeholder="Hasta"
               />
             </div>
@@ -662,7 +642,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
+  <div className="bg-gray-100/80 dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700" style={{backdropFilter: 'blur(2px)'}}>
         {}
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
@@ -687,7 +667,7 @@ export default function AdminDashboardPage() {
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
+              <table className="w-full text-base text-left">
                 <thead>
                   <tr className="text-gray-600 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
                     <th className="pb-3 w-8">
@@ -707,7 +687,7 @@ export default function AdminDashboardPage() {
                 </thead>
                 <tbody>
                   {registrosPagina.map((r) => (
-                    <tr key={r.id} className="border-b border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <tr key={r.id} className="border-b border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300" style={{background: 'none'}}>
                       <td className="py-3">
                         <input
                           type="checkbox"
@@ -718,7 +698,7 @@ export default function AdminDashboardPage() {
                       </td>
                       <td className="py-3 font-mono text-xs">{r.id}</td>
                       <td className="py-3">
-                        <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded text-xs">
+                        <span className="px-2 py-1 text-blue-800 dark:text-blue-200 rounded text-xs bg-gray-200" style={{background: 'unset'}}>
                           {r.tipo}
                         </span>
                       </td>
@@ -731,7 +711,7 @@ export default function AdminDashboardPage() {
                         <div className="flex justify-center gap-2">
                           <button
                             onClick={() => eliminarRegistro(r.id)}
-                            className="p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+                            className="p-1 text-red-600 rounded transition-colors" style={{background: 'none'}}
                             title="Eliminar registro"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -750,7 +730,7 @@ export default function AdminDashboardPage() {
                 <button
                   onClick={() => setPaginaActual(p => Math.max(1, p - 1))}
                   disabled={paginaActual === 1}
-                  className="flex items-center gap-2 px-3 py-1 rounded border border-gray-300 dark:border-gray-600 disabled:opacity-50 bg-white dark:bg-blue-900 text-blue-700 dark:text-blue-100 font-bold"
+                  className="flex items-center gap-2 px-3 py-1 rounded border border-gray-300 dark:border-gray-600 disabled:opacity-50 text-blue-700 dark:text-blue-100 font-bold" style={{background: 'none'}}
                 >
                   <ChevronLeft className="w-4 h-4" />
                   <span className="font-bold">Anterior</span>
@@ -772,10 +752,9 @@ export default function AdminDashboardPage() {
                         onClick={() => setPaginaActual(pagina)}
                         className={`w-8 h-8 rounded font-bold ${
                           pagina === paginaActual
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-white dark:bg-blue-900 text-blue-700 dark:text-blue-100 hover:bg-blue-100 dark:hover:bg-blue-800'
-                        }`}
-                      >
+                            ? 'text-white'
+                            : 'text-blue-700 dark:text-blue-100'
+                        }`} style={{background: 'none'}}>
                         {pagina}
                       </button>
                     )
@@ -785,7 +764,7 @@ export default function AdminDashboardPage() {
                 <button
                   onClick={() => setPaginaActual(p => Math.min(totalPaginas, p + 1))}
                   disabled={paginaActual === totalPaginas}
-                  className="flex items-center gap-2 px-3 py-1 rounded border border-gray-300 dark:border-gray-600 disabled:opacity-50 bg-white dark:bg-blue-900 text-blue-700 dark:text-blue-100 font-bold"
+                  className="flex items-center gap-2 px-3 py-1 rounded border border-gray-300 dark:border-gray-600 disabled:opacity-50 text-blue-700 dark:text-blue-100 font-bold" style={{background: 'none'}}
                 >
                   <span className="font-bold">Siguiente</span>
                   <ChevronRight className="w-4 h-4" />

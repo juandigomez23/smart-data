@@ -43,11 +43,18 @@ export default function AsesorDashboardPage() {
   const tips = [
     "Recuerda revisar tus gestiones antes de enviarlas.",
     "Completa todos los campos obligatorios para evitar rechazos.",
-    "Consulta el manual de usuario para mejores prácticas.",
     "¡Tu esfuerzo suma! Cada gestión cuenta para tu historial."
   ];
   return (
-    <div className="min-h-screen transition-colors bg-gradient-to-br from-blue-50 via-white to-blue-100 pb-16">
+    <div
+      className="min-h-screen pb-16"
+      style={{
+        backgroundImage: 'url(/Fondo.jpg)',
+        backgroundRepeat: 'repeat',
+        backgroundSize: 'auto',
+        backgroundPosition: 'top left',
+      }}
+    >
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center justify-between py-8">
           <div className="flex items-center gap-4 mb-6 md:mb-0">

@@ -30,7 +30,15 @@ export default function HistorialPage() {
   const gestiones: Gestion[] = historial?.data || [];
 
   return (
-    <div className="p-8 min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors flex flex-col items-center justify-center">
+    <div
+      className="p-8 min-h-screen flex flex-col items-center justify-center"
+      style={{
+        backgroundImage: 'url(/Fondo.jpg)',
+        backgroundRepeat: 'repeat',
+        backgroundSize: 'auto',
+        backgroundPosition: 'top left',
+      }}
+    >
       <div className="max-w-5xl mx-auto w-full">
         <VolverAtras />
         <h1 className="text-3xl font-bold mb-6 text-gray-800 dark:text-gray-100 text-center flex items-center gap-2">

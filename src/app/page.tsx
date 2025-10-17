@@ -5,7 +5,7 @@ import { ArrowRight, Lock, BarChart, FileText } from "lucide-react"
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 text-gray-900">
+    <div className="min-h-screen flex flex-col text-gray-900">
       
       <nav className="flex justify-between items-center px-8 py-4 bg-white shadow-md">
         <Link href="/" className="text-2xl font-bold text-blue-600">

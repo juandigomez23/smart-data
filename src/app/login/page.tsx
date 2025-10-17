@@ -2,6 +2,7 @@
 "use client"
 
 import { z } from "zod"
+import Image from "next/image"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useState } from "react"
@@ -52,10 +53,21 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-blue-100 via-white to-blue-200">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-10 border border-blue-100">
-        <h1 className="text-3xl font-extrabold text-blue-900 text-center mb-8 tracking-tight font-sans">Smart Data - Iniciar sesión</h1>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-7">
+    <div
+      className="min-h-screen flex flex-col items-center justify-center"
+      style={{
+        backgroundImage: 'url(/Fondo.jpg)',
+        backgroundRepeat: 'repeat',
+        backgroundSize: 'auto',
+        backgroundPosition: 'top left',
+      }}
+    >
+      <div className="mb-10 mt-8 flex justify-center">
+        <Image src="/bambubpo.png" alt="Logo Smart Data" width={224} height={80} style={{height: 'auto', width: '14rem'}} priority />
+      </div>
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-10 border border-blue-100 flex flex-col items-center">
+        <h1 className="text-3xl font-extrabold text-blue-900 text-center mb-8 tracking-tight font-sans">Iniciar Sesión</h1>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-7 w-full">
           <div>
             <label className="block mb-2 font-semibold text-blue-800 text-lg">Usuario</label>
             <input

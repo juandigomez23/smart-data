@@ -24,7 +24,15 @@ export default function FormulariosLlenadosPage() {
   });
 
   return (
-    <div className="p-8 min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
+    <div
+      className="p-8 min-h-screen"
+      style={{
+        backgroundImage: 'url(/Fondo.jpg)',
+        backgroundRepeat: 'repeat',
+        backgroundSize: 'auto',
+        backgroundPosition: 'top left',
+      }}
+    >
       <div className="max-w-5xl mx-auto">
         <VolverAtras />
         <h1 className="text-3xl font-bold mb-6 text-gray-800 dark:text-gray-100 text-center">Formularios llenados hoy</h1>

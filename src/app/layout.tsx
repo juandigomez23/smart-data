@@ -14,10 +14,21 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body>
-        <Providers>
-          <ClientLayout>{children}</ClientLayout>
-        </Providers>
+      <body style={{ margin: 0, padding: 0 }}>
+        <div
+          style={{
+            minHeight: '100vh',
+            width: '100vw',
+            backgroundImage: 'url(/Fondo.jpg)',
+            backgroundSize: 'auto',
+            backgroundPosition: 'top left',
+            backgroundRepeat: 'repeat',
+          }}
+        >
+          <Providers>
+            <ClientLayout>{children}</ClientLayout>
+          </Providers>
+        </div>
       </body>
     </html>
   )

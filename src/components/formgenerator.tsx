@@ -143,19 +143,30 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
   if (!autenticado) return <p className="text-red-600">⚠️ Debes iniciar sesión para usar el formulario</p>
 
   return (
-    <div className="min-h-screen bg-neutral-100 py-12 px-2 flex items-center justify-center">
-  <div className="w-full max-w-lg mx-auto bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
-  <div className="flex items-center gap-3 mb-6">
-          {config.image && (
-            <span className="inline-block bg-neutral-200 rounded-full p-2 shadow-sm">
-              <Image src={config.image} alt={`${config.title} bandera`} width={40} height={25} className="rounded-md" />
-            </span>
-          )}
-          <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-            <svg className="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="white"/><path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" /></svg>
-            {config.title}
-          </h2>
-        </div>
+    <div
+      className="min-h-screen py-12 px-2 flex items-center justify-center"
+      style={{
+        backgroundImage: 'url(/Fondo.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
+      <div className="w-full max-w-2xl mx-auto bg-gradient-to-br from-white via-blue-50 to-blue-100 rounded-2xl shadow-2xl border border-blue-200 p-10">
+    <div className="flex flex-col items-center mb-6">
+      <Image src="/bambubpo.png" alt="Logo Bambubpo" width={120} height={40} className="mb-4 drop-shadow-lg" />
+      <div className="flex items-center gap-3">
+        {config.image && (
+          <span className="inline-block bg-neutral-200 rounded-full p-2 shadow-sm">
+            <Image src={config.image} alt={`${config.title} bandera`} width={40} height={25} className="rounded-md" />
+          </span>
+        )}
+        <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+          <svg className="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="white"/><path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" /></svg>
+          {config.title}
+        </h2>
+      </div>
+    </div>
         {asesorNombre && (
           <div className="mb-4 flex items-center gap-2 bg-neutral-50 rounded-lg px-3 py-1.5 text-gray-700 text-xs font-medium shadow-sm">
             <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="white"/><path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" /></svg>
@@ -208,11 +219,11 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
               )}
             {field.type === "text" && (
               field.multiline
-                ? (<textarea {...register(field.name, { required: shouldShowField(field, values) && field.required })} rows={6} className="border p-3 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-2xl resize-vertical" placeholder={`Ingrese ${field.label}`} />)
+                ? (<textarea {...register(field.name, { required: shouldShowField(field, values) && field.required })} rows={6} className="border p-4 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-2xl resize-vertical" placeholder={`Ingrese ${field.label}`} />)
                 : (field.name === "resumen_gestion"
-                  ? (<textarea {...register(field.name, { required: shouldShowField(field, values) && field.required })} rows={5} className="border p-3 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-2xl resize-vertical" placeholder={`Ingrese ${field.label}`} />)
+                  ? (<textarea {...register(field.name, { required: shouldShowField(field, values) && field.required })} rows={5} className="border p-4 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-2xl resize-vertical" placeholder={`Ingrese ${field.label}`} />)
                   : field.name === "correo"
-                    ? (<input type="text" {...register(field.name, { required: shouldShowField(field, values) && field.required })} className="border p-2 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed w-full max-w-lg" placeholder={`Ingrese ${field.label}`} readOnly />)
+                    ? (<input type="text" {...register(field.name, { required: shouldShowField(field, values) && field.required })} className="border p-3 rounded-xl bg-gray-100 text-gray-500 cursor-not-allowed w-full max-w-xl" placeholder={`Ingrese ${field.label}`} readOnly />)
                     : field.name === "san"
                       ? (<>
                           <input
@@ -226,7 +237,7 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
                                 return true;
                               }
                             })}
-                            className={`border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-lg ${formState.errors.san ? 'border-red-500' : ''}`}
+                            className={`border p-3 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-xl ${formState.errors.san ? 'border-red-500' : ''}`}
                             placeholder={typeof field.label === "function" ? field.label({ values }) : "Ejemplo: SAN"}
                           />
                           {formState.errors.san && (
@@ -234,20 +245,20 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
                           )}
                         </>
                       )
-                      : (<input type="text" {...register(field.name, { required: shouldShowField(field, values) && field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-lg" placeholder={`Ingrese ${field.label}`} />)
+                      : (<input type="text" {...register(field.name, { required: shouldShowField(field, values) && field.required })} className="border p-3 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-xl" placeholder={`Ingrese ${field.label}`} />)
                 )
             )}
             {field.type === "time" && (
-              <input type="time" {...register(field.name, { required: shouldShowField(field, values) && field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 w-full max-w-md" step="60" />
+              <input type="time" {...register(field.name, { required: shouldShowField(field, values) && field.required })} className="border p-3 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 w-full max-w-md" step="60" />
             )}
             {field.type === "number" && (
-              <input type="number" {...register(field.name, { required: shouldShowField(field, values) && field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-md" placeholder={`Ingrese ${field.label}`} />
+              <input type="number" {...register(field.name, { required: shouldShowField(field, values) && field.required })} className="border p-3 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-md" placeholder={`Ingrese ${field.label}`} />
             )}
             {field.type === "date" && (
-              <input type="date" {...register(field.name, { required: shouldShowField(field, values) && field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 w-full max-w-md" />
+              <input type="date" {...register(field.name, { required: shouldShowField(field, values) && field.required })} className="border p-3 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 w-full max-w-md" />
             )}
             {field.type === "select" && field.options && field.name === "master_dealer" ? (
-              <select defaultValue="" {...register(field.name, { required: shouldShowField(field, values) && field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 w-full max-w-md">
+              <select defaultValue="" {...register(field.name, { required: shouldShowField(field, values) && field.required })} className="border p-3 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 w-full max-w-md">
                 <option value="" disabled hidden>(Seleccione una opción)</option>
                 {(() => {
                   const pais = values.pais;
@@ -300,7 +311,7 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
                 })()}
               </select>
             ) : field.type === "select" && field.options ? (
-              <select defaultValue="" {...register(field.name, { required: shouldShowField(field, values) && field.required })} className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 w-full max-w-md">
+              <select defaultValue="" {...register(field.name, { required: shouldShowField(field, values) && field.required })} className="border p-3 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 w-full max-w-md">
                 <option value="" disabled hidden>(Seleccione una opción)</option>
                 {field.options.map(opt => (
                   <option key={opt.value} value={opt.value} className="text-gray-900">{opt.label}</option>
@@ -309,7 +320,7 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
             ) : null}
             {field.type === "checkbox" && (
               <div className="flex items-center space-x-2 text-gray-900">
-                <input type="checkbox" {...register(field.name)} className="h-4 w-4" />
+                <input type="checkbox" {...register(field.name)} className="h-5 w-5 rounded-xl focus:ring-2 focus:ring-blue-500 border-gray-300" />
                 <span>{typeof field.label === "function" ? field.label({ values }) : field.label}</span>
                 <span className="ml-2 text-gray-400 text-xs">(Seleccione una opción)</span>
               </div>

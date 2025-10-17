@@ -10,7 +10,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const hideTopbar = pathname === "/" || pathname === "/login"
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {!hideTopbar && <Topbar />}
       <main className={!hideTopbar ? "pt-16 px-6" : ""}>
         {children}

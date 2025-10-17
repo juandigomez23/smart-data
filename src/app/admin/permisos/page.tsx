@@ -23,10 +23,12 @@ const codigosFormularios = [
   "otr", // Otras Gestiones
 ];
 
+
 export default function PermisosAsesorPage() {
   const [asesores, setAsesores] = useState<Asesor[]>([]);
   const [asesorSeleccionado, setAsesorSeleccionado] = useState<Asesor | null>(null);
   const [formularios, setFormularios] = useState<string[]>([]);
+  const [mensaje, setMensaje] = useState<{ tipo: 'exito' | 'error'; texto: string } | null>(null);
 
   useEffect(() => {
     fetch("/api/asesores")
@@ -42,40 +44,42 @@ export default function PermisosAsesorPage() {
     }
   }, [asesorSeleccionado]);
 
-  useEffect(() => {
-    if (!asesorSeleccionado) return;
 
-    if (asesorSeleccionado.formularios_permitidos?.sort().join() === formularios.sort().join()) return;
-    fetch(`/api/asesores/${asesorSeleccionado.id}`, {
+  // Guardar cambios solo cuando el usuario lo decida
+  const handleGuardar = async () => {
+    if (!asesorSeleccionado) return;
+    const res = await fetch(`/api/asesores/${asesorSeleccionado.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...asesorSeleccionado, formularios_permitidos: formularios }),
-    })
-      .then((res) => {
-        if (res.ok) {
-          setAsesores((prev) =>
-            prev.map((a) =>
-              a.id === asesorSeleccionado.id ? { ...a, formularios_permitidos: [...formularios] } : a
-            )
-          );
-        }
-      });
-  }, [formularios, asesorSeleccionado]);
+    });
+    if (res.ok) {
+      setAsesores((prev) =>
+        prev.map((a) =>
+          a.id === asesorSeleccionado.id ? { ...a, formularios_permitidos: [...formularios] } : a
+        )
+      );
+      setMensaje({ tipo: 'exito', texto: 'Permisos guardados correctamente.' });
+    } else {
+      setMensaje({ tipo: 'error', texto: 'Error al guardar los permisos. Intenta de nuevo.' });
+    }
+    setTimeout(() => setMensaje(null), 3000);
+  };
 
 
 
   return (
-    <div className="min-h-screen p-8 bg-gradient-to-br from-blue-100 via-white to-blue-200 dark:bg-gray-900">
+    <div className="min-h-screen p-8">
       <h1 className="text-4xl font-extrabold mb-10 text-blue-700 dark:text-blue-300 text-center tracking-tight">Permisos de Asesor</h1>
       <div className="max-w-5xl mx-auto">
         <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-          {[...asesores].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })).map((a, idx) => (
+          {[...asesores].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })).map((a,) => (
             <li key={a.id}>
               <button
                 className={`w-full px-0 py-0 rounded-2xl shadow-xl border-2 border-blue-200 dark:border-blue-700 transition hover:scale-[1.03] duration-150 flex flex-col items-center justify-center bg-white dark:bg-gray-800 ${asesorSeleccionado?.id === a.id ? "ring-4 ring-blue-400" : ""}`}
                 onClick={() => setAsesorSeleccionado(a)}
               >
-                <div className={`w-full flex flex-col items-center justify-center py-8 rounded-t-2xl ${['bg-blue-100','bg-teal-100','bg-purple-100','bg-orange-100','bg-pink-100','bg-green-100'][idx%6]} dark:bg-blue-900`}>
+                <div className="w-full flex flex-col items-center justify-center py-8 rounded-t-2xl bg-blue-50 dark:bg-blue-900">
                   <Users className="w-12 h-12 mb-2 text-blue-500" />
                   <span className="font-bold text-lg text-blue-700 dark:text-blue-200">{a.nombre}</span>
                   <span className="text-xs text-gray-500 mt-1">{a.email}</span>
@@ -129,6 +133,24 @@ export default function PermisosAsesorPage() {
                   ))}
                 </div>
               </div>
+              <button
+                className="mt-8 w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg shadow transition"
+                onClick={handleGuardar}
+              >
+                Guardar cambios
+              </button>
+              {mensaje && (
+                <div
+                  className={`mt-4 w-full text-center py-2 rounded-lg font-semibold text-lg ${
+                    mensaje.tipo === 'exito'
+                      ? 'bg-green-100 text-green-800 border border-green-300'
+                      : 'bg-red-100 text-red-800 border border-red-300'
+                  }`}
+                  role="alert"
+                >
+                  {mensaje.texto}
+                </div>
+              )}
             </div>
           </div>
         </div>

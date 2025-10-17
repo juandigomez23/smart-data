@@ -156,7 +156,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           )}
         </nav>
 
-        
+
         <Transition as={Fragment} show={mobileMenuOpen} enter="transition ease-out duration-300" enterFrom="opacity-0 -translate-y-2" enterTo="opacity-100 translate-y-0" leave="transition ease-in duration-200" leaveFrom="opacity-100 translate-y-0" leaveTo="opacity-0 -translate-y-2">
           <div className="md:hidden bg-blue-600 flex flex-col gap-1 p-2">
             {navItems.map((item) =>
@@ -175,7 +175,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
         </Transition>
 
-        <main className="flex-1 overflow-auto bg-gray-100 p-4">{children}</main>
+  <main className="flex-1 overflow-auto p-4">{children}</main>
       </div>
 
       <style jsx>{`

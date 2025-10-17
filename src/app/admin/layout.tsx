@@ -14,7 +14,7 @@ export default function AdminLayout({
       {}
   <div className="flex-1 ml-64 min-h-screen flex flex-col">
     <Topbar />
-    <main className="flex-1 bg-gray-100" style={{marginTop: '1rem'}}>{children}</main>
+    <main className="flex-1" style={{marginTop: '1rem', background: 'none'}}>{children}</main>
       </div>
     </div>
   )
