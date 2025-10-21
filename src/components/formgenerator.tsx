@@ -1,8 +1,8 @@
 "use client"
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useForm, FieldValues } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ZodTypeAny } from "zod"
 import Image from "next/image"
 import { useState, useEffect } from "react"
 import { useAsesor } from "@/hooks/useAsesor"
@@ -40,12 +40,12 @@ function shouldShowField(field: FieldConfig, values: FieldValues) {
 
 type FormGeneratorProps = {
   config: FormConfig;
-  schema?: ZodTypeAny;
+  schema?: any;
 };
 
 export default function FormGenerator({ config, schema }: FormGeneratorProps) {
   const { register, handleSubmit, reset, setValue, watch, formState, trigger } = useForm<Record<string, unknown>>({
-    resolver: schema ? zodResolver(schema as ZodTypeAny) : undefined,
+    resolver: schema ? zodResolver(schema as any) : undefined,
     mode: "onChange"
   })
 

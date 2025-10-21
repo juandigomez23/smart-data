@@ -8,31 +8,7 @@ export const retencionesForm: FormConfig = {
   fields: [
     
     { name: "correo", label: "Correo electrónico", type: "text", required: true, auto: true },
-    {
-      name: "san",
-      label: ({ values }) => {
-        const pais = values.pais;
-        if (pais === "colombia") return "SAN (debe iniciar con HCO)";
-        if (pais === "chile") return "SAN (debe iniciar con HCL)";
-        if (pais === "ecuador") return "SAN (debe iniciar con HEC)";
-        if (pais === "peru" || pais === "perú") return "SAN (debe iniciar con HPE)";
-        return "SAN";
-      },
-      type: "text",
-      required: true,
-      description: "Colombia(HCO), Chile(HCL), Ecuador(HEC), Perú(HPE)",
-      validate: ({ values, value }) => {
-  const vals = values as { pais?: string };
-  const pais = vals.pais;
-  if (!value) return "Campo obligatorio";
-  const valStr = typeof value === "string" ? value.trim() : String(value);
-  if (pais === "colombia" && !valStr.startsWith("HCO")) return "El SAN debe iniciar con HCO para Colombia";
-  if (pais === "chile" && !valStr.startsWith("HCL")) return "El SAN debe iniciar con HCL para Chile";
-  if (pais === "ecuador" && !valStr.startsWith("HEC")) return "El SAN debe iniciar con HEC para Ecuador";
-  if ((pais === "peru" || pais === "perú") && !valStr.startsWith("HPE")) return "El SAN debe iniciar con HPE para Perú";
-  return true;
-      }
-    },
+   
     {
       name: "medio_comunicacion",
       label: "Medio de comunicación",

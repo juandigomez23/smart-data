@@ -1,6 +1,4 @@
-import { z } from "zod"
-
-
+import { z } from "zod";
 
 export type RetencionesFormData = {
   correo: string;
@@ -35,20 +33,21 @@ export type RetencionesFormData = {
   cierre_llamada_info_no_acepta: string;
   resultado_gestion_info: string;
   debito_automatico_info: string;
-}
-
-
+};
 
 export const retencionesSchema = z.object({
   correo: z.string().email("Correo inválido"),
-  san: z.string()
+  san: z
+    .string()
     .min(3, "SAN obligatorio")
     .refine(
       (val: string) => {
-        return ["HCO", "HCL", "HEC", "HPE"].some(pref => val.startsWith(pref));
+        return ["HCO", "HCL", "HEC", "HPE"].some((pref) =>
+          val.startsWith(pref)
+        );
       },
       {
-        message: "El SAN debe iniciar con HCO, HCL, HEC o HPE según el país"
+        message: "El SAN debe iniciar con HCO, HCL, HEC o HPE según el país",
       }
     ),
   medio_comunicacion: z.string().min(1, "Campo obligatorio"),
