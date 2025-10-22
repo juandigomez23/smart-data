@@ -4,7 +4,7 @@ import { useState, Fragment, ReactNode } from "react"
 import Link from "next/link"
 import { useSession, signOut } from "next-auth/react"
 import { usePathname } from "next/navigation"
-import { Menu, ChevronDown, User, Home, Users, Settings, FileText, BarChart } from "lucide-react"
+import { Menu, ChevronDown, User, Home, Users, Settings, BarChart } from "lucide-react"
 import { Transition } from "@headlessui/react"
 
 interface NavItem {
@@ -53,12 +53,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     )
   }
 
-  if (role === "auditor") {
-    navItems.push(
-      { name: "Dashboard", href: "/auditor", icon: <BarChart className="w-5 h-5" /> },
-      { name: "Reportes", href: "/auditor/reports", icon: <FileText className="w-5 h-5" /> }
-    )
-  }
+  // auditor role removed
 
   const toggleSidebarMenu = (name: string) => {
     setSidebarOpenMenus((prev) => ({ ...prev, [name]: !prev[name] }))

@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-
+// 🟢 Crear formulario
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession();
     const user = session?.user;
 
     if (!user) {
@@ -26,15 +25,14 @@ export async function POST(req: Request) {
       );
     }
 
-   
     let asesorId: number | null = null;
-    const asesorNombre: string = user.username;
+    const asesorNombre: string = user.name ?? "";
 
     if (user.role === "asesor") {
       asesorId = Number(user.id);
     }
 
-    
+    // 🔹 Insertar el formulario
     const result = await pool.query(
       `INSERT INTO public.formularios (tipo, asesor_id, asesor_nombre, datos) 
        VALUES ($1, $2, $3, $4) 
@@ -42,7 +40,7 @@ export async function POST(req: Request) {
       [tipo, asesorId, asesorNombre, JSON.stringify(datos)]
     );
 
-    
+    // 🔹 Si el usuario es asesor, actualizar estadísticas
     if (asesorId) {
       await pool.query(
         `UPDATE asesores 
@@ -52,7 +50,6 @@ export async function POST(req: Request) {
         [asesorId]
       );
 
-      
       await pool.query(
         `UPDATE asesores
          SET eficiencia = LEAST(ROUND((formularios_completados::float / 45) * 100), 100)
@@ -75,10 +72,10 @@ export async function POST(req: Request) {
   }
 }
 
-
+// 🟡 Obtener formularios
 export async function GET(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession();
     const user = session?.user;
 
     if (!user) {
@@ -88,23 +85,24 @@ export async function GET(req: Request) {
       );
     }
 
-    
     const { searchParams } = new URL(req.url);
     const tipo = searchParams.get("tipo") || "";
     const asesor = searchParams.get("asesor") || "";
     const fechaDesde = searchParams.get("fechaDesde") || "";
     const fechaHasta = searchParams.get("fechaHasta") || "";
 
-    
-  const where: string[] = [];
-  const params: (string | number)[] = [];
+    const where: string[] = [];
+    const params: (string | number)[] = [];
     let idx = 1;
 
-    if (user.role !== "admin" && user.role !== "auditor") {
+    // 🔹 Filtro por rol
+    if (user.role !== "admin") {
       where.push(`f.asesor_id = $${idx}`);
       params.push(user.id);
       idx++;
     }
+
+    // 🔹 Filtros adicionales
     if (tipo) {
       where.push(`f.tipo ILIKE $${idx}`);
       params.push(`%${tipo}%`);
@@ -127,7 +125,18 @@ export async function GET(req: Request) {
     }
 
     const whereClause = where.length ? `WHERE ${where.join(" AND ")}` : "";
-    const query = `SELECT f.id, f.tipo, f.asesor_nombre as asesor, f.datos, f.created_at FROM public.formularios f ${whereClause} ORDER BY f.created_at DESC`;
+    const query = `
+      SELECT 
+        f.id, 
+        f.tipo, 
+        f.asesor_nombre AS asesor, 
+        f.datos, 
+        f.created_at 
+      FROM public.formularios f 
+      ${whereClause} 
+      ORDER BY f.created_at DESC
+    `;
+
     const result = await pool.query(query, params);
 
     return NextResponse.json({

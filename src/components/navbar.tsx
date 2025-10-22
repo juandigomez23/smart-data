@@ -15,23 +15,19 @@ export default function Navbar() {
 
   const role = session?.user?.role
 
-  const navItems = role === "admin"
-    ? [
-        { name: "Dashboard", href: "/admin" },
-        { name: "Usuarios", href: "/admin/users" },
-        { name: "Configuración", href: "/admin/settings" },
-      ]
-    : role === "asesor"
-    ? [
-        { name: "Dashboard", href: "/asesor" },
-        { name: "Clientes", href: "/asesor/clients" },
-      ]
-    : role === "auditor"
-    ? [
-        { name: "Dashboard", href: "/auditor" },
-        { name: "Reportes", href: "/auditor/reports" },
-      ]
-    : []
+  let navItems = [] as { name: string; href: string }[];
+  if (role === "admin") {
+    navItems = [
+      { name: "Dashboard", href: "/admin" },
+      { name: "Usuarios", href: "/admin/users" },
+      { name: "Configuración", href: "/admin/settings" },
+    ];
+  } else if (role === "asesor") {
+    navItems = [
+      { name: "Dashboard", href: "/asesor" },
+      { name: "Clientes", href: "/asesor/clients" },
+    ];
+  }
 
   const navLinkClass = (href: string) =>
     `px-3 py-1 rounded transition-all duration-200 ${

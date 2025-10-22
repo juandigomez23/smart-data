@@ -61,7 +61,7 @@ export default function AsesorDashboardPage() {
             <Image src="/globe.svg" alt="Logo" width={64} height={64} className="w-16 h-16" />
             <div>
               <h1 className="text-4xl font-extrabold text-blue-700 mb-1 flex items-center gap-2">
-                ¡Bienvenid@, {session?.user?.username || "Asesor"}!
+                ¡Bienvenid@, {session?.user?.name ?? session?.user?.email ?? "Asesor"}!
               </h1>
               <p className="text-lg text-blue-900 font-medium">Tu espacio para gestionar y crecer profesionalmente.</p>
             </div>

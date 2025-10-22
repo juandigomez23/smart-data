@@ -52,7 +52,7 @@ smart-data/
 - **Gestión de Usuarios y Permisos:** Vistas en `src/app/admin/users/` y `src/app/admin/permisos/`, con tarjetas y modales para administración.
 - **Reportes y Exportación:** Módulo de reportes en `src/app/admin/reports/` y utilidades en `src/utils/exportutils.ts`.
 - **Autenticación:** Implementada con NextAuth en `src/app/api/auth/[...nextauth]/`.
-- **Hooks Personalizados:** Ejemplo: `useAsesor`, `useAuditorDashboard` para lógica de negocio y estado.
+- **Hooks Personalizados:** Ejemplo: `useAsesor` para lógica de negocio y estado.
 
 ---
 
