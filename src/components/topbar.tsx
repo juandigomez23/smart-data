@@ -14,8 +14,9 @@ export default function Topbar() {
     )
   }
 
-  const username = session?.user?.username || "Usuario"
-  const role = session?.user?.role || "sin rol"
+  // next-auth session user typically has `name` and `email`, not `username`.
+  const username = session?.user?.name ?? session?.user?.email ?? "Usuario"
+  const role = session?.user?.role ?? "sin rol"
 
   const initials = username
     .split(" ")

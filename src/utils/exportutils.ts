@@ -1,4 +1,4 @@
-import * as XLSX from "xlsx";
+import XLSX from "@e965/xlsx";
 import { saveAs } from "file-saver";
 
 // Diccionarios de nombres amigables por formulario y país
@@ -372,10 +372,10 @@ export function exportToExcelFormularios(formularios: ExportFormulario[], fileNa
       if (!headers.includes(key)) headers.push(key);
     });
 
-    const worksheet = XLSX.utils.json_to_sheet(transformados, { header: headers });
-    XLSX.utils.book_append_sheet(workbook, worksheet, tipo.charAt(0).toUpperCase() + tipo.slice(1));
+  const worksheet = XLSX.utils.json_to_sheet(transformados, { header: headers });
+  XLSX.utils.book_append_sheet(workbook, worksheet, tipo.charAt(0).toUpperCase() + tipo.slice(1));
   });
-  const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+  const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" }) as ArrayBuffer;
   const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
   saveAs(blob, fileName);
 }
