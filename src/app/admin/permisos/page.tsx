@@ -40,7 +40,24 @@ export default function PermisosAsesorPage() {
 
   useEffect(() => {
     if (asesorSeleccionado) {
-      setFormularios(asesorSeleccionado.formularios_permitidos || []);
+      const raw = asesorSeleccionado.formularios_permitidos;
+      // Normalize stored value: could be already an array, a JSON string, or null
+      const normalized: string[] = (() => {
+        if (Array.isArray(raw)) return raw;
+        if (!raw) return [];
+        if (typeof raw === "string") {
+          try {
+            const parsed = JSON.parse(raw);
+            return Array.isArray(parsed) ? parsed : [];
+          } catch {
+            return [];
+          }
+        }
+        // Fallback: if it's an object but not an array, return empty
+        return [];
+      })();
+
+      setFormularios(normalized);
     }
   }, [asesorSeleccionado]);
 
@@ -109,18 +126,18 @@ export default function PermisosAsesorPage() {
               <div className="grid grid-cols-2 gap-3">
                 {codigosFormularios.map((codigo) => (
                   <label key={codigo} className="flex items-center gap-2 text-base font-semibold text-gray-800 dark:text-blue-100 bg-blue-50 dark:bg-blue-900 rounded px-2 py-1 justify-center shadow-sm">
-                    <input
-                      type="checkbox"
-                      checked={formularios.includes(codigo)}
-                      onChange={(e) => {
-                        setFormularios((prev) =>
-                          e.target.checked
-                            ? [...prev, codigo]
-                            : prev.filter((v) => v !== codigo)
-                        );
-                      }}
-                      className="accent-blue-600 w-4 h-4"
-                    />
+                        <input
+                          type="checkbox"
+                          checked={Array.isArray(formularios) && formularios.includes(codigo)}
+                          onChange={(e) => {
+                            setFormularios((prev) =>
+                              e.target.checked
+                                ? [...(Array.isArray(prev) ? prev : []), codigo]
+                                : (Array.isArray(prev) ? prev.filter((v) => v !== codigo) : [])
+                            );
+                          }}
+                          className="accent-blue-600 w-4 h-4"
+                        />
                     <span className="font-mono">{codigo}</span>
                   </label>
                 ))}

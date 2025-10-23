@@ -35,9 +35,43 @@ export async function GET() {
       ORDER BY created_at DESC
     `)
 
+    // Normalize formularios_permitidos for each row to ensure it's always an array
+    const normalizedRows = result.rows.map((r: unknown) => {
+      const row = r as Record<string, unknown>;
+      const raw = row.formularios_permitidos;
+      let normalized: string[] = [];
+      if (Array.isArray(raw)) normalized = raw;
+      else if (!raw) normalized = [];
+      else if (typeof raw === 'string') {
+        try {
+          const parsed = JSON.parse(raw);
+          normalized = Array.isArray(parsed) ? parsed : [];
+        } catch {
+          normalized = [];
+        }
+      } else {
+        normalized = [];
+      }
+      return {
+        id: row.id as number,
+        nombre: row.nombre as string,
+        email: row.email as string | null,
+        cedula: row.cedula as string | null,
+        estado: row.estado as string,
+        rol: row.rol as string,
+        fechaRegistro: row.fechaRegistro as string | null,
+        ultimoAcceso: row.ultimoAcceso as string | null,
+        formulariosCompletados: row.formularios_completados as number,
+        eficiencia: row.eficiencia as number,
+        formularios_permitidos: normalized,
+        created_at: row.created_at as string | null,
+        updated_at: row.updated_at as string | null,
+      };
+    });
+
     return NextResponse.json({
       success: true,
-      data: result.rows,
+      data: normalizedRows,
     })
   } catch (error) {
     console.error("Error obteniendo asesores:", error)
@@ -65,12 +99,13 @@ export async function POST(request: NextRequest) {
 
     client = await pool.connect()
 
+    // Let the database assign the serial integer id (no UUIDs)
     const result = await client.query(
       `
       INSERT INTO asesores 
-        (nombre, email, cedula, estado, rol, formularios_permitidos)
+        (nombre, email, cedula, estado, rol, formularios_permitidos, updated_at)
       VALUES 
-        ($1, $2, $3, $4, $5, $6)
+        ($1, $2, $3, $4, $5, $6, NOW())
       RETURNING 
         id,
         nombre,
@@ -82,7 +117,9 @@ export async function POST(request: NextRequest) {
         ultimo_acceso as "ultimoAcceso",
         formularios_completados as "formulariosCompletados",
         eficiencia,
-        formularios_permitidos
+        formularios_permitidos,
+        created_at,
+        updated_at
       `,
       [
         data.nombre,
@@ -90,7 +127,7 @@ export async function POST(request: NextRequest) {
         data.cedula || null,
         data.estado || "activo",
         data.rol || "asesor",
-        Array.isArray(data.formularios_permitidos) ? data.formularios_permitidos : [],
+        JSON.stringify(Array.isArray(data.formularios_permitidos) ? data.formularios_permitidos : []),
       ]
     )
 

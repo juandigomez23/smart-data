@@ -4,11 +4,11 @@ import type { Session } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import pool from "@/lib/db";
-import { randomUUID } from "crypto";
 import bcrypt from "bcrypt";
 
 export const authOptions: NextAuthOptions = {
   providers: [
+    // Google corporate login
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
@@ -34,17 +34,16 @@ export const authOptions: NextAuthOptions = {
         );
 
         if (existingUser.rows.length === 0) {
-          const newId = randomUUID();
           const result = await pool.query(
-            `INSERT INTO asesores (id, nombre, email, rol, updated_at)
-             VALUES ($1, $2, $3, 'asesor', NOW())
+            `INSERT INTO asesores (nombre, email, rol, updated_at)
+             VALUES ($1, $2, 'asesor', NOW())
              RETURNING id, nombre, email, rol`,
-            [newId, name, email]
+            [name, email]
           );
 
           const row = result.rows[0];
           return {
-            id: row.id,
+            id: String(row.id),
             name: row.nombre ?? name,
             email: row.email,
             role: row.rol ?? 'asesor',
@@ -53,14 +52,15 @@ export const authOptions: NextAuthOptions = {
 
         const u = existingUser.rows[0];
         return {
-          id: u.id,
+          id: String(u.id),
           name: u.nombre,
           email: u.email,
-          role: u.rol,
+          role: u.rol ?? 'asesor',
         };
       },
     }),
 
+    // Credentials login
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -71,21 +71,23 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.username || !credentials?.password) return null;
 
         const res = await pool.query(
-          `SELECT * FROM users WHERE username = $1`,
+          `SELECT * FROM asesores WHERE email = $1 LIMIT 1`,
           [credentials.username]
         );
 
         if (res.rows.length === 0) return null;
         const user = res.rows[0];
 
+        if (!user.password) return null;
+
         const valid = await bcrypt.compare(credentials.password, user.password);
         if (!valid) return null;
 
         return {
-          id: user.id,
-          name: user.name,
+          id: String(user.id),
+          name: user.nombre,
           email: user.email,
-          role: user.role,
+          role: user.rol ?? 'asesor',
         };
       },
     }),
@@ -112,14 +114,12 @@ export const authOptions: NextAuthOptions = {
       if (token) {
         if (!session.user) session.user = { id: token.id ? (token.id as string) : "", name: "", email: "" };
         session.user.id = token.id as string;
-
         session.user.role = token.role as string;
       }
       return session;
     },
 
     async redirect({ url, baseUrl }: { url: string; baseUrl: string }): Promise<string> {
-      // If the url is an internal path, respect it. Otherwise default to the login page
       if (url && url.startsWith("/")) return `${baseUrl}${url}`;
       return `${baseUrl}/login`;
     },

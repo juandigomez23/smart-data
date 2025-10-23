@@ -240,21 +240,26 @@ export default function AdminDashboardPage() {
     return (asesoresData.data as Asesor[]);
   }, [asesoresData]);
 
+  // Solo usuarios con rol exacto 'asesor' deben aparecer en la gráfica
+  const asesoresSolo = useMemo(() => {
+    return asesoresTodos.filter(a => a.rol === 'asesor');
+  }, [asesoresTodos]);
+
   
   const asesoresActivosHoy = useMemo(() =>
-    [...asesoresTodos.filter(asesor =>
+    [...asesoresSolo.filter(asesor =>
       registros.some(r => r.asesor === asesor.nombre && esFechaFiltroChart(r.created_at))
-    )].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })), [registros, asesoresTodos, esFechaFiltroChart]
+    )].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })), [registros, asesoresSolo, esFechaFiltroChart]
   );
 
   const asesoresInactivos = useMemo(() =>
-    [...asesoresTodos.filter(asesor =>
+    [...asesoresSolo.filter(asesor =>
       !registros.some(r => r.asesor === asesor.nombre && esFechaFiltroChart(r.created_at))
-    )].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })), [registros, asesoresTodos, esFechaFiltroChart]
+    )].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })), [registros, asesoresSolo, esFechaFiltroChart]
   );
 
   const actividadHoy = useMemo(() =>
-    [...asesoresTodos.map(asesor => {
+    [...asesoresSolo.map(asesor => {
       const gestionesHoy = registros.filter(r => r.asesor === asesor.nombre && esFechaFiltroChart(r.created_at)).length;
     
       let color = "bg-red-500";
@@ -262,7 +267,7 @@ export default function AdminDashboardPage() {
       else if (gestionesHoy >= 25) color = "bg-orange-400";
       return { asesor: asesor.nombre, gestionesHoy, color, id: asesor.id };
     })].sort((a, b) => a.asesor.localeCompare(b.asesor, 'es', { sensitivity: 'base' })),
-    [registros, asesoresTodos, esFechaFiltroChart]
+    [registros, asesoresSolo, esFechaFiltroChart]
   );
 
   return (
@@ -425,7 +430,7 @@ export default function AdminDashboardPage() {
             onChange={e => setAsesorFiltroChart(e.target.value)}
           >
             <option value="">Todos los asesores</option>
-            {asesoresTodos.map(asesor => (
+            {asesoresSolo.map(asesor => (
               <option key={asesor.id} value={asesor.nombre}>{asesor.nombre}</option>
             ))}
           </select>
@@ -433,7 +438,7 @@ export default function AdminDashboardPage() {
 
 
 
-  <ResponsiveContainer width="100%" height={Math.max(asesoresTodos.length * 50, 420)}>
+  <ResponsiveContainer width="100%" height={Math.max(asesoresSolo.length * 50, 420)}>
     <BarChart data={asesorFiltroChart ? actividadHoy.filter(a => a.asesor === asesorFiltroChart) : actividadHoy} layout="vertical" margin={{ top: 20, right: 40, left: 0, bottom: 20 }} barCategoryGap={20}>
             <XAxis
               type="number"

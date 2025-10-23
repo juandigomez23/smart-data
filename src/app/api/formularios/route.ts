@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { getServerSession } from "next-auth";
+import authOptions from "@/lib/authOptions";
 
 // 🟢 Crear formulario
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession();
+  const session = await getServerSession(authOptions);
     const user = session?.user;
 
     if (!user) {
@@ -28,8 +29,11 @@ export async function POST(req: Request) {
     let asesorId: number | null = null;
     const asesorNombre: string = user.name ?? "";
 
-    if (user.role === "asesor") {
-      asesorId = Number(user.id);
+    // Asignar asesor_id siempre que el usuario tenga un id válido en la sesión.
+    // Antes dependíamos del role === 'asesor' y eso dejaba formularios sin asesor_id.
+    if (user?.id) {
+      const idNum = Number(user.id);
+      if (!isNaN(idNum)) asesorId = idNum;
     }
 
     // 🔹 Insertar el formulario
@@ -75,7 +79,7 @@ export async function POST(req: Request) {
 // 🟡 Obtener formularios
 export async function GET(req: Request) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     const user = session?.user;
 
     if (!user) {
@@ -97,8 +101,17 @@ export async function GET(req: Request) {
 
     // 🔹 Filtro por rol
     if (user.role !== "admin") {
+      // Require a valid numeric user id for non-admin roles
+      const idNum = user?.id ? Number(user.id) : NaN;
+      if (!user?.id || isNaN(idNum)) {
+        return NextResponse.json(
+          { success: false, error: "ID de usuario inválido" },
+          { status: 401 }
+        );
+      }
+
       where.push(`f.asesor_id = $${idx}`);
-      params.push(user.id);
+      params.push(idNum);
       idx++;
     }
 
@@ -137,7 +150,7 @@ export async function GET(req: Request) {
       ORDER BY f.created_at DESC
     `;
 
-    const result = await pool.query(query, params);
+  const result = await pool.query(query, params);
 
     return NextResponse.json({
       success: true,
