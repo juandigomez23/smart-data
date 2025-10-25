@@ -4,7 +4,7 @@ import { useState, Fragment, ReactNode } from "react"
 import Link from "next/link"
 import { useSession, signOut } from "next-auth/react"
 import { usePathname } from "next/navigation"
-import { Menu, ChevronDown, User, Home, Users, Settings, BarChart } from "lucide-react"
+import { Menu, ChevronDown, User, Home, Users, Settings, BarChart, FileText } from "lucide-react"
 import { Transition } from "@headlessui/react"
 
 interface NavItem {
@@ -32,9 +32,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { name: "Inicio", href: "/", icon: <Home className="w-5 h-5" /> },
   ]
 
-  if (role === "admin") {
+  if (role === "admin" || role === "owner") {
     navItems.push(
       { name: "Dashboard", href: "/admin", icon: <BarChart className="w-5 h-5" /> },
+      { name: "Editor formularios", href: "/admin/form-editor", icon: <FileText className="w-5 h-5" /> },
       {
         name: "Usuarios",
         icon: <Users className="w-5 h-5" />,

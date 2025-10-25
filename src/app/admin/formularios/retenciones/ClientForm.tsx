@@ -6,7 +6,7 @@ import { retencionesSchema } from "@/config/forms/retenciones-schema"
 
 export default function ClientForm() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white p-4">
+  <div className="min-h-screen flex items-center justify-center bg-transparent p-4">
       <div className="w-full max-w-2xl">
         <FormGenerator config={retencionesForm} schema={retencionesSchema} />
       </div>

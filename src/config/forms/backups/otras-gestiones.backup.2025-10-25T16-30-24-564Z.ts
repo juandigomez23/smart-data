@@ -12,6 +12,11 @@ export const otrasGestionesForm: FormConfig = {
       "auto": true
     },
     {
+      "name": "hora_inicio_gestion_info",
+      "label": "Hora inicio de gestión",
+      "type": "info"
+    },
+    {
       "name": "hora_inicio_gestion",
       "label": "Hora inicio de gestión",
       "type": "time",
@@ -43,7 +48,7 @@ export const otrasGestionesForm: FormConfig = {
     },
     {
       "name": "san_cedula_nit",
-      "label": "SAN, Cédula o NIT",
+      "label": "SAaaaaaaaaaN, Cédula o NIT",
       "type": "text",
       "required": true
     },

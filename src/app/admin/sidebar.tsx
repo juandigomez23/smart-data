@@ -2,13 +2,14 @@
 import React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Users, FileSpreadsheet, ClipboardList } from "lucide-react"
+import { LayoutDashboard, Users, FileSpreadsheet, ClipboardList, FileText } from "lucide-react"
 
 const links = [
   { name: "Menú", href: "/admin", icon: LayoutDashboard },
   { name: "Gestión Asesores", href: "/admin/users", icon: Users },
-  
+  { name: "Editor formularios", href: "/admin/form-editor", icon: FileText },
   { name: "Exportar Formularios", href: "/admin/exportar", icon: FileSpreadsheet },
+  
 ]
 
 export default function AdminSidebar() {

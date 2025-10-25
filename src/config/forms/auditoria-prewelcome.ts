@@ -54,7 +54,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
       ],
     },
     {
-      name: "documento_id",
+      name: "documento_de_id",
       label: "Documento de ID",
       type: "select",
       required: true,

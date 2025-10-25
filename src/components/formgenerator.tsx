@@ -1,8 +1,8 @@
 "use client"
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useForm, FieldValues } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import {ZodTypeAny} from "zod"
 import Image from "next/image"
 import { useState, useEffect } from "react"
 import { useAsesor } from "@/hooks/useAsesor"
@@ -40,12 +40,50 @@ function shouldShowField(field: FieldConfig, values: FieldValues) {
 
 type FormGeneratorProps = {
   config: FormConfig;
-  schema?: any;
+  schema?: ZodTypeAny;
 };
 
 export default function FormGenerator({ config, schema }: FormGeneratorProps) {
-  const { register, handleSubmit, reset, setValue, watch, formState, trigger } = useForm<Record<string, unknown>>({
-    resolver: schema ? zodResolver(schema as any) : undefined,
+  function getVisibleFieldNames(fields: FieldConfig[], values: FieldValues): string[] {
+    let result: string[] = [];
+    for (const field of fields) {
+      if (shouldShowField(field, values)) {
+        result.push(field.name);
+        if (field.conditionalFields) {
+          for (const cond of field.conditionalFields) {
+            if (values[field.name] === cond.condition.value) {
+              result = result.concat(getVisibleFieldNames(cond.fields, values));
+            }
+          }
+        }
+      }
+    }
+    return result;
+  }
+
+  // wrap zodResolver so that hidden fields (by config rules) are ignored from the errors
+  // this allows schema-based validation to coexist with conditional visibility
+  const wrappedResolver = schema
+    ? async (values: FieldValues, context: unknown, options: unknown) => {
+        // run the original zod resolver first
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const base = await (zodResolver(schema as any) as any)(values, context, options)
+        // compute visible field names based on current values
+        const visible = new Set(getVisibleFieldNames(config.fields, values))
+        // filter errors: keep only those for visible fields
+        const filteredErrors: Record<string, unknown> = {}
+        if (base && base.errors) {
+          for (const key of Object.keys(base.errors)) {
+            if (visible.has(key)) filteredErrors[key] = (base.errors as Record<string, unknown>)[key]
+          }
+        }
+        return { values: base.values, errors: filteredErrors }
+      }
+    : undefined
+
+  const { register, handleSubmit, reset, setValue, watch, formState, trigger } = useForm<FieldValues>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: wrappedResolver as any,
     mode: "onChange"
   })
 
@@ -93,18 +131,33 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
       setMessage({ text: " Debes iniciar sesión como asesor", type: "error" })
       return
     }
-    const valuesNow = watch();
-    const visibleRequiredFields = getVisibleRequiredFields(config.fields, valuesNow);
+
+    // Use the submitted `data` to decide which fields are visible/required.
+    // Using `data` (argument) is more reliable at submit-time than an extra watch() call.
+    const visibleRequiredFields = getVisibleRequiredFields(config.fields, data);
     const requiredVisibleFieldNames = visibleRequiredFields.map(f => f.name);
+
+    // Validate only the visible required fields before proceeding.
     const valid = await trigger(requiredVisibleFieldNames);
     if (!valid) {
       setMessage({ text: "Completa los campos obligatorios visibles", type: "error" });
       return;
     }
+
+    // Build a payload that only includes visible fields and non-empty values so
+    // we don't persist hidden/irrelevant fields as blank strings.
+    const visibleNames = new Set(getVisibleFieldNames(config.fields, data));
+    const filteredDatos: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(data)) {
+      if (!visibleNames.has(k)) continue;
+      // keep values that are not empty string / null / undefined
+      if (v === "" || v === null || v === undefined) continue;
+      filteredDatos[k] = v as unknown;
+    }
+
     setLoading(true)
     setMessage(null)
     try {
-      
       let tipoFormulario = config.tipo || "generico";
       if (config.title) {
         if (config.title.toLowerCase().includes("colombia")) tipoFormulario = "retenciones_colombia";
@@ -112,10 +165,11 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
         else if (config.title.toLowerCase().includes("ecuador")) tipoFormulario = "retenciones_ecuador";
         else if (config.title.toLowerCase().includes("perú") || config.title.toLowerCase().includes("peru")) tipoFormulario = "retenciones_peru";
       }
+
       const res = await fetch("/api/formularios", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tipo: tipoFormulario, asesor: asesorId, datos: data }),
+        body: JSON.stringify({ tipo: tipoFormulario, asesor: asesorId, datos: filteredDatos }),
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || "Error del servidor")
@@ -123,7 +177,8 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
         setMessage({ text: "✅ Formulario guardado correctamente", type: "success" })
         const correoActual = data.correo as string;
         reset();
-        
+
+        // restore auto fields (correo) after reset
         config.fields.forEach(field => {
           if (field.auto && field.name === "correo" && (correoActual || asesorEmail)) {
             setValue(field.name, correoActual || asesorEmail);

@@ -1,13 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import pool from "@/lib/db";
 
-export async function DELETE(req: Request, {
-    params,
-  }: {
-    params: Promise<{ id: string }>;
-  }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const id = Number((await params).id);
+    const p = await params
+    const id = Number(p.id)
     if (!id || isNaN(id)) {
       return NextResponse.json({ success: false, error: "ID inválido" }, { status: 400 });
     }

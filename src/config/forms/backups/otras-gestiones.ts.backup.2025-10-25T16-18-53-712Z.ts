@@ -12,6 +12,11 @@ export const otrasGestionesForm: FormConfig = {
       "auto": true
     },
     {
+      "name": "hora_inicio_gestion_info",
+      "label": "Hora inicio de gestión",
+      "type": "info"
+    },
+    {
       "name": "hora_inicio_gestion",
       "label": "Hora inicio de gestión",
       "type": "time",
@@ -43,9 +48,8 @@ export const otrasGestionesForm: FormConfig = {
     },
     {
       "name": "san_cedula_nit",
-      "label": "SAN, Cédula o NIT",
-      "type": "text",
-      "required": true
+      "label": "SAaaaaN, Cédula o NIT",
+      "type": "text"
     },
     {
       "name": "medio_contacto",
@@ -84,8 +88,7 @@ export const otrasGestionesForm: FormConfig = {
           "label": "No aplica",
           "value": "no_aplica"
         }
-      ],
-      "required": true
+      ]
     },
     {
       "name": "tipo_gestion",
@@ -236,16 +239,14 @@ export const otrasGestionesForm: FormConfig = {
           "label": "FCR -- FCR",
           "value": "fcr"
         }
-      ],
-      "required": true
+      ]
     },
     {
       "name": "observacion",
       "label": "Observación",
       "type": "text",
       "description": "Agrega cualquier comentario relevante.",
-      "multiline": true,
-      "required": true
+      "multiline": true
     }
   ]
 }
