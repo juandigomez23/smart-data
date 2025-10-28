@@ -19,11 +19,23 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { tipo, datos } = body;
 
-    if (!tipo || !datos) {
+    // Ensure tipo is provided and datos is an object (can be empty). This avoids
+    // rejecting valid submissions where the client intentionally sends an empty
+    // datos object for certain conditional branches.
+    if (!tipo || typeof datos !== "object" || datos === null) {
       return NextResponse.json(
-        { success: false, error: "Campos obligatorios faltantes" },
+        { success: false, error: "Campos obligatorios faltantes o formato inválido" },
         { status: 400 }
       );
+    }
+
+    // Log a brief summary for diagnostics: tipo, asesor id and number of keys.
+    // Avoid printing raw PII (we log keys and a small sample only).
+    try {
+      const keys = Object.keys(datos || {});
+      console.info(`[api/formularios] received tipo=${tipo} asesor=${user?.id ?? 'unknown'} datosKeys=${keys.join(',')} (count=${keys.length})`);
+    } catch {
+      // ignore logging errors
     }
 
     let asesorId: number | null = null;

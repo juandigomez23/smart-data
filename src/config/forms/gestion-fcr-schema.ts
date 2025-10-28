@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { correoSchema, sanSchema } from "@/lib/validation-schemas";
 
 export type GestionFcrFormData = {
   correo: string;
@@ -13,8 +14,8 @@ export type GestionFcrFormData = {
 }
 
 export const gestionFcrSchema = z.object({
-  correo: z.string().email("Correo inválido"),
-  san: z.string().min(3, "SAN obligatorio"),
+  correo: correoSchema,
+  san: sanSchema,
   fso: z.string().min(1, "Campo obligatorio"),
   pais: z.string().min(1, "País obligatorio"),
   codigo_error_inicial: z.string().min(1, "Campo obligatorio"),

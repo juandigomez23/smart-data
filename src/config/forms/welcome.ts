@@ -62,7 +62,7 @@ export const welcomeForm: FormConfig = {
     
        { name: "info_no_satisfecho_peru", label: "No está satisfecho con el servicio", type: "info", showIf: { pais: "peru", satisfecho_servicio_peru: "no" } },
      
-      { name: "motivo_no_satisfecho_peru", label: "Indique el/los motivos por los cuales no se encuentra satisfecho con el servicio, Perú", type: "select", showIf: { pais: "peru", satisfecho_servicio_peru: "no" }, options: [
+      { name: "motivo_no_satisfecho_peru", label: "Indique el/los motivos por los cuales no se encuentra satisfecho con el servicio, Perú", type: "checkbox", showIf: { pais: "peru", satisfecho_servicio_peru: "no" }, options: [
       { label: "Es muy intermitente", value: "intermitente" },
       { label: "Actualmente no tiene internet", value: "sin_internet" },
       { label: "Su plan se consumió muy rápido", value: "plan_rapido" },
@@ -128,6 +128,11 @@ export const welcomeForm: FormConfig = {
       { label: "Ya está inscrito al débito automático", value: "inscrito" },
       { label: "No aplica", value: "no_aplica" }
     ] },
+
+
+    { name: "numero_contacto_peru_continua", label: "Número por el cual se logró contacto, perú", type: "text", showIf: { pais: "peru", continuar_servicio_peru: "si" } },
+
+
     { name: "como_debito_peru_continuar_si", label: "Si el cliente aceptó el débito, seleccione de que manera se realizó o realizará el proceso", type: "select", showIf: { pais: "peru", continuar_servicio_peru: "si", acepta_debito_peru_continuar: "si" }, options: [
       { label: "En línea (a través de la app o portal)", value: "en_linea" },
       { label: "Se transfiere al IVR", value: "ivr" },
@@ -192,6 +197,10 @@ export const welcomeForm: FormConfig = {
       { label: "Ya está inscrito al débito automático", value: "inscrito" },
       { label: "No aplica", value: "no_aplica" }
     ] },
+
+    
+
+
     { name: "como_debito_peru_si", label: "Si el cliente aceptó el débito, seleccione de que manera se realizó o realizará el proceso", type: "select", showIf: { pais: "peru", satisfecho_servicio_peru: "si", acepta_debito_peru: "si" }, options: [
       { label: "En línea (a través de la app o portal)", value: "en_linea" },
       { label: "Se transfiere al IVR", value: "ivr" },
@@ -260,7 +269,7 @@ export const welcomeForm: FormConfig = {
     ] },
       { name: "info_satisfecho_ecuador", label: "Si está satisfecho con el servicio", type: "info", showIf: { pais: "ecuador", satisfecho_servicio_ecuador: "si" } },
       { name: "info_no_satisfecho_ecuador", label: "No está satisfecho con el servicio", type: "info", showIf: { pais: "ecuador", satisfecho_servicio_ecuador: "no" } },
-      { name: "motivo_no_satisfecho_ecuador", label: "¿Por qué no se encuentra satisfecho con el servicio? Ecuador", type: "select", showIf: { pais: "ecuador", satisfecho_servicio_ecuador: "no" }, options: [
+      { name: "motivo_no_satisfecho_ecuador", label: "¿Por qué no se encuentra satisfecho con el servicio? Ecuador", type: "checkbox", showIf: { pais: "ecuador", satisfecho_servicio_ecuador: "no" }, options: [
       { label: "Es muy intermitente", value: "intermitente" },
       { label: "Actualmente no tiene internet", value: "sin_internet" },
       { label: "Su plan se consumió muy rápido", value: "plan_rapido" },
@@ -319,6 +328,10 @@ export const welcomeForm: FormConfig = {
       { label: "Débito automático", value: "debito_automatico" },
       { label: "No aplica", value: "no_aplica" }
     ] },
+
+    { name: "numero_contacto_ecuador_continua", label: "Número por el cual se logró contacto, Ecuador", type: "text", showIf: { pais: "ecuador", continuar_servicio_ecuador: "si" } },
+
+
     { name: "como_debito_ecuador_si_continua", label: "Si el cliente aceptó el débito, seleccione de qué manera se realizó o realizará el proceso", type: "select", showIf: { pais: "ecuador", continuar_servicio_ecuador: "si", medio_pago_ecuador_continua: "debito_automatico" }, options: [
       { label: "En línea (a través de la app o portal)", value: "en_linea" },
       { label: "Cliente indica que lo hace después y solicita el instructivo por correo", value: "instructivo" },
@@ -376,7 +389,7 @@ export const welcomeForm: FormConfig = {
       { label: "No aplica", value: "no_aplica" }
     ] },
 
-    { name: "numero_contacto_ecuador", label: "Número por el cual se logró contacto, Ecuador", type: "text", showIf: { pais: "ecuador" } },
+    { name: "numero_contacto_ecuador", label: "Número por el cual se logró contacto, Ecuador", type: "text", showIf: { pais: "ecuador", satisfecho_servicio_ecuador: "si" } },
     { name: "motivo_no_debito_ecuador", label: "Si la respuesta es NO indague el motivo por el cual no está interesado", type: "select", showIf: { pais: "ecuador", satisfecho_servicio_ecuador: "si", como_debito_ecuador_si: "no_acepto" }, options: [
       { label: "Si aceptó", value: "si_acepto" },
       { label: "No tiene tarjeta", value: "no_tarjeta" },
@@ -434,7 +447,7 @@ export const welcomeForm: FormConfig = {
     ] },
           { name: "info_no_satisfecho_chile", label: "No está satisfecho con el servicio", type: "info", showIf: { pais: "chile", satisfecho_servicio_chile: "no" } },
  { name: "info_satisfecho_chile", label: "Si está satisfecho con el servicio", type: "info", showIf: { pais: "chile", satisfecho_servicio_chile: "si" } },
-  { name: "motivo_no_satisfecho_chile", label: "Indique el/los motivos por los cuales no se encuentra satisfecho con los servicios, Chile", type: "select", showIf: { pais: "chile", satisfecho_servicio_chile: "no" }, options: [
+  { name: "motivo_no_satisfecho_chile", label: "Indique el/los motivos por los cuales no se encuentra satisfecho con el servicio, Chile", type: "checkbox", showIf: { pais: "chile", satisfecho_servicio_chile: "no" }, options: [
       { label: "Es muy intermitente", value: "intermitente" },
       { label: "Actualmente no tiene internet", value: "sin_internet" },
       { label: "Su plan se consumió muy rápido", value: "plan_rapido" },
@@ -563,7 +576,8 @@ export const welcomeForm: FormConfig = {
     { label: "No aplica", value: "no_aplica" }
   ] },
 
-  { name: "numero_contacto_chile", label: "Número por el cual se logró contacto, Chile", type: "text", showIf: { pais: "chile" } },
+  
+    { name: "numero_contacto_chile", label: "Número por el cual se logró contacto, Chile", type: "text", showIf: { pais: "chile",  satisfecho_servicio_chile: "si"  } },
 
  
   { name: "como_pat_chile_si", label: "Si el cliente aceptó el PAT, seleccione de que manera se realizó o realizará el proceso", type: "select", showIf: { pais: "chile", satisfecho_servicio_chile: "si", acepta_pat_chile: "si" }, options: [
@@ -577,7 +591,7 @@ export const welcomeForm: FormConfig = {
 },
 
 
-    
+    { name: "numero_contacto_chile_continua", label: "Número por el cual se logró contacto, Chile", type: "text", showIf: { pais: "chile", continuar_servicio_chile: "si" } },
     
     { name: "avis_colombia_inicio", label: "Colombia inicio de gestión", type: "info", showIf: { pais: "colombia" } },
     { name: "tipo_servicio_colombia", label: "Tipo de servicio Colombia", type: "select", showIf: { pais: "colombia" }, options: [
@@ -625,7 +639,7 @@ export const welcomeForm: FormConfig = {
       { name: "info_satisfecho_colombia", label: "Si está satisfecho con el servicio", type: "info", showIf: { pais: "colombia", satisfecho_servicio_colombia: "si" } },
       { name: "info_no_satisfecho_colombia", label: "No está satisfecho con el servicio", type: "info", showIf: { pais: "colombia", satisfecho_servicio_colombia: "no" } },
 
-      { name: "motivo_no_satisfecho_colombia", label: "¿Por qué no se encuentra satisfecho con el servicio? Colombia", type: "select", showIf: { pais: "colombia", satisfecho_servicio_colombia: "no" }, options: [
+      { name: "motivo_no_satisfecho_colombia", label: "¿Por qué no se encuentra satisfecho con el servicio? Colombia", type: "checkbox", showIf: { pais: "colombia", satisfecho_servicio_colombia: "no" }, options: [
       { label: "Es muy intermitente", value: "intermitente" },
       { label: "Actualmente no tiene internet", value: "sin_internet" },
       { label: "Su plan se consumió muy rápido", value: "plan_rapido" },
@@ -782,11 +796,7 @@ export const welcomeForm: FormConfig = {
     ] },
     { name: "numero_contacto_colombia", label: "Número por el cual se logró contacto, Colombia", type: "text", showIf: { pais: "colombia", satisfecho_servicio_colombia: "si" } },
 
-    { name: "se_escala_chile", label: "Se escala", type: "checkbox", options: [
-      { label: "Soporte técnico", value: "soporte_tecnico" },
-      { label: "Contacto Hughesnet", value: "contacto_hughesnet" },
-      { label: "No aplica", value: "no_aplica" }
-    ], showIf: { pais: "chile" } },
+    
     { name: "codigo_gestion", label: "Código de gestión", type: "select", options: [
       { label: "Se realiza encuesta", value: "encuesta" },
       { label: "No recibe información", value: "no_info" },

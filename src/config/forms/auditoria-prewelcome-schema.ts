@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { correoSchema, sanSchema } from "@/lib/validation-schemas"
 
 export type AuditoriaPrewelcomeFormData = {
   correo: string;
@@ -49,9 +50,9 @@ export type AuditoriaPrewelcomeFormData = {
 }
 
 export const auditoriaPrewelcomeSchema = z.object({
-  correo: z.string().email("Correo inválido"),
+  correo: correoSchema,
   pais: z.string().min(1, "País obligatorio"),
-  san: z.string().min(1, "Campo obligatorio"),
+  san: sanSchema,
   fecha_creacion_san: z.string().min(1, "Campo obligatorio"),
   master_dealer: z.string().min(1, "Campo obligatorio"),
   documento_id: z.string().min(1, "Campo obligatorio"),
@@ -61,7 +62,6 @@ export const auditoriaPrewelcomeSchema = z.object({
   total_datos_correctos: z.string().min(1, "Campo obligatorio"),
   documento_cliente: z.string().min(1, "Campo obligatorio"),
   linea_contacto_principal: z.string().min(1, "Campo obligatorio"),
-  linea_contacto_secundaria: z.string().min(1, "Campo obligatorio"),
   email: z.string().min(1, "Campo obligatorio"),
   tipo_venta: z.string().min(1, "Campo obligatorio"),
   documento_id_natural: z.string().optional(),

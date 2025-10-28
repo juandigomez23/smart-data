@@ -1,6 +1,6 @@
 import { FormConfig } from "@/components/formgenerator"
 
-export const comercialForm: FormConfig = {
+export const equipoComercialForm: FormConfig = {
   title: "Equipo Comercial",
   tipo: "equipo-comercial",
   fields: [

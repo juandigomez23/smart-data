@@ -1,5 +1,5 @@
 import { z } from "zod"
-
+import { correoSchema, sanSchema } from "@/lib/validation-schemas"
 export type ComercialFormData = {
   correo: string;
   san: string;
@@ -19,8 +19,8 @@ export type ComercialFormData = {
 }
 
 export const comercialSchema = z.object({
-  correo: z.string().email("Correo inválido"),
-  san: z.string().min(3, "SAN obligatorio"),
+  correo: correoSchema,
+  san: sanSchema,
   pais: z.string().min(1, "País obligatorio"),
   tipo_servicio: z.string().min(1, "Campo obligatorio"),
   medio_contacto: z.string().min(1, "Campo obligatorio"),
@@ -28,7 +28,7 @@ export const comercialSchema = z.object({
   logra_contacto: z.string().min(1, "Campo obligatorio"),
   numero_contacto: z.string().min(1, "Campo obligatorio"),
   motivo_reincidencia: z.string().min(1, "Campo obligatorio"),
-  solucion_recibida: z.string().min(1, "Campo obligatorio"),
+  
   escala_a: z.string().min(1, "Campo obligatorio"),
   acepta_pat: z.string().min(1, "Campo obligatorio"),
   codigo_gestion: z.string().min(1, "Campo obligatorio"),

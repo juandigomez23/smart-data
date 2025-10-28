@@ -1,7 +1,7 @@
 "use client"
 
 import FormGenerator from "@/components/formgenerator"
-import { equipoComercialForm } from "@/config/forms/comercial"
+import { comercialForm } from "@/config/forms/comercial"
 import { comercialSchema } from "@/config/forms/comercial-schema"
 
 export default function ComercialPage() {
@@ -9,7 +9,7 @@ export default function ComercialPage() {
   <div className="min-h-screen flex items-center justify-center bg-transparent p-4">
       <div className="w-full max-w-2xl">
         <FormGenerator
-          config={equipoComercialForm}
+          config={comercialForm}
           schema={comercialSchema}
         />
       </div>

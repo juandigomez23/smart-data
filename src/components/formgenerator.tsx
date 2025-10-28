@@ -81,7 +81,7 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
       }
     : undefined
 
-  const { register, handleSubmit, reset, setValue, watch, formState, trigger } = useForm<FieldValues>({
+  const { register, handleSubmit, reset, setValue, watch, getValues, formState, trigger } = useForm<FieldValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: wrappedResolver as any,
     mode: "onChange"
@@ -97,15 +97,32 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
   const { id: asesorId, nombre: asesorNombre, email: asesorEmail, autenticado, cargando } = useAsesor()
   const values = watch()
 
+  // Auto-dismiss any message after 3 seconds so the UI stays clean.
+  useEffect(() => {
+    if (!message) return
+    // Only auto-dismiss success messages; keep errors/warnings until user action.
+    if (message.type !== "success") return
+    const t = setTimeout(() => setMessage(null), 3000)
+    return () => clearTimeout(t)
+  }, [message])
+
   
   useEffect(() => {
-    const correoActual = watch("correo");
-    config.fields.forEach(field => {
-      if (field.auto && field.name === "correo" && (correoActual || asesorEmail)) {
-        setValue(field.name, correoActual || asesorEmail);
-      }
-    });
-  }, [asesorEmail, config.fields, setValue, formState.isSubmitted, watch]);
+    // Set auto fields like `correo` when the asesorEmail becomes available or
+    // when the form configuration changes. We intentionally avoid adding the
+    // `watch` function to the dependency array to prevent the effect from
+    // running on every render.
+    try {
+      const correoActual = getValues("correo");
+      config.fields.forEach(field => {
+        if (field.auto && field.name === "correo" && (correoActual || asesorEmail)) {
+          setValue(field.name, correoActual || asesorEmail);
+        }
+      });
+    } catch {
+      // getValues may throw during SSR or unusual timing; ignore safely.
+    }
+  }, [asesorEmail, config.fields, setValue, getValues]);
 
   
   function getVisibleRequiredFields(fields: FieldConfig[], values: FieldValues): FieldConfig[] {
@@ -128,32 +145,89 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
 
   const onSubmit: import("react-hook-form").SubmitHandler<Record<string, unknown>> = async (data) => {
     if (!asesorId) {
-      setMessage({ text: " Debes iniciar sesión como asesor", type: "error" })
+      setMessage({ text: "Debes iniciar sesión como asesor", type: "error" })
       return
     }
 
-    // Use the submitted `data` to decide which fields are visible/required.
-    // Using `data` (argument) is more reliable at submit-time than an extra watch() call.
+    
     const visibleRequiredFields = getVisibleRequiredFields(config.fields, data);
     const requiredVisibleFieldNames = visibleRequiredFields.map(f => f.name);
 
-    // Validate only the visible required fields before proceeding.
+    
     const valid = await trigger(requiredVisibleFieldNames);
     if (!valid) {
-      setMessage({ text: "Completa los campos obligatorios visibles", type: "error" });
+     
+      const errorKeys = Object.keys(formState.errors || {});
+      const missing = requiredVisibleFieldNames.filter(name => errorKeys.includes(name) || !(data[name] && data[name] !== ""));
+      const missingLabels = visibleRequiredFields
+        .filter(f => missing.includes(f.name))
+        .map(f => (typeof f.label === "function" ? f.label({ values: data as FieldValues }) : f.label));
+
+      const msg = missingLabels.length > 0
+        ? `Completa los campos obligatorios: ${missingLabels.join(", ")}`
+        : "Completa los campos obligatorios visibles";
+
+      setMessage({ text: msg, type: "error" });
+
+      // Try to focus/scroll to the first missing field if it's present in the DOM
+      try {
+        const first = missing[0];
+        if (first) {
+          const el = document.querySelector(`[name=\"${first}\"]`) as HTMLElement | null;
+          if (el && typeof el.focus === "function") {
+            el.focus();
+            el.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }
+      } catch {
+        // ignore
+      }
+
       return;
     }
 
-    // Build a payload that only includes visible fields and non-empty values so
-    // we don't persist hidden/irrelevant fields as blank strings.
-    const visibleNames = new Set(getVisibleFieldNames(config.fields, data));
+    
+    // Build filteredDatos deterministically from visible fields using getValues().
+    // React Hook Form's `data` sometimes omits empty or nested values; using
+    // getValues ensures we read the current form state for each visible field.
+    const allValues = getValues();
+  // compute visible names (used implicitly via shouldShowField/allValues)
     const filteredDatos: Record<string, unknown> = {};
-    for (const [k, v] of Object.entries(data)) {
-      if (!visibleNames.has(k)) continue;
-      // keep values that are not empty string / null / undefined
-      if (v === "" || v === null || v === undefined) continue;
-      filteredDatos[k] = v as unknown;
+
+    function collectFields(fields: FieldConfig[]) {
+      for (const field of fields) {
+        if (!shouldShowField(field, allValues)) continue;
+
+        // Checkbox groups are registered as objects (name.option -> boolean).
+        // getValues(field.name) will return that object; convert to an
+        // array of selected option keys to keep payload compact and explicit.
+        if (field.type === "checkbox") {
+          const v = allValues[field.name] as Record<string, unknown> | undefined;
+          if (v && typeof v === "object") {
+            const selected = Object.entries(v)
+              .filter(([, val]) => val === true || String(val) === "true")
+              .map(([key]) => key);
+            if (selected.length) filteredDatos[field.name] = selected;
+          }
+        } else {
+          const v = allValues[field.name];
+          if (v !== undefined && v !== null && v !== "") {
+            filteredDatos[field.name] = v as unknown;
+          }
+        }
+
+        // Recurse into conditional fields when their parent value matches
+        if (field.conditionalFields) {
+          for (const cond of field.conditionalFields) {
+            if (allValues[field.name] === cond.condition.value) {
+              collectFields(cond.fields);
+            }
+          }
+        }
+      }
     }
+
+    collectFields(config.fields);
 
     setLoading(true)
     setMessage(null)
@@ -164,6 +238,14 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
         else if (config.title.toLowerCase().includes("chile")) tipoFormulario = "retenciones_chile";
         else if (config.title.toLowerCase().includes("ecuador")) tipoFormulario = "retenciones_ecuador";
         else if (config.title.toLowerCase().includes("perú") || config.title.toLowerCase().includes("peru")) tipoFormulario = "retenciones_peru";
+      }
+
+      // DEBUG: log payload to help diagnose why some forms are not saving.
+      // Temporary — remove after debugging.
+      try {
+        console.info("[FormGenerator] Enviando formulario", { tipo: tipoFormulario, datos: filteredDatos, raw: getValues() });
+      } catch {
+        // ignore logging errors
       }
 
       const res = await fetch("/api/formularios", {
@@ -231,13 +313,49 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
   <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full">
           {config.fields.filter(field => shouldShowField(field, values)).map((field) => (
           <div key={field.name} className="flex flex-col w-full">
-            {field.name === "documento_id" && (
+            {field.name === "documento_de_id" && (
               <div className="relative flex flex-row items-center gap-3 p-4 mb-4 bg-gradient-to-r from-blue-100 via-blue-50 to-blue-100 border-l-8 border-blue-500 text-blue-900 rounded-xl shadow-md">
                 <svg className="w-6 h-6 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="white"/>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" />
                 </svg>
                 <span className="font-bold text-blue-700 text-lg">Digitacion de datos correctamente</span>
+              </div>
+            )}
+             {field.name === "telefono" && (
+              <div className="relative flex flex-row items-center gap-3 p-4 mb-4 bg-gradient-to-r from-blue-100 via-blue-50 to-blue-100 border-l-8 border-blue-500 text-blue-900 rounded-xl shadow-md">
+                <svg className="w-6 h-6 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="white"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" />
+                </svg>
+                <span className="font-bold text-blue-700 text-lg">Si es una PYME no se exige más de una linea de contacto</span>
+              </div>
+            )}
+            {field.name === "codigo_gestion" && (
+              <div className="relative flex flex-row items-center gap-3 p-4 mb-4 bg-gradient-to-r from-blue-100 via-blue-50 to-blue-100 border-l-8 border-blue-500 text-blue-900 rounded-xl shadow-md">
+                <svg className="w-6 h-6 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="white"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" />
+                </svg>
+                <span className="font-bold text-blue-700 text-lg">Cierre de gestión</span>
+              </div>
+            )}
+            {field.name === "estado_servicio_pyme" && (
+              <div className="relative flex flex-row items-center gap-3 p-4 mb-4 bg-gradient-to-r from-blue-100 via-blue-50 to-blue-100 border-l-8 border-blue-500 text-blue-900 rounded-xl shadow-md">
+                <svg className="w-6 h-6 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="white"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" />
+                </svg>
+                <span className="font-bold text-blue-700 text-lg">Resultado de Auditoria</span>
+              </div>
+            )}
+             {field.name === "estado_servicio" && (
+              <div className="relative flex flex-row items-center gap-3 p-4 mb-4 bg-gradient-to-r from-blue-100 via-blue-50 to-blue-100 border-l-8 border-blue-500 text-blue-900 rounded-xl shadow-md">
+                <svg className="w-6 h-6 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="white"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" />
+                </svg>
+                <span className="font-bold text-blue-700 text-lg">Resultado de Auditoria</span>
               </div>
             )}
             {field.name === "documento_cliente" && (
@@ -249,29 +367,36 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
                 <span className="font-bold text-blue-700 text-lg">Datos del cliente</span>
               </div>
             )}
-            {field.type === "info"
-              ? (
-                <div className="relative flex flex-row items-start gap-3 p-4 mb-4 bg-gradient-to-r from-blue-100 via-blue-50 to-blue-100 border-l-8 border-blue-500 text-blue-900 rounded-xl shadow-md">
-                  <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="white"/>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" />
-                  </svg>
-                  <div className="flex flex-col">
-                    <span className="font-bold text-blue-700 text-lg mb-1 whitespace-pre-line">{typeof field.label === "function" ? field.label({ values }) : field.label}</span>
-                    {field.description && (
-                      <span className="block text-base text-blue-700 leading-relaxed mt-1">{field.description}</span>
-                    )}
-                  </div>
+            {field.type === "info" ? (
+              <div className="relative flex flex-row items-start gap-3 p-4 mb-4 bg-gradient-to-r from-blue-100 via-blue-50 to-blue-100 border-l-8 border-blue-500 text-blue-900 rounded-xl shadow-md">
+                <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="white"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" />
+                </svg>
+                <div className="flex flex-col">
+                  <span className="font-bold text-blue-700 text-lg mb-1 whitespace-pre-line">{typeof field.label === "function" ? field.label({ values }) : field.label}</span>
+                  {field.description && (
+                    <span className="block text-base text-blue-700 leading-relaxed mt-1">{field.description}</span>
+                  )}
                 </div>
-              )
-              : (
+              </div>
+            ) : (
+              // For checkbox fields we avoid rendering the generic <label> here because
+              // the checkbox group renders its own heading. We still show the
+              // description (if any) alongside the checkbox group.
+              field.type === "checkbox" ? (
+                <>
+                  {field.description && <p className="text-xs text-gray-500 mb-2">{field.description}</p>}
+                </>
+              ) : (
                 <>
                   <label className="mb-1 font-medium text-gray-700">
                     {typeof field.label === "function" ? field.label({ values }) : field.label} {field.required && <span className="text-red-500">*</span>}
                   </label>
                   {field.description && <p className="text-xs text-gray-500 mb-2">{field.description}</p>}
                 </>
-              )}
+              )
+            )}
             {field.type === "text" && (
               field.multiline
                 ? (<textarea {...register(field.name, { required: shouldShowField(field, values) && field.required })} rows={6} className="border p-4 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-2xl resize-vertical" placeholder={`Ingrese ${field.label}`} />)
@@ -293,7 +418,7 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
                               }
                             })}
                             className={`border p-3 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-xl ${formState.errors.san ? 'border-red-500' : ''}`}
-                            placeholder={typeof field.label === "function" ? field.label({ values }) : "Ejemplo: SAN"}
+                            placeholder={typeof field.label === "function" ? field.label({ values }) : "Ingrese SAN"}
                           />
                           {formState.errors.san && (
                             <span className="text-red-600 text-xs mt-1">{formState.errors.san.message as string}</span>
@@ -373,13 +498,30 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
                 ))}
               </select>
             ) : null}
-            {field.type === "checkbox" && (
-              <div className="flex items-center space-x-2 text-gray-900">
-                <input type="checkbox" {...register(field.name)} className="h-5 w-5 rounded-xl focus:ring-2 focus:ring-blue-500 border-gray-300" />
-                <span>{typeof field.label === "function" ? field.label({ values }) : field.label}</span>
-                <span className="ml-2 text-gray-400 text-xs">(Seleccione una opción)</span>
-              </div>
-            )}
+        
+
+                {field.type === "checkbox" && (
+                  <div className="space-y-2 text-gray-900">
+                    <p className="font-medium">
+                      {typeof field.label === "function" ? field.label({ values }) : field.label}
+                    </p>
+
+                    {field.options?.map((option, idx) => (
+                      <div key={idx} className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          value={option.value}
+                          {...register(`${field.name}.${option.value}`)}
+                          className="h-4 w-4 rounded-md border-gray-300 focus:ring-2 focus:ring-blue-500"
+                        />
+                        <span>{option.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+
+
             {field.type !== "info" && formState.errors[field.name] && field.name !== "san" && (
               <span className="text-red-600 text-xs mt-1">campo obligatorio</span>
             )}
@@ -401,7 +543,6 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
                         {subField.type === "info"
                           ? (
                             <div className="relative flex flex-col gap-2 p-4 bg-gradient-to-r from-blue-100 via-blue-50 to-blue-100 border-l-8 border-blue-500 text-blue-900 rounded-xl mb-5 shadow-md">
-                              <span className="font-bold text-lg tracking-wide mb-1">{typeof subField.label === "function" ? subField.label({ values }) : subField.label}</span>
                               <span className="font-bold text-lg tracking-wide mb-1">{typeof subField.label === "function" ? subField.label({ values }) : subField.label}</span>
                               {subField.description && (
                                 <span className="block text-base text-blue-700 leading-relaxed pl-2 border-l-2 border-blue-300 bg-blue-50 rounded-md py-2">{subField.description}</span>
@@ -440,7 +581,7 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
                           <div className="flex items-center space-x-2 text-gray-900">
                             <input type="checkbox" {...register(subField.name)} className="h-4 w-4" />
                             <span>{typeof subField.label === "function" ? subField.label({ values }) : subField.label}</span>
-                            <span>{typeof subField.label === "function" ? subField.label({ values }) : subField.label}</span>
+                            
                           </div>
                         )}
                         
@@ -453,7 +594,6 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
                                     {nestedField.type === "info"
                                       ? (
                                         <div className="relative flex flex-col gap-2 p-4 bg-gradient-to-r from-blue-100 via-blue-50 to-blue-100 border-l-8 border-blue-500 text-blue-900 rounded-xl mb-5 shadow-md">
-                                          <span className="font-bold text-lg tracking-wide mb-1">{typeof nestedField.label === "function" ? nestedField.label({ values }) : nestedField.label}</span>
                                           <span className="font-bold text-lg tracking-wide mb-1">{typeof nestedField.label === "function" ? nestedField.label({ values }) : nestedField.label}</span>
                                           {nestedField.description && (
                                             <span className="block text-base text-blue-700 leading-relaxed pl-2 border-l-2 border-blue-300 bg-blue-50 rounded-md py-2">{nestedField.description}</span>
@@ -489,7 +629,7 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
                                       <div className="flex items-center space-x-2 text-gray-900">
                                         <input type="checkbox" {...register(nestedField.name)} className="h-4 w-4" />
                                         <span>{typeof nestedField.label === "function" ? nestedField.label({ values }) : nestedField.label}</span>
-                                        <span>{typeof nestedField.label === "function" ? nestedField.label({ values }) : nestedField.label}</span>
+                                        
                                       </div>
                                     )}
                                   </div>

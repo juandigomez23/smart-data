@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { correoSchema, sanSchema } from "@/lib/validation-schemas"
 
 export type WelcomeFormData = {
   correo: string;
@@ -119,8 +120,8 @@ export type WelcomeFormData = {
 }
 
 export const welcomeSchema = z.object({
-  correo: z.string().email("Correo inválido"),
-  san: z.string().min(3, "SAN obligatorio"),
+  correo: correoSchema,
+  san: sanSchema,
   pais: z.string().min(1, "País obligatorio"),
   tipo_servicio_peru: z.string().optional(),
   medio_contacto_peru: z.string().optional(),
@@ -128,7 +129,7 @@ export const welcomeSchema = z.object({
   san_seguimiento_peru: z.string().optional(),
   pago_primer_recibo_peru: z.string().optional(),
   satisfecho_servicio_peru: z.string().optional(),
-  motivo_no_satisfecho_peru: z.string().optional(),
+     
   escala_soporte_peru: z.string().optional(),
   continuar_servicio_peru: z.string().optional(),
   uso_servicio_peru_continuar: z.string().optional(),
@@ -155,7 +156,7 @@ export const welcomeSchema = z.object({
   san_seguimiento_ecuador: z.string().optional(),
   pago_primer_recibo_ecuador: z.string().optional(),
   satisfecho_servicio_ecuador: z.string().optional(),
-  motivo_no_satisfecho_ecuador: z.string().optional(),
+     
   escala_soporte_ecuador: z.string().optional(),
   continuar_servicio_ecuador: z.string().optional(),
   uso_servicio_ecuador_continuar: z.string().optional(),
@@ -178,7 +179,7 @@ export const welcomeSchema = z.object({
   md_chile: z.string().optional(),
   pago_primera_boleta_chile: z.string().optional(),
   satisfecho_servicio_chile: z.string().optional(),
-  motivo_no_satisfecho_chile: z.string().optional(),
+
   escala_soporte_chile: z.string().optional(),
   escala_contacto_chile: z.string().optional(),
   continuar_servicio_chile: z.string().optional(),
@@ -207,7 +208,7 @@ export const welcomeSchema = z.object({
   san_seguimiento_colombia: z.string().optional(),
   pago_primera_factura_colombia: z.string().optional(),
   satisfecho_servicio_colombia: z.string().optional(),
-  motivo_no_satisfecho_colombia: z.string().optional(),
+     
   escala_soporte_colombia: z.string().optional(),
   continuar_servicio_colombia: z.string().optional(),
   uso_servicio_colombia_continua: z.string().optional(),

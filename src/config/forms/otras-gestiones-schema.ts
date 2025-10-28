@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { correoSchema } from "@/lib/validation-schemas"
 
 export type OtrasGestionesFormData = {
   correo: string;
@@ -12,7 +13,7 @@ export type OtrasGestionesFormData = {
 }
 
 export const otrasGestionesSchema = z.object({
-  correo: z.string().email("Correo inválido"),
+  correo: correoSchema,
   hora_inicio_gestion: z.string().min(1, "Campo obligatorio"),
   pais: z.string().min(1, "País obligatorio"),
   san_cedula_nit: z.string().min(1, "Campo obligatorio"),

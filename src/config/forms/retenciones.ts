@@ -1,6 +1,5 @@
-// Archivo unificado para el formulario de retenciones de todos los países
-
 import { FormConfig } from "@/components/formgenerator";
+
 
 export const retencionesForm: FormConfig = {
   title: "Retenciones",
@@ -8,7 +7,7 @@ export const retencionesForm: FormConfig = {
   fields: [
     
     { name: "correo", label: "Correo electrónico", type: "text", required: true, auto: true },
-   
+    { name: "san", label: "SAN", type: "text", required: true },
     {
       name: "medio_comunicacion",
       label: "Medio de comunicación",
@@ -126,7 +125,7 @@ export const retencionesForm: FormConfig = {
       ],
       showIf: (values) => values.codigo_gestion === "retencion" || values.codigo_gestion === "oferta_especial_winback"
     },
-    {
+{
       name: "descuentos_escalonados_info",
       label: "Descuentos escalonados",
       type: "info",
@@ -134,18 +133,43 @@ export const retencionesForm: FormConfig = {
       description: "Si el cliente aceptó descuento, por favor indique cuál fue el aceptado.",
       showIf: { matriz_retencion: "descuentos_escalonados" }
     },
-    {
+
+
+
+
+
+{
       name: "descuento_otorgado",
       label: "Descuento otorgado",
       type: "select",
       required: true,
       options: [
-        { label: "39.000", value: "39000" },
-        { label: "58.500", value: "58500" },
-        { label: "78.000", value: "78000" },
-        { label: "90.000", value: "90000" }
+        // 🇨🇴 Colombia
+        { label: "39.000 (Colombia)", value: "39000_colombia" },
+        { label: "58.500 (Colombia)", value: "58500_colombia" },
+        { label: "78.000 (Colombia)", value: "78000_colombia" },
+        { label: "90.000 (Colombia)", value: "90000_colombia" },
+
+        // 🇵🇪 Perú
+        { label: "35 soles (Perú)", value: "35_peru" },
+        { label: "52.5 soles (Perú)", value: "52.5_peru" },
+        { label: "70 soles (Perú)", value: "70_peru" },
+        { label: "90 soles (Perú)", value: "90_peru" },
+
+        // 🇪🇨 Ecuador
+        { label: "10 dólares (Ecuador)", value: "10usd_ecuador" },
+        { label: "15 dólares (Ecuador)", value: "15usd_ecuador" },
+        { label: "20 dólares (Ecuador)", value: "20usd_ecuador" },
+        { label: "32 dólares (Ecuador)", value: "32usd_ecuador" },
+        { label: "50% descuento (Ecuador)", value: "50porciento_ecuador" },
+
+        // 🇨🇱 Chile
+        { label: "14.280 (Chile)", value: "14280_chile" },
+        { label: "19.040 (Chile)", value: "19040_chile" },
+        { label: "1 mes gratis (Chile)", value: "gratis_chile" },
+        { label: "25% sobre plan actual (Chile)", value: "25porciento_chile" },
       ],
-      showIf: { matriz_retencion: "descuentos_escalonados" }
+      showIf: { matriz_retencion: "descuentos_escalonados" },
     },
     {
       name: "meses_descuento",
@@ -153,13 +177,23 @@ export const retencionesForm: FormConfig = {
       type: "select",
       required: true,
       options: [
+        // Comunes
+        { label: "1", value: "1" },
         { label: "3", value: "3" },
+        { label: "5", value: "5" },
         { label: "6", value: "6" },
         { label: "9", value: "9" },
-        { label: "12", value: "12" }
-      ],
-      showIf: { matriz_retencion: "descuentos_escalonados" }
+        { label: "12", value: "12" },
+        { label: "12 (solo para 70 soles – Perú)", value: "12_peru_70" },
+         ],
+         showIf: { matriz_retencion: "descuentos_escalonados" },
     },
+
+
+
+
+    
+    
     {
       name: "cambio_plan_info",
       label: "Cambio de plan",

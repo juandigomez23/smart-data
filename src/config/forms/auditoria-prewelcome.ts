@@ -53,6 +53,9 @@ export const auditoriaPrewelcomeForm: FormConfig = {
         { label: "HCL-JRiquelme Dealer MD", value: "hcl_jriquelme" }
       ],
     },
+    
+    
+    
     {
       name: "documento_de_id",
       label: "Documento de ID",
@@ -120,7 +123,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
       name: "linea_contacto_secundaria", 
       label: "Línea de contacto secundaria", 
       type: "text",
-      required: true
+      required: false
     },
     { 
       name: "email", 

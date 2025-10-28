@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { correoSchema, sanSchema } from "@/lib/validation-schemas";
 
 export type RetencionesFormData = {
   correo: string;
@@ -36,20 +37,8 @@ export type RetencionesFormData = {
 };
 
 export const retencionesSchema = z.object({
-  correo: z.string().email("Correo inválido"),
-  san: z
-    .string()
-    .min(3, "SAN obligatorio")
-    .refine(
-      (val: string) => {
-        return ["HCO", "HCL", "HEC", "HPE"].some((pref) =>
-          val.startsWith(pref)
-        );
-      },
-      {
-        message: "El SAN debe iniciar con HCO, HCL, HEC o HPE según el país",
-      }
-    ),
+  correo: correoSchema,
+  san: sanSchema,
   medio_comunicacion: z.string().min(1, "Campo obligatorio"),
   tipo_asignacion: z.string().min(1, "Campo obligatorio"),
   motivo_cancelacion: z.string().min(1, "Campo obligatorio"),
