@@ -194,25 +194,72 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
   // compute visible names (used implicitly via shouldShowField/allValues)
     const filteredDatos: Record<string, unknown> = {};
 
+    const usedLabels = new Set<string>();
+
+    function makeLabelKey(field: FieldConfig) {
+      const rawLabel = typeof field.label === 'function' ? String(field.label({ values: allValues })) : String(field.label);
+      let key = rawLabel || field.name;
+      if (usedLabels.has(key)) {
+        // ensure uniqueness
+        key = `${key}__${field.name}`;
+      }
+      usedLabels.add(key);
+      return key;
+    }
+
     function collectFields(fields: FieldConfig[]) {
       for (const field of fields) {
         if (!shouldShowField(field, allValues)) continue;
 
-        // Checkbox groups are registered as objects (name.option -> boolean).
-        // getValues(field.name) will return that object; convert to an
-        // array of selected option keys to keep payload compact and explicit.
+        const labelKey = makeLabelKey(field);
+
         if (field.type === "checkbox") {
           const v = allValues[field.name] as Record<string, unknown> | undefined;
           if (v && typeof v === "object") {
-            const selected = Object.entries(v)
+            const selectedLabels = Object.entries(v)
               .filter(([, val]) => val === true || String(val) === "true")
-              .map(([key]) => key);
-            if (selected.length) filteredDatos[field.name] = selected;
+              .map(([key]) => {
+                // Prefer label from config.options
+                const optLabel = field.options?.find(o => o.value === key)?.label;
+                if (optLabel) return optLabel;
+
+                // Fall back to DOM (read the sibling label text) if available
+                try {
+                  const el = document.querySelector(`[name="${field.name}.${key}"]`) as HTMLElement | null;
+                  const parent = el?.parentElement;
+                  const text = parent?.textContent?.trim();
+                  if (text) return text;
+                } catch {
+                  // ignore DOM read errors
+                }
+
+                // Last resort: return the raw key
+                return key;
+              });
+            if (selectedLabels.length) filteredDatos[labelKey] = selectedLabels;
           }
         } else {
           const v = allValues[field.name];
           if (v !== undefined && v !== null && v !== "") {
-            filteredDatos[field.name] = v as unknown;
+            if (field.type === "select") {
+              // Try to resolve the human label for the selected value.
+              let label: string | undefined;
+              // Prefer config options lookup
+              label = field.options?.find(o => o.value === String(v))?.label;
+              if (!label) {
+                // Fallback to reading the DOM option text
+                try {
+                  const sel = document.querySelector(`[name="${field.name}"]`) as HTMLSelectElement | null;
+                  const optEl = sel?.querySelector(`option[value="${String(v)}"]`) as HTMLOptionElement | null;
+                  label = optEl?.textContent?.trim() || undefined;
+                } catch {
+                  // ignore
+                }
+              }
+              filteredDatos[labelKey] = label ?? v;
+            } else {
+              filteredDatos[labelKey] = v as unknown;
+            }
           }
         }
 
