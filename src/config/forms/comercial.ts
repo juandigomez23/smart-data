@@ -5,7 +5,7 @@ export const comercialForm: FormConfig = {
   tipo: "equipo-comercial",
   fields: [
     { name: "correo", label: "Correo electrónico", type: "text", required: true, auto: true },
-    { name: "san", label: "SAN", type: "text", required: true },
+  { name: "san", label: "SAN", type: "text", required: true, inferFromSan: true },
     {
       name: "pais",
       label: "País",
@@ -43,13 +43,9 @@ export const comercialForm: FormConfig = {
       name: "campana",
       label: "Campaña",
       type: "select",
+      defaultValue: "heavy_callers",
       options: [
         { label: "Campaña Heavy_Callers - Reincidentes", value: "heavy_callers" },
-        { label: "Tarjeta de crédito expirada", value: "tarjeta_expirada" },
-        { label: "Inconvenientes Transbank", value: "transbank" },
-        { label: "Declined_Payments_Base_Clientes_Autopay_RoSA", value: "declined_payments" },
-        { label: "Clientes Perú sin consumo mayo", value: "peru_sin_consumo" },
-        { label: "M5 - M10 - M11", value: "m5_m10_m11" }
       ],
     },
     {
@@ -158,12 +154,6 @@ export const comercialForm: FormConfig = {
         { label: "Cliente ya está inscrito", value: "ya_inscrito" },
         { label: "No aplica", value: "no_aplica" }
       ],
-    },
-    {
-      name: "info_post_pat",
-      type: "info",
-      label: "¡Ten en cuenta!\nRecordar el Chat Bot correspondiente a cada país:\nColombia: +57 1 6072936\nChile: +56 2 3210 7622\nPerú: +51 1 7097858\nConfirmar datos\nPreguntar si tiene sugerencias o recomendaciones",
-      showIf: (values) => values.logra_contacto === "si"
     },
     
    

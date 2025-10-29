@@ -4,7 +4,7 @@ import { useForm, FieldValues } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {ZodTypeAny} from "zod"
 import Image from "next/image"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useAsesor } from "@/hooks/useAsesor"
 
 export interface FieldConfig {
@@ -13,6 +13,8 @@ export interface FieldConfig {
   type: "text" | "number" | "select" | "checkbox" | "date" | "info" | "time";
   required?: boolean;
   options?: { label: string; value: string }[];
+  
+  defaultValue?: string;
   showIf?: Record<string, string | number | boolean> | ((values: FieldValues) => boolean);
   auto?: boolean;
   image?: string;
@@ -23,6 +25,8 @@ export interface FieldConfig {
     fields: FieldConfig[];
   }>;
   validate?: (args: { values: unknown, value: unknown }) => true | string;
+  
+  inferFromSan?: boolean;
 }
 
 export type FormConfig = {
@@ -61,16 +65,15 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
     return result;
   }
 
-  // wrap zodResolver so that hidden fields (by config rules) are ignored from the errors
-  // this allows schema-based validation to coexist with conditional visibility
+  
   const wrappedResolver = schema
     ? async (values: FieldValues, context: unknown, options: unknown) => {
-        // run the original zod resolver first
+       
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const base = await (zodResolver(schema as any) as any)(values, context, options)
-        // compute visible field names based on current values
+        
         const visible = new Set(getVisibleFieldNames(config.fields, values))
-        // filter errors: keep only those for visible fields
+        
         const filteredErrors: Record<string, unknown> = {}
         if (base && base.errors) {
           for (const key of Object.keys(base.errors)) {
@@ -97,10 +100,10 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
   const { id: asesorId, nombre: asesorNombre, email: asesorEmail, autenticado, cargando } = useAsesor()
   const values = watch()
 
-  // Auto-dismiss any message after 3 seconds so the UI stays clean.
+ 
   useEffect(() => {
     if (!message) return
-    // Only auto-dismiss success messages; keep errors/warnings until user action.
+    
     if (message.type !== "success") return
     const t = setTimeout(() => setMessage(null), 3000)
     return () => clearTimeout(t)
@@ -108,28 +111,72 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
 
   
   useEffect(() => {
-    // Set auto fields like `correo` when the asesorEmail becomes available or
-    // when the form configuration changes. We intentionally avoid adding the
-    // `watch` function to the dependency array to prevent the effect from
-    // running on every render.
+   
     try {
       const correoActual = getValues("correo");
+     
       config.fields.forEach(field => {
         if (field.auto && field.name === "correo" && (correoActual || asesorEmail)) {
           setValue(field.name, correoActual || asesorEmail);
         }
+        
+        const maybeDefault = (field as FieldConfig & { defaultValue?: string }).defaultValue;
+        if (maybeDefault) {
+          const cur = getValues(field.name);
+          if (!cur || cur === "") {
+            setValue(field.name, maybeDefault);
+          }
+        }
       });
     } catch {
-      // getValues may throw during SSR or unusual timing; ignore safely.
+      
     }
   }, [asesorEmail, config.fields, setValue, getValues]);
+
+  
+  const lastInferredPaisRef = useRef<string | null>(null);
+
+  
+  useEffect(() => {
+    try {
+  const sanField = config.fields.find(f => f.inferFromSan);
+      if (!sanField) return;
+      const sanName = sanField.name;
+      const sanVal = getValues(sanName) as string | undefined;
+      if (!sanVal || typeof sanVal !== 'string') return;
+
+      const s = sanVal.trim().toUpperCase();
+      let inferred: string | undefined;
+      if (s.startsWith('HCL')) inferred = 'chile';
+      else if (s.startsWith('HCO')) inferred = 'colombia';
+      else if (s.startsWith('HEC')) inferred = 'ecuador';
+      else if (s.startsWith('HPE')) inferred = 'peru';
+
+      if (!inferred) return;
+
+      const currentPais = getValues('pais') as string | undefined;
+      
+      if (currentPais && currentPais !== '' && lastInferredPaisRef.current && currentPais !== lastInferredPaisRef.current) {
+        return;
+      }
+
+      if (currentPais !== inferred) {
+        setValue('pais', inferred);
+        lastInferredPaisRef.current = inferred;
+      }
+    } catch {
+      // ignore
+    }
+  }, [values.san, config.fields, getValues, setValue]);
 
   
   function getVisibleRequiredFields(fields: FieldConfig[], values: FieldValues): FieldConfig[] {
     let result: FieldConfig[] = [];
     for (const field of fields) {
       if (shouldShowField(field, values)) {
-        if (field.required) result.push(field);
+        
+        const isRequired = field.type !== "info" && (field.required || (config.tipo === "welcome"));
+        if (isRequired) result.push(field);
         
         if (field.conditionalFields) {
           for (const cond of field.conditionalFields) {
@@ -187,11 +234,9 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
     }
 
     
-    // Build filteredDatos deterministically from visible fields using getValues().
-    // React Hook Form's `data` sometimes omits empty or nested values; using
-    // getValues ensures we read the current form state for each visible field.
+  
     const allValues = getValues();
-  // compute visible names (used implicitly via shouldShowField/allValues)
+ 
     const filteredDatos: Record<string, unknown> = {};
 
     const usedLabels = new Set<string>();
@@ -214,46 +259,56 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
         const labelKey = makeLabelKey(field);
 
         if (field.type === "checkbox") {
-          const v = allValues[field.name] as Record<string, unknown> | undefined;
-          if (v && typeof v === "object") {
-            const selectedLabels = Object.entries(v)
+          const v = allValues[field.name] as unknown;
+
+          let selectedLabels: string[] = []
+
+          // Case 1: react-hook-form returns an array of selected values for
+          // checkbox groups registered with the same name -> ['a','b']
+          if (Array.isArray(v)) {
+            selectedLabels = v.map(val => String(val)).map(val => {
+              const optLabel = field.options?.find(o => o.value === val)?.label
+              return optLabel ?? val
+            })
+          }
+
+          // Case 2: older approach or nested names -> object { opt: true }
+          else if (v && typeof v === 'object') {
+            selectedLabels = Object.entries(v as Record<string, unknown>)
               .filter(([, val]) => val === true || String(val) === "true")
               .map(([key]) => {
-                // Prefer label from config.options
-                const optLabel = field.options?.find(o => o.value === key)?.label;
-                if (optLabel) return optLabel;
-
-                // Fall back to DOM (read the sibling label text) if available
-                try {
-                  const el = document.querySelector(`[name="${field.name}.${key}"]`) as HTMLElement | null;
-                  const parent = el?.parentElement;
-                  const text = parent?.textContent?.trim();
-                  if (text) return text;
-                } catch {
-                  // ignore DOM read errors
-                }
-
-                // Last resort: return the raw key
-                return key;
-              });
-            if (selectedLabels.length) filteredDatos[labelKey] = selectedLabels;
+                const optLabel = field.options?.find(o => o.value === key)?.label
+                if (optLabel) return optLabel
+                return key
+              })
           }
+
+          // Case 3: single checkbox registered with field.name -> boolean
+          else if (typeof v === 'boolean') {
+            if (v) {
+              // prefer an option label if provided and there's a single option
+              if (field.options && field.options.length === 1) selectedLabels = [field.options[0].label]
+              else selectedLabels = [typeof field.label === 'function' ? String(field.label({ values: allValues })) : String(field.label)]
+            }
+          }
+
+          if (selectedLabels.length) filteredDatos[labelKey] = selectedLabels
         } else {
           const v = allValues[field.name];
           if (v !== undefined && v !== null && v !== "") {
             if (field.type === "select") {
-              // Try to resolve the human label for the selected value.
+              
               let label: string | undefined;
-              // Prefer config options lookup
+             
               label = field.options?.find(o => o.value === String(v))?.label;
               if (!label) {
-                // Fallback to reading the DOM option text
+                
                 try {
                   const sel = document.querySelector(`[name="${field.name}"]`) as HTMLSelectElement | null;
                   const optEl = sel?.querySelector(`option[value="${String(v)}"]`) as HTMLOptionElement | null;
                   label = optEl?.textContent?.trim() || undefined;
                 } catch {
-                  // ignore
+                 
                 }
               }
               filteredDatos[labelKey] = label ?? v;
@@ -287,8 +342,7 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
         else if (config.title.toLowerCase().includes("perú") || config.title.toLowerCase().includes("peru")) tipoFormulario = "retenciones_peru";
       }
 
-      // DEBUG: log payload to help diagnose why some forms are not saving.
-      // Temporary — remove after debugging.
+     
       try {
         console.info("[FormGenerator] Enviando formulario", { tipo: tipoFormulario, datos: filteredDatos, raw: getValues() });
       } catch {
@@ -331,14 +385,38 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
       className="min-h-screen py-12 px-2 flex items-center justify-center"
       style={{
         backgroundImage: 'url(/Fondo.jpg)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
+        // Use the same tiling used in app layouts to avoid the background
+        // appearing 'zoomed' for certain forms (e.g. auditoria-prewelcome).
+        // Using `auto` + `repeat` preserves the original pattern scale.
+        backgroundSize: 'auto',
+        backgroundPosition: 'top left',
+        backgroundRepeat: 'repeat',
       }}
     >
       <div className="w-full max-w-2xl mx-auto bg-gradient-to-br from-white via-blue-50 to-blue-100 rounded-2xl shadow-2xl border border-blue-200 p-10">
     <div className="flex flex-col items-center mb-6">
-      <Image src="/bambubpo.png" alt="Logo Bambubpo" width={120} height={40} className="mb-4 drop-shadow-lg" />
+      <div className="mb-4">
+        {/* Simple black logo (no extra container) - uses the PNG as a mask so we don't need a separate asset */}
+        <div
+          role="img"
+          aria-label="Logo Bambubpo"
+          className="mx-auto"
+          style={{
+            width: 120,
+            height: 40,
+            backgroundColor: '#000',
+            WebkitMaskImage: 'url(/bambubpo.png)',
+            WebkitMaskSize: 'contain',
+            WebkitMaskRepeat: 'no-repeat',
+            WebkitMaskPosition: 'center',
+            maskImage: 'url(/bambubpo.png)',
+            maskSize: 'contain',
+            maskRepeat: 'no-repeat',
+            maskPosition: 'center',
+          }}
+        />
+        <span className="sr-only">Bambubpo</span>
+      </div>
       <div className="flex items-center gap-3">
         {config.image && (
           <span className="inline-block bg-neutral-200 rounded-full p-2 shadow-sm">
@@ -558,7 +636,7 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
                         <input
                           type="checkbox"
                           value={option.value}
-                          {...register(`${field.name}.${option.value}`)}
+                          {...register(field.name)}
                           className="h-4 w-4 rounded-md border-gray-300 focus:ring-2 focus:ring-blue-500"
                         />
                         <span>{option.label}</span>
@@ -628,7 +706,6 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
                           <div className="flex items-center space-x-2 text-gray-900">
                             <input type="checkbox" {...register(subField.name)} className="h-4 w-4" />
                             <span>{typeof subField.label === "function" ? subField.label({ values }) : subField.label}</span>
-                            
                           </div>
                         )}
                         
@@ -676,7 +753,6 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
                                       <div className="flex items-center space-x-2 text-gray-900">
                                         <input type="checkbox" {...register(nestedField.name)} className="h-4 w-4" />
                                         <span>{typeof nestedField.label === "function" ? nestedField.label({ values }) : nestedField.label}</span>
-                                        
                                       </div>
                                     )}
                                   </div>

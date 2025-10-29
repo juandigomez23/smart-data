@@ -16,6 +16,12 @@ type Field = {
   showIf?: Record<string, unknown> | ((values: Record<string, unknown>) => boolean)
 }
 
+type EditorField = Field & {
+  conditionalFields?: Array<{
+    condition?: Record<string, unknown> | { field?: string; value?: unknown };
+    fields: EditorField[];
+  }>;
+}
 export default function AdminFormEditorPage() {
   const [files, setFiles] = useState<{ filename: string; title?: string }[]>([])
   const [selected, setSelected] = useState<string | null>(null)
@@ -70,11 +76,8 @@ export default function AdminFormEditorPage() {
       })
   }, [selected])
 
-  function updateField(idx: number, patch: Partial<Field>) {
-    if (!config) return
-    const copy = { ...config, fields: (config.fields || []).map((f, i) => (i === idx ? { ...f, ...patch } : f)) }
-    setConfig(copy as FormConfig)
-  }
+  // legacy index-based updater removed in favor of name-based updates to
+  // correctly handle nested/conditional fields without duplication.
 
   function addField() {
     const f = { name: `field_${Date.now()}`, label: "Nuevo campo", type: "text" } as FormConfig["fields"][number]
@@ -84,29 +87,95 @@ export default function AdminFormEditorPage() {
     })
   }
 
-  function removeField(idx: number) {
+  // Recursively find and update a field by name (searches nested conditionalFields too)
+  function updateFieldByName(name: string, patch: Partial<Field>) {
     if (!config) return
-    const copy = { ...config, fields: (config.fields || []).filter((_, i) => i !== idx) }
-    setConfig(copy as FormConfig)
+    const clone = JSON.parse(JSON.stringify(config)) as FormConfig
+
+    function recurse(fields: EditorField[]): boolean {
+      for (let i = 0; i < fields.length; i++) {
+        const f = fields[i]
+        if (f.name === name) {
+          fields[i] = { ...f, ...patch }
+          return true
+        }
+        if (Array.isArray(f.conditionalFields)) {
+          for (const cond of f.conditionalFields) {
+            if (recurse(cond.fields)) return true
+          }
+        }
+      }
+      return false
+    }
+
+    recurse((clone.fields || []) as EditorField[])
+    setConfig(clone)
   }
 
-  function handleDragStart(e: React.DragEvent, idx: number) {
-    e.dataTransfer.setData("text/plain", String(idx))
-    e.dataTransfer.effectAllowed = "move"
+  // Build a flattened, deduplicated list of fields for the editor UI. If a field
+  // appears in multiple places (top-level and conditional), we show it once and
+  // indicate that it's conditional via the `meta.conditionalParents` array.
+  function getFlattenedFields(cfg: FormConfig) {
+    const map = new Map<string, { field: EditorField; meta: { conditionalParents: string[] } }>()
+
+    function walk(fields: EditorField[], parentConditional?: string) {
+      for (const f of fields) {
+        const existing = map.get(f.name)
+        if (!existing) {
+          map.set(f.name, { field: f, meta: { conditionalParents: parentConditional ? [parentConditional] : [] } })
+        } else if (parentConditional) {
+          const arr = existing.meta.conditionalParents
+          if (!arr.includes(parentConditional)) arr.push(parentConditional)
+        }
+        if (Array.isArray(f.conditionalFields)) {
+          for (const cond of f.conditionalFields) {
+            let condLabel = ""
+            if (cond.condition && typeof cond.condition === "object") {
+              const c = cond.condition as Record<string, unknown>
+              if (Object.prototype.hasOwnProperty.call(c, "value")) condLabel = String((c as Record<string, unknown>).value)
+              else condLabel = JSON.stringify(c)
+            } else {
+              condLabel = String(cond.condition)
+            }
+            walk(cond.fields, `${f.name}=${condLabel}`)
+          }
+        }
+      }
+    }
+
+    walk((cfg.fields || []) as EditorField[])
+    return Array.from(map.values()).map(v => ({ ...v.field, _meta: v.meta }))
   }
-  function handleDragOver(e: React.DragEvent) {
-    e.preventDefault()
-    e.dataTransfer.dropEffect = "move"
+
+  // Remove a field by name from the config (searches nested conditionalFields as well)
+  function removeFieldByName(name: string) {
+    if (!config) return
+    const clone = JSON.parse(JSON.stringify(config)) as FormConfig
+
+    function recurse(fields: EditorField[]): boolean {
+      let removed = false
+      for (let i = fields.length - 1; i >= 0; i--) {
+        const f = fields[i]
+        if (f.name === name) {
+          fields.splice(i, 1)
+          removed = true
+          continue
+        }
+        if (Array.isArray(f.conditionalFields)) {
+          for (const cond of f.conditionalFields) {
+            if (recurse(cond.fields)) removed = true
+          }
+        }
+      }
+      return removed
+    }
+
+    recurse((clone.fields || []) as EditorField[])
+    setConfig(clone)
   }
-  function handleDrop(e: React.DragEvent, toIndex: number) {
-    e.preventDefault()
-    const from = Number(e.dataTransfer.getData("text/plain"))
-    if (Number.isNaN(from) || !config) return
-    const arr = [...(config.fields || [])]
-    const [moved] = arr.splice(from, 1)
-    arr.splice(toIndex, 0, moved)
-    setConfig({ ...config, fields: arr } as FormConfig)
-  }
+
+  // Drag & drop and index-based remove are intentionally removed for the
+  // flattened editor view to avoid ambiguous reordering of nested fields.
 
   async function save() {
     if (!selected || !config) return
@@ -218,29 +287,25 @@ export default function AdminFormEditorPage() {
                   <div className="mt-4">
                     <label className="block text-sm font-medium text-gray-900 mb-2">Preguntas</label>
                     <div className="space-y-3">
-                      {(config.fields || []).map((field, idx) => (
+                      {getFlattenedFields(config).map((field, idx) => (
                         <div
                           key={field.name || idx}
-                          draggable
-                          onDragStart={(e) => handleDragStart(e, idx)}
-                          onDragOver={handleDragOver}
-                          onDrop={(e) => handleDrop(e, idx)}
                           className="p-4 border rounded-xl bg-white shadow-sm hover:shadow-md transition flex flex-col min-w-0"
                         >
                           <div className="flex items-start gap-4">
                             <div className="flex-1">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
-                                  <div className="cursor-move text-gray-400">☰</div>
+                                  <div className="text-gray-400">☰</div>
                                   <input
                                     className="text-lg font-medium text-gray-800 focus:outline-none min-w-0"
                                     value={typeof field.label === "string" ? field.label : String(field.label ?? "")}
-                                    onChange={(e) => updateField(idx, { label: e.target.value })}
+                                    onChange={(e) => updateFieldByName(field.name, { label: e.target.value })}
                                   />
                                 </div>
 
                                 <div className="flex items-center gap-2">
-                                  <select className="rounded-md border-gray-300 px-2 py-1 text-sm" value={field.type ?? "text"} onChange={(e) => updateField(idx, { type: e.target.value as Field['type'] })}>
+                                  <select className="rounded-md border-gray-300 px-2 py-1 text-sm" value={field.type ?? "text"} onChange={(e) => updateFieldByName(field.name, { type: e.target.value as Field['type'] })}>
                                     <option value="text">Texto</option>
                                     <option value="select">Selección</option>
                                     <option value="number">Número</option>
@@ -250,16 +315,16 @@ export default function AdminFormEditorPage() {
                                     <option value="time">Hora</option>
                                   </select>
                                   <label className="inline-flex items-center text-sm">
-                                    <input type="checkbox" checked={!!field.required} onChange={(e) => updateField(idx, { required: e.target.checked })} className="form-checkbox h-4 w-4 text-blue-600" />
+                                    <input type="checkbox" checked={!!field.required} onChange={(e) => updateFieldByName(field.name, { required: e.target.checked })} className="form-checkbox h-4 w-4 text-blue-600" />
                                     <span className="ml-2 text-xs text-gray-700">Oblig.</span>
                                   </label>
-                                  <Button size="sm" variant="destructive" onClick={() => removeField(idx)}>Eliminar</Button>
+                                  <Button size="sm" variant="destructive" onClick={() => removeFieldByName(field.name)}>Eliminar</Button>
                                 </div>
                               </div>
 
                               {field.description !== undefined && (
                                 <div className="mt-2">
-                                  <input className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm" placeholder="Descripción (opcional)" value={field.description ?? ""} onChange={(e) => updateField(idx, { description: e.target.value })} />
+                                  <input className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm" placeholder="Descripción (opcional)" value={field.description ?? ""} onChange={(e) => updateFieldByName(field.name, { description: e.target.value })} />
                                 </div>
                               )}
 
@@ -272,16 +337,16 @@ export default function AdminFormEditorPage() {
                                         <input className="flex-1 min-w-0 rounded-md border border-gray-300 px-2 py-1 text-sm" value={o.label} onChange={(e) => {
                                           const newOpts = [...(field.options || [])]
                                           newOpts[oi] = { ...newOpts[oi], label: e.target.value }
-                                          updateField(idx, { options: newOpts })
+                                          updateFieldByName(field.name, { options: newOpts })
                                         }} />
                                         <input className="w-36 min-w-0 rounded-md border border-gray-300 px-2 py-1 text-sm" value={o.value} onChange={(e) => {
                                           const newOpts = [...(field.options || [])]
                                           newOpts[oi] = { ...newOpts[oi], value: e.target.value }
-                                          updateField(idx, { options: newOpts })
+                                          updateFieldByName(field.name, { options: newOpts })
                                         }} />
                                         <Button size="sm" variant="ghost" onClick={() => {
                                           const newOpts = (field.options || []).filter((_, i) => i !== oi)
-                                          updateField(idx, { options: newOpts })
+                                          updateFieldByName(field.name, { options: newOpts })
                                         }}>Eliminar</Button>
                                       </div>
                                     ))}
@@ -294,7 +359,7 @@ export default function AdminFormEditorPage() {
                                         const label = labelEl?.value || "Opción"
                                         const value = valueEl?.value || String(Date.now())
                                         const newOpts = [...(field.options || []), { label, value }]
-                                        updateField(idx, { options: newOpts })
+                                        updateFieldByName(field.name, { options: newOpts })
                                         if (labelEl) labelEl.value = ""
                                         if (valueEl) valueEl.value = ""
                                       }}>Agregar</Button>

@@ -6,11 +6,19 @@ export const auditoriaPrewelcomeForm: FormConfig = {
   fields: [
     { 
       name: "correo", 
-      label: "Correo electrónico", 
+      label: "Email", 
       type: "text", 
       required: true,
       auto: true
     },
+    {
+      name: "san",
+      label: "SAN",
+      type: "text",
+      required: true,
+      inferFromSan: true,
+    },
+    
     {
       name: "pais",
       label: "País",
@@ -22,12 +30,6 @@ export const auditoriaPrewelcomeForm: FormConfig = {
         { label: "Ecuador", value: "ecuador" },
         { label: "Perú", value: "peru" }
       ],
-    },
-    { 
-      name: "san", 
-      label: "SAN", 
-      type: "text", 
-      required: true 
     },
     { 
       name: "fecha_creacion_san", 

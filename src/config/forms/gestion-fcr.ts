@@ -5,7 +5,7 @@ export const gestionFcrForm: FormConfig = {
   tipo: "gestion-fcr",
   fields: [
     { name: "correo", label: "Correo electrónico", type: "text", required: true, auto: true },
-    { name: "san", label: "SAN", type: "text", required: true },
+  { name: "san", label: "SAN", type: "text", required: true, inferFromSan: true },
     { name: "fso", label: "FSO", type: "text" },
     {
       name: "pais",

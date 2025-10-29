@@ -4,7 +4,7 @@ export const welcomeForm: FormConfig = {
   tipo: "welcome",
   fields: [
     { name: "correo", label: "Correo electrónico", type: "text", required: true, auto: true },
-{ name: "san", label: "SAN", type: "text", required: true },
+{ name: "san", label: "SAN", type: "text", required: true, inferFromSan: true },
 { name: "pais", label: "País", type: "select", required: true, options: [
   { label: "Colombia", value: "colombia" },
   { label: "Chile", value: "chile" },
@@ -45,9 +45,8 @@ export const welcomeForm: FormConfig = {
       { label: "Si", value: "si" },
       { label: "No", value: "no" }
     ] },
-    { name: "pago_primer_recibo_peru", label: "¿Pagó el 1er recibo? Perú", type: "select", showIf: { pais: "peru" }, options: [
-      { label: "Si", value: "si" },
-      { label: "No", value: "no" }
+    { name: "pago_primer_recibo_peru", label: "¿Pagó el 1er recibo? Perú", type: "select", showIf: { pais: "peru" }, defaultValue: "mes_gratis", options: [
+      { label: "Mes gratis", value: "mes_gratis" }
     ] },
     { name: "satisfecho_servicio_peru", label: "¿Se encuentra satisfecho con el servicio? Perú", type: "select", showIf: { pais: "peru" }, options: [
       
@@ -102,14 +101,7 @@ export const welcomeForm: FormConfig = {
       { label: "Diversión (Netflix, videos, juegos)", value: "diversion" },
       { label: "No aplica", value: "no_aplica" }
     ] },
-    { name: "cuando_pago_peru_continuar", label: "¿Cuénteme para cuando va a realizar el pago?", type: "select", showIf: { pais: "peru", continuar_servicio_peru: "si" }, options: [
-      { label: "Hoy realizo el pago", value: "hoy" },
-      { label: "Lo realizaré en el próximo corte", value: "proximo_corte" },
-      { label: "Lo realizaré la próxima semana", value: "proxima_semana" },
-      { label: "Ya realizo el pago", value: "ya_pago" },
-      { label: "Mes gratis", value: "mes_gratis" },
-      { label: "No aplica", value: "no_aplica" }
-    ] },
+    
     { name: "medio_pago_peru_continuar", label: "¿De qué forma pagó o pagará su recibo? Perú", type: "select", showIf: { pais: "peru", continuar_servicio_peru: "si" }, options: [
       { label: "BCP", value: "bcp" },
       { label: "BBVA", value: "bbva" },
@@ -121,7 +113,6 @@ export const welcomeForm: FormConfig = {
       { label: "Yape", value: "yape" },
       { label: "InterBank", value: "interbank" }
     ] },
-    { name: "fecha_pago_peru_continuar", label: "Si el cliente NO ha realizado el pago, confirmar ¿Qué día va a pagar? (fecha)", type: "date", showIf: { pais: "peru", continuar_servicio_peru: "si", cuando_pago_peru_continuar: "hoy" } },
     { name: "acepta_debito_peru_continuar", label: "¿Acepta débito automático?", type: "select", showIf: { pais: "peru", continuar_servicio_peru: "si" }, options: [
       { label: "Si", value: "si" },
       { label: "No", value: "no" },
@@ -171,14 +162,7 @@ export const welcomeForm: FormConfig = {
       { label: "Diversión (Netflix, videos, juegos)", value: "diversion" },
       { label: "No aplica", value: "no_aplica" }
     ] },
-    { name: "cuando_pago_peru", label: "¿Cuénteme para cuando va a realizar el pago?", type: "select", showIf: { pais: "peru", satisfecho_servicio_peru: "si" }, options: [
-      { label: "Hoy realizo el pago", value: "hoy" },
-      { label: "Lo realizaré en el próximo corte", value: "proximo_corte" },
-      { label: "Lo realizaré la próxima semana", value: "proxima_semana" },
-      { label: "Ya realizo el pago", value: "ya_pago" },
-      { label: "Mes gratis", value: "mes_gratis" },
-      { label: "No aplica", value: "no_aplica" }
-    ] },
+   
     { name: "medio_pago_peru", label: "¿De qué forma pagó o pagará su recibo? Perú", type: "select", showIf: { pais: "peru", satisfecho_servicio_peru: "si" }, options: [
       { label: "BCP", value: "bcp" },
       { label: "BBVA", value: "bbva" },
@@ -190,7 +174,6 @@ export const welcomeForm: FormConfig = {
       { label: "Yape", value: "yape" },
       { label: "InterBank", value: "interbank" }
     ] },
-    { name: "fecha_pago_peru", label: "Si el cliente NO ha realizado el pago, confirmar ¿Qué día va a pagar? (fecha)", type: "date", showIf: { pais: "peru", satisfecho_servicio_peru: "si", cuando_pago_peru: "hoy" } },
     { name: "acepta_debito_peru", label: "¿Acepta débito automático?", type: "select", showIf: { pais: "peru", satisfecho_servicio_peru: "si" }, options: [
       { label: "Si", value: "si" },
       { label: "No", value: "no" },
@@ -253,9 +236,7 @@ export const welcomeForm: FormConfig = {
       { label: "Si", value: "si" },
       { label: "No", value: "no" }
     ] },
-    { name: "pago_primera_factura_ecuador", label: "¿Pagó la primera factura? Ecuador", type: "select", showIf: { pais: "ecuador" }, options: [
-      { label: "Sí", value: "si" },
-      { label: "No", value: "no" },
+    { name: "pago_primera_factura_ecuador", label: "¿Pagó la primera factura? Ecuador", type: "select", showIf: { pais: "ecuador" }, defaultValue: "mes_gratis", options: [
       { label: "Mes gratis", value: "mes_gratis" }
     ] },
     { name: "satisfecho_servicio_ecuador", label: "¿Se encuentra satisfecho con el servicio? Ecuador", type: "select", showIf: { pais: "ecuador" }, options: [
@@ -307,14 +288,7 @@ export const welcomeForm: FormConfig = {
       { label: "Diversión (Netflix, videos, juegos)", value: "diversion" },
       { label: "No aplica", value: "no_aplica" }
     ] },
-    { name: "cuando_pago_ecuador_continua", label: "¿Cuénteme para cuando va a realizar el pago?", type: "select", showIf: { pais: "ecuador", continuar_servicio_ecuador: "si" }, options: [
-      { label: "Hoy realizo el pago", value: "hoy" },
-      { label: "Lo realizaré en el próximo corte", value: "proximo_corte" },
-      { label: "Lo realizare en la próxima semana", value: "proxima_semana" },
-      { label: "Ya realizo el pago", value: "ya_pago" },
-      { label: "Mes gratis", value: "mes_gratis" },
-      { label: "No aplica", value: "no_aplica" }
-    ] },
+    
     { name: "medio_pago_ecuador_continua", label: "¿De qué forma pagó o pagará su factura? Ecuador", type: "select", showIf: { pais: "ecuador", continuar_servicio_ecuador: "si" }, options: [
       { label: "Servipagos", value: "servipagos" },
       { label: "Banco pichincha", value: "pichincha" },
@@ -360,14 +334,7 @@ export const welcomeForm: FormConfig = {
       { label: "Diversión (Netflix, videos, juegos)", value: "diversion" },
       { label: "No aplica", value: "no_aplica" }
     ] },
-    { name: "cuando_pago_ecuador", label: "¿Cuénteme para cuando va a realizar el pago?", type: "select", showIf: { pais: "ecuador", satisfecho_servicio_ecuador: "si" }, options: [
-      { label: "Hoy realizo el pago", value: "hoy" },
-      { label: "Lo realizaré en el próximo corte", value: "proximo_corte" },
-      { label: "Lo realizare en la próxima semana", value: "proxima_semana" },
-      { label: "Ya realizo el pago", value: "ya_pago" },
-      { label: "Mes gratis", value: "mes_gratis" },
-      { label: "No aplica", value: "no_aplica" }
-    ] },
+    
     { name: "medio_pago_ecuador", label: "¿De qué forma pagó o pagará su factura? Ecuador", type: "select", showIf: { pais: "ecuador", satisfecho_servicio_ecuador: "si" }, options: [
       { label: "Servipagos", value: "servipagos" },
       { label: "Banco pichincha", value: "pichincha" },
@@ -413,8 +380,6 @@ export const welcomeForm: FormConfig = {
     { name: "medio_contacto_chile", label: "Medio de contacto Chile", type: "select", showIf: { pais: "chile" }, options: [
       { label: "Estaqueue", value: "estaqueue" },
       { label: "WhatsApp", value: "whatsapp" },
-      { label: "Email", value: "email" },
-      { label: "Respuesta encuesta", value: "encuesta" },
       { label: "No se realiza llamada", value: "no_llamada" }
     ] },
     { name: "md_chile", label: "MD Chile", type: "select", showIf: { pais: "chile" }, options: [
@@ -488,9 +453,8 @@ export const welcomeForm: FormConfig = {
     ] },
     { name: "medio_pago_chile_continua", label: "¿De qué manera pagó o pagará su boleta? Chile", type: "select", showIf: { pais: "chile", continuar_servicio_chile: "si" }, options: [
       { label: "Mes gratis", value: "mes_gratis" },
-      { label: "No aplica", value: "no_aplica" }
+      
     ] },
-    { name: "fecha_pago_chile_continua", label: "Si el cliente no ha realizado el pago, confirmar ¿qué día va a pagar? (fecha)", type: "date", showIf: { pais: "chile", continuar_servicio_chile: "si", cuando_pago_chile_continua: "hoy" } },
     { name: "acepta_pat_chile_continua", label: "¿Acepta PAT?", type: "select", showIf: { pais: "chile", continuar_servicio_chile: "si" }, options: [
       { label: "Si", value: "si" },
       { label: "No", value: "no" },
@@ -538,13 +502,7 @@ export const welcomeForm: FormConfig = {
       { label: "Diversión (Netflix, videos, juegos)", value: "diversion" },
       { label: "No aplica", value: "no_aplica" }
     ] },
-  { name: "cuando_pago_chile", label: "¿Cuénteme para cuando va a realizar el pago?", type: "select", showIf: { pais: "chile", satisfecho_servicio_chile: "si" }, options: [
-      { label: "Hoy realizo el pago", value: "hoy" },
-      { label: "Lo realizare en el próximo corte", value: "proximo_corte" },
-      { label: "Lo realizare la próxima semana", value: "proxima_semana" },
-      { label: "Ya realizo el pago", value: "ya_pago" },
-      { label: "No aplica", value: "no_aplica" }
-    ] },
+  
   { name: "medio_pago_chile", label: "¿De qué manera pagó o pagará su boleta? Chile", type: "select", showIf: { pais: "chile", satisfecho_servicio_chile: "si" }, options: [
       { label: "En línea", value: "en_linea" },
       { label: "Presencial", value: "presencial" },
@@ -553,7 +511,6 @@ export const welcomeForm: FormConfig = {
       { label: "Mes gratis", value: "mes_gratis" },
       { label: "No aplica", value: "no_aplica" }
     ] },
-  { name: "fecha_pago_chile", label: "Si el cliente no ha realizado el pago, confirmar ¿qué día va a pagar? (fecha)", type: "date", showIf: { pais: "chile", satisfecho_servicio_chile: "si", cuando_pago_chile: "hoy" } },
   { name: "acepta_pat_chile", label: "¿Acepta PAT?", type: "select", showIf: { pais: "chile", satisfecho_servicio_chile: "si" }, options: [
       { label: "Si", value: "si" },
       { label: "No", value: "no" },
@@ -601,8 +558,6 @@ export const welcomeForm: FormConfig = {
     { name: "medio_contacto_colombia", label: "Medio de contacto Colombia", type: "select", showIf: { pais: "colombia" }, options: [
       { label: "Estaqueue", value: "estaqueue" },
       { label: "WhatsApp", value: "whatsapp" },
-      { label: "Email", value: "email" },
-      { label: "Respuesta encuesta", value: "encuesta" },
       { label: "No se realiza llamada", value: "no_llamada" }
     ] },
     { name: "md_colombia", label: "MD Colombia", type: "select", showIf: { pais: "colombia" }, options: [
@@ -622,9 +577,7 @@ export const welcomeForm: FormConfig = {
       { label: "Si", value: "si" },
       { label: "No", value: "no" }
     ] },
-    { name: "pago_primera_factura_colombia", label: "¿Pagó la primera factura? Colombia", type: "select", showIf: { pais: "colombia" }, options: [
-      { label: "Sí", value: "si" },
-      { label: "No", value: "no" },
+    { name: "pago_primera_factura_colombia", label: "¿Pagó la primera factura? Colombia", type: "select", showIf: { pais: "colombia" }, defaultValue: "mes_gratis", options: [
       { label: "Mes gratis", value: "mes_gratis" }
     ] },
     { name: "satisfecho_servicio_colombia", label: "¿Se encuentra satisfecho con el servicio? Colombia", type: "select", showIf: { pais: "colombia" }, options: [
@@ -677,13 +630,7 @@ export const welcomeForm: FormConfig = {
       { label: "Diversión (Netflix, videos, juegos)", value: "diversion" },
       { label: "No aplica", value: "no_aplica" }
     ] },
-    { name: "cuando_pago_colombia_continua", label: "¿Cuénteme para cuando va a realizar el pago?", type: "select", showIf: { pais: "colombia", continuar_servicio_colombia: "si" }, options: [
-      { label: "Hoy realizo el pago", value: "hoy" },
-      { label: "Lo realizare en el próximo corte", value: "proximo_corte" },
-      { label: "Lo realizare la próxima semana", value: "proxima_semana" },
-      { label: "Ya realizo el pago", value: "ya_pago" },
-      { label: "No aplica", value: "no_aplica" }
-    ] },
+    
     { name: "medio_pago_colombia_continua", label: "¿De qué manera pagó o pagará su factura? Colombia", type: "select", showIf: { pais: "colombia", continuar_servicio_colombia: "si" }, options: [
       { label: "Efecty", value: "efecty" },
       { label: "SuRed", value: "sured" },
@@ -693,9 +640,6 @@ export const welcomeForm: FormConfig = {
       { label: "Débito automatico", value: "debito" },
       { label: "No aplica", value: "no_aplica" }
     ] },
-    { name: "fecha_pago_colombia_continua", label: "Si el cliente NO ha realizado el pago, confirmar ¿qué día va a pagar? (fecha)", type: "date", showIf: { pais: "colombia", continuar_servicio_colombia: "si", cuando_pago_colombia_continua: "hoy" } },
-    { name: "fecha_pago_colombia_proximo_corte_continua", label: "Si el cliente NO ha realizado el pago, confirmar ¿qué día va a pagar? (fecha)", type: "date", showIf: { pais: "colombia", continuar_servicio_colombia: "si", cuando_pago_colombia_continua: "proximo_corte" } },
-    { name: "fecha_pago_colombia_proxima_semana_continua", label: "Si el cliente NO ha realizado el pago, confirmar ¿qué día va a pagar? (fecha)", type: "date", showIf: { pais: "colombia", continuar_servicio_colombia: "si", cuando_pago_colombia_continua: "proxima_semana" } },
     { name: "acepta_debito_colombia_continua", label: "¿Acepta débito automático?", type: "select", showIf: { pais: "colombia", continuar_servicio_colombia: "si" }, options: [
       { label: "Si", value: "si" },
       { label: "No", value: "no" },
@@ -742,13 +686,7 @@ export const welcomeForm: FormConfig = {
       { label: "Diversión (Netflix, videos, juegos)", value: "diversion" },
       { label: "No aplica", value: "no_aplica" }
     ] },
-    { name: "cuando_pago_colombia", label: "¿Cuénteme para cuando va a realizar el pago?", type: "select", showIf: { pais: "colombia", satisfecho_servicio_colombia: "si" }, options: [
-      { label: "Hoy realizo el pago", value: "hoy" },
-      { label: "Lo realizare en el próximo corte", value: "proximo_corte" },
-      { label: "Lo realizare la próxima semana", value: "proxima_semana" },
-      { label: "Ya realizo el pago", value: "ya_pago" },
-      { label: "No aplica", value: "no_aplica" }
-    ] },
+    
     { name: "medio_pago_colombia", label: "¿De qué manera pagó o pagará su factura? Colombia", type: "select", showIf: { pais: "colombia", satisfecho_servicio_colombia: "si" }, options: [
       { label: "Efecty", value: "efecty" },
       { label: "SuRed", value: "sured" },
@@ -758,7 +696,6 @@ export const welcomeForm: FormConfig = {
       { label: "Débito automatico", value: "debito" },
       { label: "No aplica", value: "no_aplica" }
     ] },
-    { name: "fecha_pago_colombia", label: "Si el cliente NO ha realizado el pago, confirmar ¿qué día va a pagar? (fecha)", type: "date", showIf: { pais: "colombia", satisfecho_servicio_colombia: "si"} },
     { name: "acepta_debito_colombia", label: "¿Acepta débito automático?", type: "select", showIf: { pais: "colombia", satisfecho_servicio_colombia: "si" }, options: [
       { label: "Si", value: "si" },
       { label: "No", value: "no" },
@@ -800,21 +737,17 @@ export const welcomeForm: FormConfig = {
     { name: "codigo_gestion", label: "Código de gestión", type: "select", options: [
       { label: "Se realiza encuesta", value: "encuesta" },
       { label: "No recibe información", value: "no_info" },
-      { label: "Solicita información por correo", value: "correo" },
+      { label: "Solicita información por Correo/Whatsapp", value: "correo" },
       { label: "Volver a llamar", value: "volver_llamar" },
       { label: "No contesta", value: "no_contesta" },
       { label: "Buzón de mensaje", value: "buzon" },
       { label: "Fuera de servicio (número fuera de servicio)", value: "fuera_servicio" },
       { label: "Mensaje con tercero", value: "mensaje_tercero" },
       { label: "Colgó", value: "colgo" },
+      { label: "PYME", value: "pyme" },
       { label: "Numero equivocado", value: "numero_equivocado" },
       { label: "Solicita retiro del servicio", value: "retiro" },
       { label: "Presenta novedad (se escala a Loreto)", value: "novedad_loreto" },
-      { label: "Cliente con TRM activa", value: "trm_activa" },
-      { label: "SAN inactiva", value: "san_inactiva" },
-      { label: "Cliente fallecido", value: "fallecido" },
-      { label: "Suspensión temporal", value: "suspension" },
-      { label: "Se cancela SAN BRM", value: "cancela_san_brm" },
       { label: "Welcome no completado", value: "welcome_no_completado" },
     ] },
     { name: "observacion", label: "Observación", type: "text", multiline: true },

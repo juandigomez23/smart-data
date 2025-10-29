@@ -82,7 +82,7 @@ export const auditoriaPrewelcomeSchema = z.object({
   autorizado_gerencia_sin_hughespro_pyme: z.string().optional(),
   autorizado_gerencia_mas_servicios_pyme: z.string().optional(),
   estado_servicio_pyme: z.string().optional(),
-  fecha_liberacion_pyme: z.string().optional(),
+  
   codigo_gestion_pyme: z.string().optional(),
   hughespro_estado: z.string().optional(),
   hughespro_validacion_id: z.string().optional(),
@@ -90,7 +90,7 @@ export const auditoriaPrewelcomeSchema = z.object({
   autorizado_gerencia_sin_hughespro: z.string().optional(),
   autorizado_gerencia_mas_servicios: z.string().optional(),
   estado_servicio: z.string().optional(),
-  fecha_liberacion: z.string().optional(),
+  
   codigo_gestion: z.string().optional(),
   observacion: z.string().optional(),
   observacion_pyme: z.string().optional(),

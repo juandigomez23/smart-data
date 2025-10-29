@@ -5,6 +5,8 @@ export const rechazoDebitoForm: FormConfig = {
   tipo: "rechazo-debito",
   fields: [
     { name: "correo", label: "Correo electrónico", type: "text", required: true, auto: true },
+    // SAN first so users can paste/type SAN and we can infer `pais` from its prefix
+    { name: "san", label: "SAN", type: "text", required: true, inferFromSan: true },
     {
       name: "pais",
       label: "País",
@@ -18,38 +20,9 @@ export const rechazoDebitoForm: FormConfig = {
       ],
     },
     {
-      name: "san_chile",
-      label: "SAN Chile",
-      type: "text",
-      required: true,
-      showIf: (values) => values.pais === "chile"
-    },
-    {
-      name: "san_colombia",
-      label: "SAN Colombia",
-      type: "text",
-      required: true,
-      showIf: (values) => values.pais === "colombia"
-    },
-    {
-      name: "san_ecuador",
-      label: "SAN Ecuador",
-      type: "text",
-      required: true,
-      showIf: (values) => values.pais === "ecuador"
-    },
-    {
-      name: "san_peru",
-      label: "SAN Perú",
-      type: "text",
-      required: true,
-      showIf: (values) => values.pais === "peru"
-    },
-    {
       name: "numero_telefonico_peru",
       label: "Número telefónico",
       type: "text",
-      required: true,
       showIf: (values) => values.pais === "peru"
     },
     {
@@ -60,7 +33,7 @@ export const rechazoDebitoForm: FormConfig = {
       options: [
         { label: "Estaqueue", value: "estaqueue" },
         { label: "WhatsApp", value: "whatsapp" },
-        { label: "Correo", value: "correo" },
+
         { label: "No se realiza llamada", value: "no_llamada" },
         { label: "Mensaje en WhatsApp", value: "mensaje_whatsapp" }
       ],
@@ -123,8 +96,7 @@ export const rechazoDebitoForm: FormConfig = {
         { label: "Buzón", value: "buzon" },
         { label: "Cuelga llamada", value: "cuelga_llamada" },
         { label: "Número equivocado", value: "numero_equivado" },
-        { label: "Se deja mensaje en WhatsApp", value: "mensaje_whatsapp" },
-        { label: "No contesta llamada WhatsApp", value: "no_contesta_whatsapp" },
+
         { label: "Cancelará el servicio", value: "cancelara_servicio" },
         { label: "Solicita información por WhatsApp", value: "info_whatsapp" },
         { label: "Ya está inscrito al débito", value: "ya_inscrito" },
@@ -145,7 +117,6 @@ export const rechazoDebitoForm: FormConfig = {
       name: "numero_telefonico_ecuador",
       label: "Número telefónico",
       type: "text",
-      required: true,
       showIf: (values) => values.pais === "ecuador"
     },
     {
@@ -156,7 +127,7 @@ export const rechazoDebitoForm: FormConfig = {
       options: [
         { label: "Estaqueue", value: "estaqueue" },
         { label: "WhatsApp", value: "whatsapp" },
-        { label: "Correo", value: "correo" },
+   
         { label: "No se realiza llamada", value: "no_llamada" },
         { label: "Mensaje en WhatsApp", value: "mensaje_whatsapp" }
       ],
@@ -219,8 +190,7 @@ export const rechazoDebitoForm: FormConfig = {
         { label: "Buzón", value: "buzon" },
         { label: "Cuelga llamada", value: "cuelga_llamada" },
         { label: "Número equivocado", value: "numero_equivocado" },
-        { label: "Se deja mensaje en WhatsApp", value: "mensaje_whatsapp" },
-        { label: "No contesta llamada WhatsApp", value: "no_contesta_whatsapp" },
+   
         { label: "Cancelará el servicio", value: "cancelara_servicio" },
         { label: "Solicita información por WhatsApp", value: "info_whatsapp" },
         { label: "Ya está inscrito al débito", value: "ya_inscrito" },
@@ -241,7 +211,6 @@ export const rechazoDebitoForm: FormConfig = {
       name: "numero_telefonico_colombia",
       label: "Número telefónico",
       type: "text",
-      required: true,
       showIf: (values) => values.pais === "colombia"
     },
     {
@@ -252,7 +221,7 @@ export const rechazoDebitoForm: FormConfig = {
       options: [
         { label: "Estaqueue", value: "estaqueue" },
         { label: "WhatsApp", value: "whatsapp" },
-        { label: "Correo", value: "correo" },
+    
         { label: "No se realiza llamada", value: "no_llamada" },
         { label: "Mensaje en WhatsApp", value: "mensaje_whatsapp" }
       ],
@@ -315,8 +284,6 @@ export const rechazoDebitoForm: FormConfig = {
         { label: "Buzón", value: "buzon" },
         { label: "Cuelga llamada", value: "cuelga_llamada" },
         { label: "Número equivocado", value: "numero_equivocado" },
-        { label: "Se deja mensaje en WhatsApp", value: "mensaje_whatsapp" },
-        { label: "No contesta llamada WhatsApp", value: "no_contesta_whatsapp" },
         { label: "Cancelará el servicio", value: "cancelara_servicio" },
         { label: "Solicita información por WhatsApp", value: "info_whatsapp" },
         { label: "Ya está inscrito al débito", value: "ya_inscrito" },
@@ -337,7 +304,6 @@ export const rechazoDebitoForm: FormConfig = {
       name: "numero_telefonico",
       label: "Número telefónico",
       type: "text",
-      required: true,
       showIf: (values) => values.pais === "chile"
     },
     {
@@ -348,7 +314,6 @@ export const rechazoDebitoForm: FormConfig = {
       options: [
         { label: "Estaqueue", value: "estaqueue" },
         { label: "WhatsApp", value: "whatsapp" },
-        { label: "Correo", value: "correo" },
         { label: "No se realiza llamada", value: "no_llamada" },
         { label: "Mensaje en WhatsApp", value: "mensaje_whatsapp" }
       ],
@@ -411,8 +376,7 @@ export const rechazoDebitoForm: FormConfig = {
         { label: "Buzón", value: "buzon" },
         { label: "Cuelga llamada", value: "cuelga_llamada" },
         { label: "Número equivocado", value: "numero_equivocado" },
-        { label: "Se deja mensaje en WhatsApp", value: "mensaje_whatsapp" },
-        { label: "No contesta llamada WhatsApp", value: "no_contesta_whatsapp" },
+
         { label: "Cancelará el servicio", value: "cancelara_servicio" },
         { label: "Solicita información por WhatsApp", value: "info_whatsapp" },
         { label: "Ya está inscrito al débito", value: "ya_inscrito" },

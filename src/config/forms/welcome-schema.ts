@@ -234,5 +234,5 @@ export const welcomeSchema = z.object({
   // Generales
   codigo_gestion: z.string().min(1, "Campo obligatorio"),
   observacion: z.string().min(1, "Campo obligatorio"),
-  sugerencia: z.string().min(1, "Campo obligatorio"),
+  
 });

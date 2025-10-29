@@ -16,8 +16,7 @@ export const retencionesForm: FormConfig = {
       options: [
         { label: "Llamada telefónica", value: "llamada" },
         { label: "Gestión WhatsApp", value: "whatsapp" },
-        { label: "Gestión correo", value: "correo" },
-        { label: " Correo electrónico", value: "correoe" }
+        
       ]
     },
     {
@@ -145,29 +144,28 @@ export const retencionesForm: FormConfig = {
       required: true,
       options: [
         // 🇨🇴 Colombia
-        { label: "39.000 (Colombia)", value: "39000_colombia" },
-        { label: "58.500 (Colombia)", value: "58500_colombia" },
-        { label: "78.000 (Colombia)", value: "78000_colombia" },
-        { label: "90.000 (Colombia)", value: "90000_colombia" },
+        { label: "29.400 (Colombia)", value: "29400_colombia" },
+        { label: "43.700 (Colombia)", value: "43700_colombia" },
+        { label: "58.823 (Colombia)", value: "58823_colombia" },
+        { label: "1 mes gratis (Colombia)", value: "gratis_colombia" },
 
         // 🇵🇪 Perú
-        { label: "35 soles (Perú)", value: "35_peru" },
-        { label: "52.5 soles (Perú)", value: "52.5_peru" },
-        { label: "70 soles (Perú)", value: "70_peru" },
-        { label: "90 soles (Perú)", value: "90_peru" },
+        { label: "30 soles (Perú)", value: "30_peru" },
+        { label: "45 soles (Perú)", value: "45_peru" },
+        { label: "60 soles (Perú)", value: "60_peru" },
+        
 
         // 🇪🇨 Ecuador
-        { label: "10 dólares (Ecuador)", value: "10usd_ecuador" },
-        { label: "15 dólares (Ecuador)", value: "15usd_ecuador" },
-        { label: "20 dólares (Ecuador)", value: "20usd_ecuador" },
-        { label: "32 dólares (Ecuador)", value: "32usd_ecuador" },
+        { label: "8 dólares (Ecuador)", value: "8usd_ecuador" },
+        { label: "11 dólares (Ecuador)", value: "11usd_ecuador" },
+        { label: "16 dólares (Ecuador)", value: "16usd_ecuador" },
         { label: "50% descuento (Ecuador)", value: "50porciento_ecuador" },
 
         // 🇨🇱 Chile
-        { label: "14.280 (Chile)", value: "14280_chile" },
-        { label: "19.040 (Chile)", value: "19040_chile" },
+        { label: "6.600 (Chile)", value: "6600_chile" },
+        { label: "9.900 (Chile)", value: "9900_chile" },
+        { label: "13.900 (Chile)", value: "13900_chile" },
         { label: "1 mes gratis (Chile)", value: "gratis_chile" },
-        { label: "25% sobre plan actual (Chile)", value: "25porciento_chile" },
       ],
       showIf: { matriz_retencion: "descuentos_escalonados" },
     },
@@ -182,9 +180,6 @@ export const retencionesForm: FormConfig = {
         { label: "3", value: "3" },
         { label: "5", value: "5" },
         { label: "6", value: "6" },
-        { label: "9", value: "9" },
-        { label: "12", value: "12" },
-        { label: "12 (solo para 70 soles – Perú)", value: "12_peru_70" },
          ],
          showIf: { matriz_retencion: "descuentos_escalonados" },
     },

@@ -22,6 +22,8 @@ export default function AdminExportarPage() {
   const [registros, setRegistros] = useState<FormularioExport[]>([]);
   const [tipos, setTipos] = useState<string[]>([]);
   const [asesores, setAsesores] = useState<string[]>([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalDatos, setModalDatos] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/formularios/opciones")
@@ -51,20 +53,38 @@ export default function AdminExportarPage() {
       { header: "Tipo", key: "tipo", width: 20 },
       { header: "Asesor", key: "asesor", width: 20 },
       { header: "Fecha", key: "created_at", width: 25 },
-      { header: "Datos", key: "datos", width: 60 },
+      
+      { header: "Datos", key: "datos", width: 120 },
     ];
+
+    
     registros.forEach((r) => {
-      worksheet.addRow({
+      const datosStr = JSON.stringify(r.datos, null, 2);
+      const excelRow = worksheet.addRow({
         ...r,
-        datos: JSON.stringify(r.datos, null, 2),
+        created_at: new Date(r.created_at).toLocaleString(),
+        datos: datosStr,
       });
+
+      try {
+        const cell = excelRow.getCell('datos');
+        
+  cell.alignment = { wrapText: true, vertical: 'top' };
+  cell.font = { size: 10 };
+
+      
+        const lines = datosStr.split('\n').length || 1;
+        excelRow.height = Math.min(Math.max(lines * 15, 20), 800);
+      } catch {
+        
+      }
     });
     const buffer = await workbook.xlsx.writeBuffer()
     saveAs(new Blob([buffer]), `formularios-exportados-${new Date().toISOString().split('T')[0]}.xlsx`)
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-8">
+    <div className="w-full max-w-6xl mx-auto p-8">
       <div className="flex items-center gap-3 mb-8">
         <FileSpreadsheet className="w-10 h-10 text-blue-600" />
         <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">Exportar Formularios</h1>
@@ -109,7 +129,7 @@ export default function AdminExportarPage() {
         <div className="bg-gray-50 dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-300 dark:border-gray-700 mt-6">
           <h2 className="text-lg font-semibold mb-4 text-blue-700 dark:text-blue-300">Resultados ({registros.length})</h2>
           <div className="overflow-x-auto">
-            <table className="min-w-full border rounded-xl overflow-hidden">
+            <table className="min-w-full border rounded-xl overflow-hidden table-auto">
               <thead>
                 <tr className="bg-blue-600 dark:bg-blue-900 text-white">
                   <th className="border p-3 text-left">ID</th>
@@ -125,9 +145,23 @@ export default function AdminExportarPage() {
                     <td className="border p-3 font-semibold text-gray-800 dark:text-gray-100">{r.id}</td>
                     <td className="border p-3 text-blue-700 dark:text-blue-300">{r.tipo}</td>
                     <td className="border p-3 text-green-700 dark:text-green-300">{r.asesor}</td>
-                    <td className="border p-3 text-gray-700 dark:text-gray-200">{r.created_at}</td>
-                    <td className="border p-3 text-xs text-gray-700 dark:text-gray-200 whitespace-pre-wrap max-w-xs">
-                      {typeof r.datos === "object" ? JSON.stringify(r.datos, null, 2) : r.datos}
+                    <td className="border p-3 text-gray-700 dark:text-gray-200">{new Date(r.created_at).toLocaleString()}</td>
+                    <td className="border p-3 text-sm text-gray-700 dark:text-gray-200 align-top">
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => { setModalDatos(typeof r.datos === 'object' ? JSON.stringify(r.datos, null, 2) : String(r.datos)); setModalOpen(true); }}
+                            className="text-blue-600 hover:underline text-sm"
+                          >
+                            Ver datos
+                          </button>
+                          <span className="text-xs text-gray-500">(abrir en modal)</span>
+                        </div>
+                        <div className="max-w-4xl w-[min(70vw,64rem)]">
+                          <pre className="whitespace-pre-wrap break-words text-xs bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 p-3 rounded-md overflow-auto max-h-64">{typeof r.datos === "object" ? JSON.stringify(r.datos, null, 2) : String(r.datos)}</pre>
+                        </div>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -139,6 +173,33 @@ export default function AdminExportarPage() {
         <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-800 mt-6 text-center text-gray-500 dark:text-gray-400">
           <h2 className="text-lg font-semibold mb-4">No se encontraron resultados</h2>
           <p>Intenta cambiar los filtros o verifica los datos.</p>
+        </div>
+      )}
+      
+      {modalOpen && modalDatos && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-4xl max-h-[85vh] overflow-auto">
+            <div className="flex items-center justify-between p-4 border-b dark:border-gray-800">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Datos del formulario</h3>
+              <div className="flex items-center gap-2">
+                <button
+                  className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(modalDatos);
+                      
+                    } catch {
+                      
+                    }
+                  }}
+                >Copiar</button>
+                <button className="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded text-sm" onClick={() => { setModalOpen(false); setModalDatos(null); }}>Cerrar</button>
+              </div>
+            </div>
+            <div className="p-4">
+              <pre className="whitespace-pre-wrap break-words text-xs bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 p-3 rounded-md overflow-auto">{modalDatos}</pre>
+            </div>
+          </div>
         </div>
       )}
     </div>
