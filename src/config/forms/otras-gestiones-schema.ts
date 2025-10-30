@@ -1,8 +1,8 @@
 import { z } from "zod"
-import { correoSchema } from "@/lib/validation-schemas"
 
-export type OtrasGestionesFormData = {
+export type otrasGestionesFormData = {
   correo: string;
+  hora_inicio_gestion_info: string;
   hora_inicio_gestion: string;
   pais: string;
   san_cedula_nit: string;
@@ -12,13 +12,18 @@ export type OtrasGestionesFormData = {
   
 }
 
-export const otrasGestionesSchema = z.object({
-  correo: correoSchema,
+export const otrasGestionesFormSchema = z.object({
+  correo: z.string().min(1, "Campo obligatorio"),
+  hora_inicio_gestion_info: z.string().optional(),
   hora_inicio_gestion: z.string().min(1, "Campo obligatorio"),
-  pais: z.string().min(1, "País obligatorio"),
+  pais: z.string().min(1, "Campo obligatorio"),
   san_cedula_nit: z.string().min(1, "Campo obligatorio"),
   medio_contacto: z.string().min(1, "Campo obligatorio"),
   tipo_gestion: z.string().min(1, "Campo obligatorio"),
   observacion: z.string().min(1, "Campo obligatorio"),
-  
-});
+
+
+
+
+})
+export const otrasGestionesSchema = otrasGestionesFormSchema

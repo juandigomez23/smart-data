@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { FormConfig } from "@/components/formgenerator"
 
@@ -26,6 +26,7 @@ export default function AdminFormEditorPage() {
   const [files, setFiles] = useState<{ filename: string; title?: string }[]>([])
   const [selected, setSelected] = useState<string | null>(null)
   const [config, setConfig] = useState<FormConfig | null>(null)
+  const originalRequired = useRef<Set<string>>(new Set())
   const [status, setStatus] = useState<string | null>(null)
   const [statusType, setStatusType] = useState<'idle' | 'saving' | 'success' | 'error'>('idle')
 
@@ -76,6 +77,32 @@ export default function AdminFormEditorPage() {
       })
   }, [selected])
 
+  // collect required fields from a config (including nested conditional fields)
+  function collectRequired(cfg: FormConfig | null) {
+    const set = new Set<string>()
+    if (!cfg) return set
+    function walk(fields: EditorField[] | undefined) {
+      if (!fields) return
+      for (const f of fields) {
+        if (f && f.name && f.required) set.add(String(f.name))
+        if (Array.isArray(f.conditionalFields)) {
+          for (const c of f.conditionalFields) walk(c.fields as EditorField[])
+        }
+      }
+    }
+    walk((cfg.fields || []) as EditorField[])
+    return set
+  }
+
+  // keep original required set when config is loaded
+  useEffect(() => {
+    if (config) {
+      originalRequired.current = collectRequired(config)
+    } else {
+      originalRequired.current = new Set()
+    }
+  }, [config])
+
   // legacy index-based updater removed in favor of name-based updates to
   // correctly handle nested/conditional fields without duplication.
 
@@ -120,6 +147,8 @@ export default function AdminFormEditorPage() {
 
     function walk(fields: EditorField[], parentConditional?: string) {
       for (const f of fields) {
+        // Skip informational-only fields in the editor list
+        if (f.type === "info") continue
         const existing = map.get(f.name)
         if (!existing) {
           map.set(f.name, { field: f, meta: { conditionalParents: parentConditional ? [parentConditional] : [] } })
@@ -174,6 +203,68 @@ export default function AdminFormEditorPage() {
     setConfig(clone)
   }
 
+  // Move a top-level field up or down in the `config.fields` array. If the
+  // field is not a top-level field (e.g. only appears nested under conditionals)
+  // this is a no-op. This allows placing newly added fields at the desired
+  // position without reordering nested conditional groups.
+  function moveField(name: string, dir: 'up' | 'down', meta?: { conditionalParents?: string[] }) {
+    if (!config) return
+    const clone = JSON.parse(JSON.stringify(config)) as FormConfig
+    const arr = clone.fields || []
+
+    // try top-level first
+    const idx = arr.findIndex((f) => String(f.name) === name)
+    if (idx !== -1) {
+      const swap = dir === 'up' ? idx - 1 : idx + 1
+      if (swap < 0 || swap >= arr.length) return
+      const tmp = arr[swap]
+      arr[swap] = arr[idx]
+      arr[idx] = tmp
+      setConfig(clone)
+      return
+    }
+
+    // not top-level: find nested parent and remove the field from its location
+    let removed: EditorField | null = null
+    function recurseRemove(fields: EditorField[]): boolean {
+      for (let i = 0; i < fields.length; i++) {
+        const f = fields[i]
+        if (f.name === name) {
+          removed = fields.splice(i, 1)[0]
+          return true
+        }
+        if (Array.isArray(f.conditionalFields)) {
+          for (const cond of f.conditionalFields) {
+            if (recurseRemove(cond.fields)) return true
+          }
+        }
+      }
+      return false
+    }
+
+    recurseRemove((clone.fields || []) as EditorField[])
+    if (!removed) return
+
+    // decide insertion point in top-level array
+    let insertAt = dir === 'up' ? 0 : arr.length
+    try {
+      const cp = meta?.conditionalParents && meta.conditionalParents.length > 0 ? meta.conditionalParents[0] : undefined
+      if (cp) {
+        const parentName = String(cp).split('=')[0]
+        const parentIdx = arr.findIndex((f) => f.name === parentName)
+        if (parentIdx !== -1) {
+          insertAt = dir === 'up' ? parentIdx : parentIdx + 1
+        }
+      }
+    } catch {
+      // ignore parse errors, keep default insertAt
+    }
+
+    // insert removed field into top-level
+    arr.splice(insertAt, 0, removed)
+    setConfig(clone)
+  }
+
   // Drag & drop and index-based remove are intentionally removed for the
   // flattened editor view to avoid ambiguous reordering of nested fields.
 
@@ -182,23 +273,40 @@ export default function AdminFormEditorPage() {
     setStatus("Guardando...")
     setStatusType('saving')
     try {
+      // compute schema patches: only fields whose `required` flag changed
+      const currentReq = collectRequired(config)
+      const origReq = originalRequired.current || new Set<string>()
+      const setRequired: string[] = []
+      const unsetRequired: string[] = []
+      for (const name of currentReq) if (!origReq.has(name)) setRequired.push(name)
+      for (const name of origReq) if (!currentReq.has(name)) unsetRequired.push(name)
+
+  const bodyPayload: Record<string, unknown> = { filename: selected, config, generateSchema: false }
+      if (setRequired.length || unsetRequired.length) {
+        bodyPayload.schemaPatches = { setRequired, unsetRequired }
+      }
+
       const res = await fetch("/api/forms/update", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ filename: selected, config }),
+        body: JSON.stringify(bodyPayload),
       })
-      if (!res.ok) {
-        try {
-          const j = await res.json()
-          const msg = j?.error || j?.message || JSON.stringify(j)
-          setStatus("Error: " + msg)
-        } catch {
-          const txt = await res.text()
-          setStatus("Error: " + txt)
-        }
+      const result = await res.json()
+      if (!res.ok || !result || result.success !== true) {
+        const msg = result?.error || result?.message || JSON.stringify(result)
+        setStatus("Error: " + msg)
         setStatusType('error')
         return
       }
+
+      // If backend indicates TS wasn't written, surface an error so you can
+      // see the issue immediately (we still may have written the JSON mirror).
+      if (!result.wroteTs) {
+        setStatus("Error: no se actualizó el archivo .ts (solo JSON)")
+        setStatusType('error')
+        return
+      }
+
       setStatus("Guardado correctamente")
       setStatusType('success')
       setTimeout(() => {
@@ -314,11 +422,15 @@ export default function AdminFormEditorPage() {
                                     <option value="info">Info</option>
                                     <option value="time">Hora</option>
                                   </select>
-                                  <label className="inline-flex items-center text-sm">
-                                    <input type="checkbox" checked={!!field.required} onChange={(e) => updateFieldByName(field.name, { required: e.target.checked })} className="form-checkbox h-4 w-4 text-blue-600" />
-                                    <span className="ml-2 text-xs text-gray-700">Oblig.</span>
-                                  </label>
-                                  <Button size="sm" variant="destructive" onClick={() => removeFieldByName(field.name)}>Eliminar</Button>
+                                  <div className="flex items-center gap-1">
+                                    <Button size="sm" variant="ghost" onClick={() => moveField(field.name, 'up', (field as unknown as { _meta?: { conditionalParents?: string[] } })._meta)} title="Mover arriba">↑</Button>
+                                    <Button size="sm" variant="ghost" onClick={() => moveField(field.name, 'down', (field as unknown as { _meta?: { conditionalParents?: string[] } })._meta)} title="Mover abajo">↓</Button>
+                                    <label className="inline-flex items-center text-sm">
+                                      <input type="checkbox" checked={!!field.required} onChange={(e) => updateFieldByName(field.name, { required: e.target.checked })} className="form-checkbox h-4 w-4 text-blue-600" />
+                                      <span className="ml-2 text-xs text-gray-700">Oblig.</span>
+                                    </label>
+                                    <Button size="sm" variant="destructive" onClick={() => removeFieldByName(field.name)}>Eliminar</Button>
+                                  </div>
                                 </div>
                               </div>
 

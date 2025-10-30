@@ -15,6 +15,7 @@ interface Asesor {
   ultimoAcceso: string
   formulariosCompletados: number
   eficiencia: number
+  completadosHoy?: number
   formularios_permitidos?: string[]
 }
 
@@ -77,12 +78,16 @@ export default function AdminDashboardPage() {
     datos: Record<string, unknown>;
     created_at: string;
   }
-  const asesoresConEficienciaDiaria = asesores.map(asesor => {
+  // Excluir roles administrativos (administrador / admin / owner) en la vista de gestión
+  const _excludedRoles = new Set(['administrador', 'admin', 'owner'])
+  const asesoresVisibles = asesores.filter(a => !_excludedRoles.has(String(a.rol)))
+
+  const asesoresConEficienciaDiaria = asesoresVisibles.map(asesor => {
     const completadosHoy = (formulariosHoy as Formulario[]).filter(f => f.asesor === asesor.nombre).length
     const eficienciaDiaria = Math.min(Math.round((completadosHoy / 45) * 100), 100)
-    return { ...asesor, eficiencia: eficienciaDiaria }
+    
+    return { ...asesor, eficiencia: eficienciaDiaria, completadosHoy }
   })
-
   const asesoresOrdenados = [...asesoresConEficienciaDiaria].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' }));
 
   const asesoresFiltrados = asesoresOrdenados.filter(asesor => {
@@ -325,7 +330,7 @@ const VistaGestionAsesores: React.FC<VistaGestionAsesoresProps> = ({
 
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {asesores.map((asesor) => (
+    {asesores.map((asesor) => (
           <div key={asesor.id} className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 border border-blue-200 dark:border-blue-700 flex flex-col gap-4 hover:shadow-2xl transition-transform duration-200">
             {/* Avatar y nombre */}
             <div className="flex items-center gap-4 mb-2">
@@ -360,13 +365,14 @@ const VistaGestionAsesores: React.FC<VistaGestionAsesoresProps> = ({
             
             <div className="flex items-center gap-3 mb-2">
               <span className="text-xs text-gray-800 dark:text-blue-200">Eficiencia</span>
-              <div className="flex-1 h-3 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-                <div
-                  className="h-3 rounded-full bg-gradient-to-r from-green-400 to-blue-500"
-                  style={{ width: `${asesor.eficiencia}%` }}
-                ></div>
-              </div>
-              <span className="text-xs font-bold text-green-700 dark:text-green-200">{asesor.eficiencia}%</span>
+                <div className="flex-1 h-3 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+                  <div
+                    className="h-3 rounded-full bg-gradient-to-r from-green-400 to-blue-500"
+                    // map completadosHoy to percentage visual over a baseline of 45 (capped at 100%)
+                    style={{ width: `${Math.min(((asesor.completadosHoy ?? 0) / 45) * 100, 100)}%` }}
+                  ></div>
+                </div>
+                <span className="text-xs font-bold text-green-700 dark:text-green-200">{asesor.completadosHoy ?? 0} formularios</span>
             </div>
             
             {asesor.formularios_permitidos && asesor.formularios_permitidos.length > 0 && (

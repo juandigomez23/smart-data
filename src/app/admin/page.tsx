@@ -1,6 +1,6 @@
 "use client"
 
-import { Users, FileText, Moon, Sun, Trash2, Search, Filter, ChevronLeft, ChevronRight, IdCard} from "lucide-react"
+import { Users, Moon, Sun, Trash2, Search, Filter, ChevronLeft, ChevronRight, IdCard} from "lucide-react"
 import { useTheme } from "next-themes"
 import { useState, useMemo, useEffect, useCallback } from "react"
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, Cell } from "recharts"
@@ -225,15 +225,6 @@ export default function AdminDashboardPage() {
   }, [fechaFiltroChart])
 
   
-  const esHoyLocal = useCallback((fechaStr: string) => {
-    const fecha = new Date(fechaStr);
-    const hoy = new Date();
-    return fecha.getFullYear() === hoy.getFullYear() &&
-      fecha.getMonth() === hoy.getMonth() &&
-      fecha.getDate() === hoy.getDate();
-  }, [])
-
-  
   const { data: asesoresData } = useSWR("/api/asesores", fetcher);
   const asesoresTodos = useMemo(() => {
     if (!asesoresData?.success) return [];
@@ -261,10 +252,10 @@ export default function AdminDashboardPage() {
   const actividadHoy = useMemo(() =>
     [...asesoresSolo.map(asesor => {
       const gestionesHoy = registros.filter(r => r.asesor === asesor.nombre && esFechaFiltroChart(r.created_at)).length;
-    
+      
       let color = "bg-red-500";
-      if (gestionesHoy >= 45) color = "bg-green-500";
-      else if (gestionesHoy >= 25) color = "bg-orange-400";
+      if (gestionesHoy >= 40) color = "bg-green-500";
+      else if (gestionesHoy >= 20) color = "bg-orange-400";
       return { asesor: asesor.nombre, gestionesHoy, color, id: asesor.id };
     })].sort((a, b) => a.asesor.localeCompare(b.asesor, 'es', { sensitivity: 'base' })),
     [registros, asesoresSolo, esFechaFiltroChart]
@@ -345,18 +336,12 @@ export default function AdminDashboardPage() {
       <div className="bg-[#38435c] rounded-2xl shadow-lg p-8 flex flex-col items-center border border-[#1e293b]">
         <Users className="w-10 h-10 text-white mb-2" />
         <span className="text-4xl font-extrabold text-white">
-          {asesoresTodos.length}
+          {asesoresSolo.length}
         </span>
         <span className="text-base text-white/80 mt-2">Total asesores</span>
       </div>
 
-      <div className="bg-[#4ea86f] rounded-2xl shadow-lg p-8 flex flex-col items-center border border-[#166534]">
-        <FileText className="w-10 h-10 text-white mb-2" />
-        <span className="text-4xl font-extrabold text-white">
-          {registros.filter(r => esHoyLocal(r.created_at)).length}
-        </span>
-        <span className="text-base text-white/80 mt-2">Formularios hoy</span>
-      </div>
+     
     </div>
 
    
@@ -442,11 +427,12 @@ export default function AdminDashboardPage() {
     <BarChart data={asesorFiltroChart ? actividadHoy.filter(a => a.asesor === asesorFiltroChart) : actividadHoy} layout="vertical" margin={{ top: 20, right: 40, left: 0, bottom: 20 }} barCategoryGap={20}>
             <XAxis
               type="number"
-              domain={[0, 45]}
+              // Escala extendida hasta 100 y ticks intermedios para facilitar lectura
+              domain={[0, 100]}
               tick={{ fontSize: 16 }}
               axisLine={false}
               interval={0}
-              ticks={[0,5,10,15,20,25,30,35,40,45]}
+              ticks={[0, 15, 30, 45, 90]}
             />
             <YAxis
               dataKey="asesor"
@@ -538,11 +524,11 @@ export default function AdminDashboardPage() {
             </defs>
           </BarChart>
         </ResponsiveContainer>
-        <div className="flex justify-end mt-4 text-base text-gray-500 dark:text-gray-400 gap-6">
-          <span className="inline-flex items-center"><span className="inline-block w-4 h-4 rounded bg-[#22c55e] mr-2"></span>Alto (36-45)</span>
-          <span className="inline-flex items-center"><span className="inline-block w-4 h-4 rounded bg-[#f59e42] mr-2"></span>Medio (26-35)</span>
-          <span className="inline-flex items-center"><span className="inline-block w-4 h-4 rounded bg-[#ef4444] mr-2"></span>Bajo (≤25)</span>
-        </div>
+          <div className="flex justify-end mt-4 text-base text-gray-500 dark:text-gray-400 gap-6">
+            <span className="inline-flex items-center"><span className="inline-block w-4 h-4 rounded bg-[#22c55e] mr-2"></span>Alto (&gt;=50)</span>
+            <span className="inline-flex items-center"><span className="inline-block w-4 h-4 rounded bg-[#f59e42] mr-2"></span>Medio (20–50)</span>
+            <span className="inline-flex items-center"><span className="inline-block w-4 h-4 rounded bg-[#ef4444] mr-2"></span>Bajo (&lt;20)</span>
+          </div>
       </div>
 
 

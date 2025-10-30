@@ -1,26 +1,13 @@
 "use client"
 
-import { z } from "zod"
 import Image from "next/image"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useState, useEffect } from "react"
+import { useEffect } from "react"
 import { signIn, useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 
-const loginSchema = z.object({
-  username: z.string().min(3, "El usuario es obligatorio"),
-  password: z.string().min(3, "La contraseña debe tener al menos 3 caracteres"),
-})
-
-type LoginForm = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>({
-    resolver: zodResolver(loginSchema),
-  });
+  // Manual credential login UI is disabled; only Google sign-in is allowed.
 
   const { status } = useSession()
   const router = useRouter()
@@ -32,32 +19,7 @@ export default function LoginPage() {
     }
   }, [status, router])
 
-  const onSubmit = async (data: LoginForm) => {
-    setLoading(true);
-    setError("");
-    try {
-      const res = await signIn("credentials", { ...data, redirect: false });
-      if (res?.error) throw new Error("Credenciales incorrectas");
-
-      const sessionRes = await fetch("/api/auth/session");
-      const session = await sessionRes.json();
-      const role = session?.user?.role;
-
-      if (role === "admin") {
-        router.push("/admin");
-      } else {
-        router.push("/asesor");
-      }
-    } catch (e: unknown) {
-      if (e instanceof Error) {
-        setError(e.message || "Error al iniciar sesión");
-      } else {
-        setError("Error al iniciar sesión");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+  // onSubmit removed because manual credential login is disabled
 
   if (status === "loading") {
     return (
@@ -93,7 +55,7 @@ export default function LoginPage() {
           Iniciar Sesión
         </h1>
         <p className="text-sm text-gray-500 mb-6 text-center">
-          Accede con tu cuenta corporativa o con tus credenciales
+          Accede con tu cuenta corporativa (Google). El inicio con usuario/contraseña está deshabilitado — usa tu correo corporativo.
         </p>
 
         {/* 🔹 Botón de login con Google */}
@@ -142,22 +104,21 @@ export default function LoginPage() {
           <hr className="flex-1 border-t border-gray-200" />
         </div>
 
-        {/* 🔹 Formulario manual (opcional) */}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-7 w-full">
+        {/* 🔹 Formulario manual deshabilitado - usar correo (Google) */}
+        <form className="space-y-7 w-full">
           <div>
             <label className="block mb-2 font-semibold text-blue-800 text-lg">
               Usuario
             </label>
             <input
               type="text"
-              {...register("username")}
-              className="border border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg w-full p-3 text-gray-900 bg-white placeholder-gray-400 font-medium text-base transition"
-              placeholder="Usuario"
+              name="username"
+              disabled
+              readOnly
+              className="border border-blue-200 rounded-lg w-full p-3 text-gray-400 bg-gray-100 placeholder-gray-300 font-medium text-base transition cursor-not-allowed"
+              placeholder="Deshabilitado"
               autoComplete="username"
             />
-            {errors.username && (
-              <p className="text-red-600 text-sm mt-2">{errors.username.message}</p>
-            )}
           </div>
 
           <div>
@@ -166,28 +127,24 @@ export default function LoginPage() {
             </label>
             <input
               type="password"
-              {...register("password")}
-              className="border border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg w-full p-3 text-gray-900 bg-white placeholder-gray-400 font-medium text-base transition"
-              placeholder="Contraseña"
+              name="password"
+              disabled
+              readOnly
+              className="border border-blue-200 rounded-lg w-full p-3 text-gray-400 bg-gray-100 placeholder-gray-300 font-medium text-base transition cursor-not-allowed"
+              placeholder="Deshabilitado"
               autoComplete="current-password"
             />
-            {errors.password && (
-              <p className="text-red-600 text-sm mt-2">{errors.password.message}</p>
-            )}
           </div>
 
-          {error && (
-            <p className="text-red-600 text-center text-base font-semibold mt-2">
-              {error}
-            </p>
-          )}
+          <p className="text-xs text-gray-500">El inicio con usuario y contraseña fue bloqueado. Utiliza &quot;Iniciar con Google&quot; con tu correo corporativo <strong>@bambubpo.com</strong>.</p>
 
           <button
-            type="submit"
-            className="w-full py-3 rounded-lg bg-blue-700 hover:bg-blue-800 text-white font-bold text-lg shadow-lg transition disabled:opacity-60 disabled:cursor-not-allowed"
-            disabled={loading}
+            type="button"
+            className="w-full py-3 rounded-lg bg-gray-300 text-gray-700 font-bold text-lg shadow transition cursor-not-allowed"
+            disabled
+            aria-disabled
           >
-            {loading ? "Ingresando..." : "Ingresar"}
+            Inicio manual deshabilitado
           </button>
         </form>
       </div>
