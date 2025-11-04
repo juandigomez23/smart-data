@@ -21,9 +21,10 @@ export default function HistorialPage() {
   const { data: session } = useSession();
   const [fechaDesde, setFechaDesde] = useState("");
   const [fechaHasta, setFechaHasta] = useState("");
+  const [tipo, setTipo] = useState("");
 
   const query = session?.user?.id
-    ? `/api/asesores/${session.user.id}/historial?fechaDesde=${fechaDesde}&fechaHasta=${fechaHasta}`
+    ? `/api/asesores/${session.user.id}/historial?fechaDesde=${fechaDesde}&fechaHasta=${fechaHasta}${tipo ? `&tipo=${encodeURIComponent(tipo)}` : ''}`
     : null;
   const { data: historial } = useSWR(query, fetcher);
 
@@ -53,6 +54,29 @@ export default function HistorialPage() {
             <input type="date" value={fechaHasta} onChange={e => setFechaHasta(e.target.value)} className="ml-2 px-2 py-1 rounded border border-gray-300" />
           </label>
         </form>
+        {/* Mostrar cantidad de resultados cuando la API respondió */}
+        {historial && (
+          <div className="mb-4 text-center space-y-2">
+            <div>
+              <label className="text-sm text-gray-700 mr-2">Tipo:</label>
+              <select value={tipo} onChange={e => setTipo(e.target.value)} className="px-2 py-1 rounded border border-gray-300">
+                <option value="">(Todos)</option>
+                <option value="retenciones">Retenciones</option>
+                <option value="gestion-fcr">Gestion FCR</option>
+                <option value="welcome">Welcome</option>
+                <option value="rechazo-debito">Rechazo débito</option>
+                <option value="otras-gestiones">Otras gestiones</option>
+                <option value="equipo-comercial">Equipo comercial</option>
+                <option value="auditoria-prewelcome">Auditoría prewelcome</option>
+              </select>
+            </div>
+            <div>
+              <span className="inline-block bg-blue-50 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold shadow-sm">
+                Resultados: {typeof historial.total === 'number' ? historial.total : (Array.isArray(historial.data) ? historial.data.length : gestiones.length)}
+              </span>
+            </div>
+          </div>
+        )}
         {gestiones.length === 0 ? (
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-8 text-center">
             <p className="text-gray-600 dark:text-gray-400 text-lg">No tienes historial de gestiones aún.</p>

@@ -197,11 +197,12 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
     }
 
     
-    const visibleRequiredFields = getVisibleRequiredFields(config.fields, data);
-    const requiredVisibleFieldNames = visibleRequiredFields.map(f => f.name);
+  const allValues = getValues();
 
-    
-    const valid = await trigger(requiredVisibleFieldNames);
+  const visibleRequiredFields = getVisibleRequiredFields(config.fields, allValues);
+  const requiredVisibleFieldNames = visibleRequiredFields.map(f => f.name);
+
+  const valid = await trigger(requiredVisibleFieldNames);
     if (!valid) {
      
       const errorKeys = Object.keys(formState.errors || {});
@@ -216,26 +217,24 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
 
       setMessage({ text: msg, type: "error" });
 
-      // Try to focus/scroll to the first missing field if it's present in the DOM
+      
       try {
         const first = missing[0];
         if (first) {
-          const el = document.querySelector(`[name=\"${first}\"]`) as HTMLElement | null;
+          const el = document.querySelector(`[name="${first}"]`) as HTMLElement | null;
           if (el && typeof el.focus === "function") {
             el.focus();
             el.scrollIntoView({ behavior: "smooth", block: "center" });
           }
         }
       } catch {
-        // ignore
+       
       }
 
       return;
     }
 
     
-  
-    const allValues = getValues();
  
     const filteredDatos: Record<string, unknown> = {};
 
@@ -263,8 +262,7 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
 
           let selectedLabels: string[] = []
 
-          // Case 1: react-hook-form returns an array of selected values for
-          // checkbox groups registered with the same name -> ['a','b']
+          
           if (Array.isArray(v)) {
             selectedLabels = v.map(val => String(val)).map(val => {
               const optLabel = field.options?.find(o => o.value === val)?.label
@@ -272,7 +270,7 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
             })
           }
 
-          // Case 2: older approach or nested names -> object { opt: true }
+         
           else if (v && typeof v === 'object') {
             selectedLabels = Object.entries(v as Record<string, unknown>)
               .filter(([, val]) => val === true || String(val) === "true")
@@ -283,10 +281,10 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
               })
           }
 
-          // Case 3: single checkbox registered with field.name -> boolean
+         
           else if (typeof v === 'boolean') {
             if (v) {
-              // prefer an option label if provided and there's a single option
+              
               if (field.options && field.options.length === 1) selectedLabels = [field.options[0].label]
               else selectedLabels = [typeof field.label === 'function' ? String(field.label({ values: allValues })) : String(field.label)]
             }
@@ -318,7 +316,7 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
           }
         }
 
-        // Recurse into conditional fields when their parent value matches
+        
         if (field.conditionalFields) {
           for (const cond of field.conditionalFields) {
             if (allValues[field.name] === cond.condition.value) {
@@ -344,9 +342,11 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
 
      
       try {
-        console.info("[FormGenerator] Enviando formulario", { tipo: tipoFormulario, datos: filteredDatos, raw: getValues() });
+        if (process.env.NODE_ENV === 'development') {
+          console.info("[FormGenerator] Enviando formulario", { tipo: tipoFormulario, datos: filteredDatos, raw: getValues() });
+        }
       } catch {
-        // ignore logging errors
+       
       }
 
       const res = await fetch("/api/formularios", {
@@ -361,7 +361,7 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
         const correoActual = data.correo as string;
         reset();
 
-        // restore auto fields (correo) after reset
+        
         config.fields.forEach(field => {
           if (field.auto && field.name === "correo" && (correoActual || asesorEmail)) {
             setValue(field.name, correoActual || asesorEmail);
@@ -371,28 +371,17 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
         throw new Error(json.error || "Error al guardar")
       }
     } catch (error) {
-      setMessage({ text: error instanceof Error ? `❌ ${error.message}` : "⚠️ Error desconocido", type: "error" })
+      setMessage({ text: error instanceof Error ? `❌ ${error.message}` : "Error desconocido", type: "error" })
     } finally {
       setLoading(false)
     }
   }
 
   if (cargando) return <p className="text-gray-500">Cargando sesión...</p>
-  if (!autenticado) return <p className="text-red-600">⚠️ Debes iniciar sesión para usar el formulario</p>
+  if (!autenticado) return <p className="text-red-600">Debes iniciar sesión para usar el formulario</p>
 
   return (
-    <div
-      className="min-h-screen py-12 px-2 flex items-center justify-center"
-      style={{
-        backgroundImage: 'url(/Fondo.jpg)',
-        // Use the same tiling used in app layouts to avoid the background
-        // appearing 'zoomed' for certain forms (e.g. auditoria-prewelcome).
-        // Using `auto` + `repeat` preserves the original pattern scale.
-        backgroundSize: 'auto',
-        backgroundPosition: 'top left',
-        backgroundRepeat: 'repeat',
-      }}
-    >
+    <div className="min-h-screen py-12 px-2 flex items-center justify-center">
       <div className="w-full max-w-2xl mx-auto bg-gradient-to-br from-white via-blue-50 to-blue-100 rounded-2xl shadow-2xl border border-blue-200 p-10">
     <div className="flex flex-col items-center mb-6">
       <div className="mb-4">
@@ -506,9 +495,7 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
                 </div>
               </div>
             ) : (
-              // For checkbox fields we avoid rendering the generic <label> here because
-              // the checkbox group renders its own heading. We still show the
-              // description (if any) alongside the checkbox group.
+              
               field.type === "checkbox" ? (
                 <>
                   {field.description && <p className="text-xs text-gray-500 mb-2">{field.description}</p>}

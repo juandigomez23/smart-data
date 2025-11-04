@@ -1,25 +1,23 @@
 "use client"
 
-import Image from "next/image"
+
 import { useEffect } from "react"
 import { signIn, useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 
 
 export default function LoginPage() {
-  // Manual credential login UI is disabled; only Google sign-in is allowed.
+
 
   const { status } = useSession()
   const router = useRouter()
 
-  // ✅ Si ya está logueado, lo manda al dashboard
   useEffect(() => {
     if (status === "authenticated") {
       router.push("/session")
     }
   }, [status, router])
 
-  // onSubmit removed because manual credential login is disabled
 
   if (status === "loading") {
     return (
@@ -40,13 +38,23 @@ export default function LoginPage() {
       }}
     >
       <div className="mb-10 mt-8 flex justify-center">
-        <Image
-          src="/bambubpo.png"
-          alt="Logo Smart Data"
-          width={224}
-          height={80}
-          style={{ height: 'auto', width: '14rem' }}
-          priority
+        <div
+          role="img"
+          aria-label="Logo Smart Data"
+          className="block"
+          style={{
+            width: 224,
+            height: 80,
+            backgroundColor: '#000',
+            WebkitMaskImage: 'url(/bambubpo.png)',
+            WebkitMaskSize: 'contain',
+            WebkitMaskRepeat: 'no-repeat',
+            WebkitMaskPosition: 'center',
+            maskImage: 'url(/bambubpo.png)',
+            maskSize: 'contain',
+            maskRepeat: 'no-repeat',
+            maskPosition: 'center',
+          }}
         />
       </div>
 
@@ -58,7 +66,6 @@ export default function LoginPage() {
           Accede con tu cuenta corporativa (Google). El inicio con usuario/contraseña está deshabilitado — usa tu correo corporativo.
         </p>
 
-        {/* 🔹 Botón de login con Google */}
         <div className="w-full">
           <button
             type="button"
@@ -93,7 +100,7 @@ export default function LoginPage() {
               />
             </svg>
             <span className="text-sm font-medium text-gray-700">
-              Iniciar con Google
+              Iniciar sesión con Google
             </span>
           </button>
         </div>
@@ -104,7 +111,6 @@ export default function LoginPage() {
           <hr className="flex-1 border-t border-gray-200" />
         </div>
 
-        {/* 🔹 Formulario manual deshabilitado - usar correo (Google) */}
         <form className="space-y-7 w-full">
           <div>
             <label className="block mb-2 font-semibold text-blue-800 text-lg">

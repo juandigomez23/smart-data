@@ -77,7 +77,7 @@ export default function AdminFormEditorPage() {
       })
   }, [selected])
 
-  // collect required fields from a config (including nested conditional fields)
+
   function collectRequired(cfg: FormConfig | null) {
     const set = new Set<string>()
     if (!cfg) return set
@@ -94,7 +94,7 @@ export default function AdminFormEditorPage() {
     return set
   }
 
-  // keep original required set when config is loaded
+
   useEffect(() => {
     if (config) {
       originalRequired.current = collectRequired(config)
@@ -103,8 +103,7 @@ export default function AdminFormEditorPage() {
     }
   }, [config])
 
-  // legacy index-based updater removed in favor of name-based updates to
-  // correctly handle nested/conditional fields without duplication.
+
 
   function addField() {
     const f = { name: `field_${Date.now()}`, label: "Nuevo campo", type: "text" } as FormConfig["fields"][number]
@@ -114,7 +113,7 @@ export default function AdminFormEditorPage() {
     })
   }
 
-  // Recursively find and update a field by name (searches nested conditionalFields too)
+ 
   function updateFieldByName(name: string, patch: Partial<Field>) {
     if (!config) return
     const clone = JSON.parse(JSON.stringify(config)) as FormConfig
@@ -139,15 +138,13 @@ export default function AdminFormEditorPage() {
     setConfig(clone)
   }
 
-  // Build a flattened, deduplicated list of fields for the editor UI. If a field
-  // appears in multiple places (top-level and conditional), we show it once and
-  // indicate that it's conditional via the `meta.conditionalParents` array.
+  
   function getFlattenedFields(cfg: FormConfig) {
     const map = new Map<string, { field: EditorField; meta: { conditionalParents: string[] } }>()
 
     function walk(fields: EditorField[], parentConditional?: string) {
       for (const f of fields) {
-        // Skip informational-only fields in the editor list
+       
         if (f.type === "info") continue
         const existing = map.get(f.name)
         if (!existing) {
@@ -176,7 +173,7 @@ export default function AdminFormEditorPage() {
     return Array.from(map.values()).map(v => ({ ...v.field, _meta: v.meta }))
   }
 
-  // Remove a field by name from the config (searches nested conditionalFields as well)
+
   function removeFieldByName(name: string) {
     if (!config) return
     const clone = JSON.parse(JSON.stringify(config)) as FormConfig
@@ -203,16 +200,12 @@ export default function AdminFormEditorPage() {
     setConfig(clone)
   }
 
-  // Move a top-level field up or down in the `config.fields` array. If the
-  // field is not a top-level field (e.g. only appears nested under conditionals)
-  // this is a no-op. This allows placing newly added fields at the desired
-  // position without reordering nested conditional groups.
+
   function moveField(name: string, dir: 'up' | 'down', meta?: { conditionalParents?: string[] }) {
     if (!config) return
     const clone = JSON.parse(JSON.stringify(config)) as FormConfig
     const arr = clone.fields || []
 
-    // try top-level first
     const idx = arr.findIndex((f) => String(f.name) === name)
     if (idx !== -1) {
       const swap = dir === 'up' ? idx - 1 : idx + 1
@@ -224,7 +217,7 @@ export default function AdminFormEditorPage() {
       return
     }
 
-    // not top-level: find nested parent and remove the field from its location
+
     let removed: EditorField | null = null
     function recurseRemove(fields: EditorField[]): boolean {
       for (let i = 0; i < fields.length; i++) {
@@ -245,7 +238,6 @@ export default function AdminFormEditorPage() {
     recurseRemove((clone.fields || []) as EditorField[])
     if (!removed) return
 
-    // decide insertion point in top-level array
     let insertAt = dir === 'up' ? 0 : arr.length
     try {
       const cp = meta?.conditionalParents && meta.conditionalParents.length > 0 ? meta.conditionalParents[0] : undefined
@@ -257,23 +249,18 @@ export default function AdminFormEditorPage() {
         }
       }
     } catch {
-      // ignore parse errors, keep default insertAt
     }
 
-    // insert removed field into top-level
     arr.splice(insertAt, 0, removed)
     setConfig(clone)
   }
 
-  // Drag & drop and index-based remove are intentionally removed for the
-  // flattened editor view to avoid ambiguous reordering of nested fields.
 
   async function save() {
     if (!selected || !config) return
     setStatus("Guardando...")
     setStatusType('saving')
     try {
-      // compute schema patches: only fields whose `required` flag changed
       const currentReq = collectRequired(config)
       const origReq = originalRequired.current || new Set<string>()
       const setRequired: string[] = []
@@ -299,8 +286,6 @@ export default function AdminFormEditorPage() {
         return
       }
 
-      // If backend indicates TS wasn't written, surface an error so you can
-      // see the issue immediately (we still may have written the JSON mirror).
       if (!result.wroteTs) {
         setStatus("Error: no se actualizó el archivo .ts (solo JSON)")
         setStatusType('error')

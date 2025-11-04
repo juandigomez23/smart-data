@@ -3,7 +3,7 @@ import pool from "@/lib/db";
 import { getServerSession } from "next-auth";
 import authOptions from "@/lib/authOptions";
 
-// 🟢 Crear formulario
+
 export async function POST(req: Request) {
   try {
   const session = await getServerSession(authOptions);
@@ -19,9 +19,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { tipo, datos } = body;
 
-    // Ensure tipo is provided and datos is an object (can be empty). This avoids
-    // rejecting valid submissions where the client intentionally sends an empty
-    // datos object for certain conditional branches.
+   
     if (!tipo || typeof datos !== "object" || datos === null) {
       return NextResponse.json(
         { success: false, error: "Campos obligatorios faltantes o formato inválido" },
@@ -29,26 +27,26 @@ export async function POST(req: Request) {
       );
     }
 
-    // Log a brief summary for diagnostics: tipo, asesor id and number of keys.
-    // Avoid printing raw PII (we log keys and a small sample only).
+    
     try {
       const keys = Object.keys(datos || {});
-      console.info(`[api/formularios] received tipo=${tipo} asesor=${user?.id ?? 'unknown'} datosKeys=${keys.join(',')} (count=${keys.length})`);
+      if (process.env.NODE_ENV === 'development') {
+        console.info(`[api/formularios] received tipo=${tipo} asesor=${user?.id ?? 'unknown'} datosKeys=${keys.join(',')} (count=${keys.length})`);
+      }
     } catch {
-      // ignore logging errors
+     
     }
 
     let asesorId: number | null = null;
     const asesorNombre: string = user.name ?? "";
 
-    // Asignar asesor_id siempre que el usuario tenga un id válido en la sesión.
-    // Antes dependíamos del role === 'asesor' y eso dejaba formularios sin asesor_id.
+   
     if (user?.id) {
       const idNum = Number(user.id);
       if (!isNaN(idNum)) asesorId = idNum;
     }
 
-    // 🔹 Insertar el formulario
+    
     const result = await pool.query(
       `INSERT INTO public.formularios (tipo, asesor_id, asesor_nombre, datos) 
        VALUES ($1, $2, $3, $4) 
@@ -56,7 +54,7 @@ export async function POST(req: Request) {
       [tipo, asesorId, asesorNombre, JSON.stringify(datos)]
     );
 
-    // 🔹 Si el usuario es asesor, actualizar estadísticas
+    
     if (asesorId) {
       await pool.query(
         `UPDATE asesores 
@@ -88,7 +86,7 @@ export async function POST(req: Request) {
   }
 }
 
-// 🟡 Obtener formularios
+
 export async function GET(req: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -111,9 +109,9 @@ export async function GET(req: Request) {
     const params: (string | number)[] = [];
     let idx = 1;
 
-    // 🔹 Filtro por rol
+    
     if (user.role !== "admin") {
-      // Require a valid numeric user id for non-admin roles
+     
       const idNum = user?.id ? Number(user.id) : NaN;
       if (!user?.id || isNaN(idNum)) {
         return NextResponse.json(
@@ -127,7 +125,7 @@ export async function GET(req: Request) {
       idx++;
     }
 
-    // 🔹 Filtros adicionales
+    
     if (tipo) {
       where.push(`f.tipo ILIKE $${idx}`);
       params.push(`%${tipo}%`);

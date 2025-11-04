@@ -1,207 +1,342 @@
-"use client"
+"use client";
 
-import ExcelJS from "exceljs"
-import { saveAs } from "file-saver"
-interface FormularioExport {
+import { useState, useEffect } from "react";
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
+
+type FormularioExport = {
   id: number;
   tipo: string;
-  asesor: string;
-  created_at: string;
+  asesor?: string | null;
   datos: Record<string, unknown>;
-}
+  created_at: string;
+};
 
-import { FileSpreadsheet, Search, Loader2 } from "lucide-react"
-import { useEffect, useState } from "react"
-
-export default function AdminExportarPage() {
-  const [tipo, setTipo] = useState("");
-  const [asesor, setAsesor] = useState("");
+export default function ExportarPage() {
   const [fechaDesde, setFechaDesde] = useState("");
   const [fechaHasta, setFechaHasta] = useState("");
+  const [tipo, setTipo] = useState("");
+  const [asesor, setAsesor] = useState("");
+  const [busqueda, setBusqueda] = useState("");
   const [loading, setLoading] = useState(false);
   const [registros, setRegistros] = useState<FormularioExport[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [seleccionados, setSeleccionados] = useState<number[]>([]);
   const [tipos, setTipos] = useState<string[]>([]);
   const [asesores, setAsesores] = useState<string[]>([]);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalDatos, setModalDatos] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetch("/api/formularios/opciones")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          setTipos(data.tipos);
-          setAsesores(data.asesores);
-        }
+  const obtenerRegistros = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      const qs = new URLSearchParams();
+      if (fechaDesde) qs.set("fechaDesde", fechaDesde);
+      if (fechaHasta) qs.set("fechaHasta", fechaHasta);
+      if (tipo) qs.set("tipo", tipo);
+      if (asesor) qs.set("asesor", asesor);
+
+      const res = await fetch(`/api/formularios?${qs.toString()}`);
+      if (!res.ok) throw new Error(`Error al obtener registros: ${res.status}`);
+      const json = await res.json();
+      const data: FormularioExport[] = json.data || [];
+      setRegistros(data);
+
+      const tiposUnicos = Array.from(new Set(data.map((r) => r.tipo ?? ""))).filter(Boolean);
+      const asesoresUnicos = Array.from(new Set(data.map((r) => r.asesor ?? ""))).filter(Boolean);
+      setTipos(tiposUnicos);
+      setAsesores(asesoresUnicos);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al obtener datos");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const registrosFiltrados = registros.filter((r) => {
+    if (!busqueda.trim()) return true;
+    const texto = busqueda.toLowerCase();
+    const datosTexto = JSON.stringify(r.datos || {}).toLowerCase();
+    return (
+      r.tipo.toLowerCase().includes(texto) ||
+      (r.asesor?.toLowerCase().includes(texto) ?? false) ||
+      datosTexto.includes(texto)
+    );
+  });
+
+  const toggleSeleccion = (id: number) => {
+    setSeleccionados((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSeleccionTodos = () => {
+    if (seleccionados.length === registrosFiltrados.length) {
+      setSeleccionados([]);
+    } else {
+      setSeleccionados(registrosFiltrados.map((r) => r.id));
+    }
+  };
+
+ const handleExport = async () => {
+  try {
+    const items =
+      seleccionados.length > 0
+        ? registrosFiltrados.filter((r) => seleccionados.includes(r.id))
+        : registrosFiltrados;
+
+    if (items.length === 0) {
+      setError("No hay registros seleccionados para exportar.");
+      return;
+    }
+
+    const workbook = new ExcelJS.Workbook();
+
+    // Agrupar por tipo de formulario
+    const grupos = items.reduce((acc, r) => {
+      if (!acc[r.tipo]) acc[r.tipo] = [];
+      acc[r.tipo].push(r);
+      return acc;
+    }, {} as Record<string, FormularioExport[]>);
+
+    // Crear una hoja por tipo
+    for (const [tipo, registrosTipo] of Object.entries(grupos)) {
+      const hoja = workbook.addWorksheet(tipo.slice(0, 31));
+
+      // Claves en orden del primer registro (orden de llenado)
+      const ordenClaves =
+        registrosTipo.length > 0 && registrosTipo[0].datos
+          ? Object.keys(registrosTipo[0].datos)
+          : [];
+
+      // Asegurar que se incluyan todas las claves que puedan aparecer
+      const allKeys = new Set(ordenClaves);
+      registrosTipo.forEach((r) => {
+        if (r.datos) Object.keys(r.datos).forEach((k) => allKeys.add(k));
       });
-  }, []);
 
-  const fetchFormularios = async () => {
-    setLoading(true)
+      const dataColumns = [
+        ...ordenClaves,
+        ...Array.from(allKeys).filter((k) => !ordenClaves.includes(k)),
+      ].map((k) => ({
+        header: k,
+        key: k,
+      }));
 
-    const res = await fetch(`/api/formularios?tipo=${tipo}&asesor=${asesor}&fechaDesde=${fechaDesde}&fechaHasta=${fechaHasta}`)
-  const data = await res.json()
-  setRegistros(data.data || [])
-    setLoading(false)
-  }
+      const baseColumns = [
+        { header: "ID", key: "id" },
+        { header: "Tipo", key: "tipo" },
+        { header: "Asesor", key: "asesor" },
+        { header: "Fecha", key: "created_at" },
+      ];
 
-  const exportToExcel = async () => {
-    const workbook = new ExcelJS.Workbook()
-    const worksheet = workbook.addWorksheet("Formularios")
-    worksheet.columns = [
-      { header: "ID", key: "id", width: 10 },
-      { header: "Tipo", key: "tipo", width: 20 },
-      { header: "Asesor", key: "asesor", width: 20 },
-      { header: "Fecha", key: "created_at", width: 25 },
-      
-      { header: "Datos", key: "datos", width: 120 },
-    ];
+      hoja.columns = [...baseColumns, ...dataColumns];
 
-    
-    registros.forEach((r) => {
-      const datosStr = JSON.stringify(r.datos, null, 2);
-      const excelRow = worksheet.addRow({
-        ...r,
-        created_at: new Date(r.created_at).toLocaleString(),
-        datos: datosStr,
+      // Añadir filas
+      registrosTipo.forEach((r) => {
+        const rowData: Record<string, unknown> = {
+          id: r.id,
+          tipo: r.tipo,
+          asesor: r.asesor,
+          created_at: new Date(r.created_at).toLocaleString(),
+        };
+        Object.entries(r.datos || {}).forEach(([key, value]) => {
+          rowData[key] = value;
+        });
+        hoja.addRow(rowData);
       });
 
-      try {
-        const cell = excelRow.getCell('datos');
-        
-  cell.alignment = { wrapText: true, vertical: 'top' };
-  cell.font = { size: 10 };
+      // Estilos de encabezado
+      const headerRow = hoja.getRow(1);
+      headerRow.font = { bold: true, color: { argb: "FFFFFFFF" } };
+      headerRow.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FF1E3A8A" },
+      };
+      headerRow.alignment = { horizontal: "center", vertical: "middle" };
+      headerRow.height = 25;
 
-      
-        const lines = datosStr.split('\n').length || 1;
-        excelRow.height = Math.min(Math.max(lines * 15, 20), 800);
-      } catch {
-        
-      }
-    });
-    const buffer = await workbook.xlsx.writeBuffer()
-    saveAs(new Blob([buffer]), `formularios-exportados-${new Date().toISOString().split('T')[0]}.xlsx`)
+     // ✅ Ajuste automático del ancho de columna (versión segura)
+      hoja.columns?.forEach((column) => {
+        if (!column) return; // Si por alguna razón no existe la columna, la saltamos
+
+        let maxLength = 10;
+        column.eachCell?.({ includeEmpty: true }, (cell) => {
+          const valor = cell?.value ? String(cell.value) : "";
+          if (valor.length > maxLength) maxLength = valor.length;
+        });
+        column.width = Math.min(maxLength + 4, 50); // Máx. 50 caracteres de ancho
+      });
+
+    }
+
+    // Descargar Excel
+    const buffer = await workbook.xlsx.writeBuffer();
+    saveAs(
+      new Blob([buffer]),
+      `formularios-${new Date().toISOString().split("T")[0]}.xlsx`
+    );
+  } catch (err) {
+    console.error(err);
+    setError(err instanceof Error ? err.message : String(err));
   }
+};
+
+
+    useEffect(() => {
+      void obtenerRegistros();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-8">
-      <div className="flex items-center gap-3 mb-8">
-        <FileSpreadsheet className="w-10 h-10 text-blue-600" />
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">Exportar Formularios</h1>
-      </div>
+    <div>
+      <div className="max-w-6xl mx-auto backdrop-blur-sm bg-black/40 rounded-2xl shadow-xl p-8 border border-green-500/40">
+        <h1 className="text-3xl font-bold text-green-300 mb-8 flex items-center gap-2">
+          📊 Exportar Formularios
+        </h1>
 
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-800 mb-8">
-        <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2">
-          <Search className="w-5 h-5 text-blue-500" /> Filtros de búsqueda
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <select value={tipo} onChange={e => setTipo(e.target.value)} className="border rounded-lg p-3 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100">
-            <option value="">Todos los tipos</option>
-            {tipos.map((t) => (
-              <option key={t} value={t}>{t}</option>
-            ))}
-          </select>
-          <select value={asesor} onChange={e => setAsesor(e.target.value)} className="border rounded-lg p-3 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100">
-            <option value="">Todos los asesores</option>
-            {asesores.map((a) => (
-              <option key={a} value={a}>{a}</option>
-            ))}
-          </select>
-          <input type="date" placeholder="Desde" value={fechaDesde} onChange={e => setFechaDesde(e.target.value)} className="border rounded-lg p-3 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100" />
-          <input type="date" placeholder="Hasta" value={fechaHasta} onChange={e => setFechaHasta(e.target.value)} className="border rounded-lg p-3 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100" />
+        {/* Filtros */}
+        <div className="grid md:grid-cols-5 gap-4 mb-8">
+          <label className="text-sm font-medium">
+            Desde:
+            <input
+              type="date"
+              value={fechaDesde}
+              onChange={(e) => setFechaDesde(e.target.value)}
+              className="mt-1 w-full px-2 py-1 bg-black/60 border border-green-600 rounded-md text-green-100"
+            />
+          </label>
+          <label className="text-sm font-medium">
+            Hasta:
+            <input
+              type="date"
+              value={fechaHasta}
+              onChange={(e) => setFechaHasta(e.target.value)}
+              className="mt-1 w-full px-2 py-1 bg-black/60 border border-green-600 rounded-md text-green-100"
+            />
+          </label>
+          <label className="text-sm font-medium">
+            Tipo:
+            <select
+              value={tipo}
+              onChange={(e) => setTipo(e.target.value)}
+              className="mt-1 w-full px-2 py-1 bg-black/60 border border-green-600 rounded-md text-green-100"
+            >
+              <option value="">Todos</option>
+              {tipos.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="text-sm font-medium">
+            Asesor:
+            <select
+              value={asesor}
+              onChange={(e) => setAsesor(e.target.value)}
+              className="mt-1 w-full px-2 py-1 bg-black/60 border border-green-600 rounded-md text-green-100"
+            >
+              <option value="">Todos</option>
+              {asesores.map((a) => (
+                <option key={a} value={a}>
+                  {a}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="text-sm font-medium">
+            Buscar:
+            <input
+              type="text"
+              placeholder="Texto, tipo, asesor..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              className="mt-1 w-full px-2 py-1 bg-black/60 border border-green-600 rounded-md text-green-100"
+            />
+          </label>
         </div>
-        <div className="flex gap-4">
-          <button onClick={fetchFormularios} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow font-semibold transition disabled:opacity-50" disabled={loading}>
-            <Search className="w-5 h-5" /> Buscar
-          </button>
-          <button onClick={exportToExcel} className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg shadow font-semibold transition disabled:opacity-50" disabled={loading || registros.length === 0}>
-            <FileSpreadsheet className="w-5 h-5" /> Exportar a Excel
-          </button>
-        </div>
-        {loading && (
-          <div className="flex items-center gap-2 mt-4 text-blue-600">
-            <Loader2 className="animate-spin w-5 h-5" /> Cargando...
-          </div>
-        )}
-      </div>
 
-      {registros.length > 0 ? (
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-300 dark:border-gray-700 mt-6">
-          <h2 className="text-lg font-semibold mb-4 text-blue-700 dark:text-blue-300">Resultados ({registros.length})</h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full border rounded-xl overflow-hidden table-auto">
-              <thead>
-                <tr className="bg-blue-600 dark:bg-blue-900 text-white">
-                  <th className="border p-3 text-left">ID</th>
-                  <th className="border p-3 text-left">Tipo</th>
-                  <th className="border p-3 text-left">Asesor</th>
-                  <th className="border p-3 text-left">Fecha</th>
-                  <th className="border p-3 text-left">Datos</th>
-                </tr>
-              </thead>
-              <tbody>
-                {registros.map((r) => (
-                  <tr key={r.id} className="hover:bg-blue-100 dark:hover:bg-blue-800 transition">
-                    <td className="border p-3 font-semibold text-gray-800 dark:text-gray-100">{r.id}</td>
-                    <td className="border p-3 text-blue-700 dark:text-blue-300">{r.tipo}</td>
-                    <td className="border p-3 text-green-700 dark:text-green-300">{r.asesor}</td>
-                    <td className="border p-3 text-gray-700 dark:text-gray-200">{new Date(r.created_at).toLocaleString()}</td>
-                    <td className="border p-3 text-sm text-gray-700 dark:text-gray-200 align-top">
-                      <div className="flex flex-col gap-2">
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => { setModalDatos(typeof r.datos === 'object' ? JSON.stringify(r.datos, null, 2) : String(r.datos)); setModalOpen(true); }}
-                            className="text-blue-600 hover:underline text-sm"
-                          >
-                            Ver datos
-                          </button>
-                          <span className="text-xs text-gray-500">(abrir en modal)</span>
-                        </div>
-                        <div className="max-w-4xl w-[min(70vw,64rem)]">
-                          <pre className="whitespace-pre-wrap break-words text-xs bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 p-3 rounded-md overflow-auto max-h-64">{typeof r.datos === "object" ? JSON.stringify(r.datos, null, 2) : String(r.datos)}</pre>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        {/* Botones */}
+        <div className="flex gap-3 mb-8">
+          <button
+            onClick={obtenerRegistros}
+            disabled={loading}
+            className="px-4 py-2 bg-green-700 hover:bg-green-600 text-white rounded-lg transition"
+          >
+            {loading ? "Buscando..." : "Aplicar filtros"}
+          </button>
+
+          <button
+            onClick={handleExport}
+            disabled={loading || registrosFiltrados.length === 0}
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition"
+          >
+            Exportar Excel
+          </button>
         </div>
-      ) : (
-        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-800 mt-6 text-center text-gray-500 dark:text-gray-400">
-          <h2 className="text-lg font-semibold mb-4">No se encontraron resultados</h2>
-          <p>Intenta cambiar los filtros o verifica los datos.</p>
-        </div>
-      )}
-      
-      {modalOpen && modalDatos && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-4xl max-h-[85vh] overflow-auto">
-            <div className="flex items-center justify-between p-4 border-b dark:border-gray-800">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Datos del formulario</h3>
-              <div className="flex items-center gap-2">
-                <button
-                  className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm"
-                  onClick={async () => {
-                    try {
-                      await navigator.clipboard.writeText(modalDatos);
-                      
-                    } catch {
-                      
+
+
+          <p className="mt-4 text-green-300">
+            {registrosFiltrados.length > 0
+              ? `Total de formularios: ${registrosFiltrados.length}`
+              : "No hay registros."}
+          </p>
+
+
+        {error && <div className="mb-4 text-red-300">{error}</div>}
+
+        {/* Tabla */}
+        <div className="overflow-x-auto">
+          <table className="w-full border border-green-700 text-sm rounded-lg overflow-hidden">
+            <thead className="bg-green-800 text-white">
+              <tr>
+                <th className="p-2">
+                  <input
+                    type="checkbox"
+                    checked={
+                      seleccionados.length === registrosFiltrados.length &&
+                      registrosFiltrados.length > 0
                     }
-                  }}
-                >Copiar</button>
-                <button className="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded text-sm" onClick={() => { setModalOpen(false); setModalDatos(null); }}>Cerrar</button>
-              </div>
-            </div>
-            <div className="p-4">
-              <pre className="whitespace-pre-wrap break-words text-xs bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 p-3 rounded-md overflow-auto">{modalDatos}</pre>
-            </div>
-          </div>
+                    onChange={toggleSeleccionTodos}
+                  />
+                </th>
+                <th className="p-2 text-left">ID</th>
+                <th className="p-2 text-left">Tipo</th>
+                <th className="p-2 text-left">Asesor</th>
+                <th className="p-2 text-left">Fecha</th>
+              </tr>
+            </thead>
+            <tbody>
+              {registrosFiltrados.map((r, i) => (
+                <tr
+                  key={r.id}
+                  className={`border-b border-green-700 ${
+                    i % 2 === 0 ? "bg-black/40" : "bg-black/20"
+                  } hover:bg-green-900/40 transition`}
+                >
+                  <td className="p-2 text-center">
+                    <input
+                      type="checkbox"
+                      checked={seleccionados.includes(r.id)}
+                      onChange={() => toggleSeleccion(r.id)}
+                    />
+                  </td>
+                  <td className="p-2">{r.id}</td>
+                  <td className="p-2">{r.tipo}</td>
+                  <td className="p-2">{r.asesor ?? "-"}</td>
+                  <td className="p-2">
+                    {new Date(r.created_at).toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      )}
+
+        
+      </div>
     </div>
-  )
+  );
 }

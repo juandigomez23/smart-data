@@ -60,7 +60,7 @@ export const auditoriaPrewelcomeForm: FormConfig = {
     
     {
       name: "documento_de_id",
-      label: "Documento de ID",
+      label: "Documento de IDENTIDAD",
       type: "select",
       required: true,
       options: [

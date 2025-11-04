@@ -7,7 +7,7 @@ import { LayoutDashboard, Users, FileSpreadsheet, ClipboardList, FileText } from
 const links = [
   { name: "Menú", href: "/admin", icon: LayoutDashboard },
   { name: "Gestión Asesores", href: "/admin/users", icon: Users },
-  { name: "Editor formularios", href: "/admin/form-editor", icon: FileText },
+  { name: "Editor de formularios", href: "/admin/form-editor", icon: FileText },
   { name: "Exportar Formularios", href: "/admin/exportar", icon: FileSpreadsheet },
   
 ]
