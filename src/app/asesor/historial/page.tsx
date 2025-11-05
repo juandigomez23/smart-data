@@ -54,7 +54,7 @@ export default function HistorialPage() {
             <input type="date" value={fechaHasta} onChange={e => setFechaHasta(e.target.value)} className="ml-2 px-2 py-1 rounded border border-gray-300" />
           </label>
         </form>
-        {/* Mostrar cantidad de resultados cuando la API respondió */}
+        
         {historial && (
           <div className="mb-4 text-center space-y-2">
             <div>

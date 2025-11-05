@@ -87,7 +87,7 @@ export default function PermisosAsesorPage() {
 
   return (
     <div className="min-h-screen p-8">
-      <h1 className="text-4xl font-extrabold mb-10 text-blue-700 dark:text-blue-300 text-center tracking-tight">Permisos de Asesor</h1>
+      <h1 className="text-3xl font-extrabold text-center text-[#000000] dark:text-[#38bdf8] mb-10">Permisos de Asesor</h1>
       <div className="max-w-5xl mx-auto">
         <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
           {[...asesores].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })).map((a,) => (

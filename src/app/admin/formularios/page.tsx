@@ -20,7 +20,8 @@ const formularios = [
 export default function FormulariosPage() {
   return (
   <div className="p-8 min-h-screen bg-transparent">
-      <h1 className="text-3xl font-bold text-center text-blue-700 dark:text-blue-300 mb-10">Formularios Disponibles</h1>
+      <h1 className="text-3xl font-extrabold text-center text-[#000000] dark:text-[#38bdf8] mb-10">Formularios Disponibles</h1>
+      
   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
         {formularios.map((f, i) => (
           <Link key={i} href={f.href}>

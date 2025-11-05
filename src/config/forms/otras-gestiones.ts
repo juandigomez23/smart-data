@@ -5,13 +5,16 @@ export const otrasGestionesForm: FormConfig = {
   tipo: "otras-gestiones",
   fields: [
 { name: "correo", label: "Correo electrónico", type: "text", required: true, auto: true },
+
 {
-      name: "hora_inicio_gestion",
-      label: "Hora inicio de gestión",
-      type: "time",
-      required: true,
-      
-    },
+  name: "hora_inicio_gestion",
+  label: "Hora inicio de gestión",
+  type: "time",
+  required: true,
+  defaultValue: new Date().toISOString().slice(11, 16), // hora actual HH:mm
+},
+
+
 {
       name: "pais",
       label: "País",

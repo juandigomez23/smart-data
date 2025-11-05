@@ -9,7 +9,7 @@ import {
   Briefcase, XCircle, FileText, Activity 
 } from "lucide-react"
 
-// Fetcher para SWR
+
 const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
 export default function AsesorDashboardPage() {
@@ -39,7 +39,7 @@ export default function AsesorDashboardPage() {
   const formulariosFiltrados = permitidos
     ? formularios.filter(f => permitidos.includes(f.code))
     : formularios;
-  // Sección de tips/noticias
+  
   const tips = [
     "Recuerda revisar tus gestiones antes de enviarlas.",
     "Completa todos los campos obligatorios para evitar rechazos.",

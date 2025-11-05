@@ -23,6 +23,7 @@ export interface FieldConfig {
   conditionalFields?: Array<{
     condition: { field: string; value: string };
     fields: FieldConfig[];
+    readonly?: boolean;
   }>;
   validate?: (args: { values: unknown, value: unknown }) => true | string;
   
@@ -100,7 +101,27 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
   const { id: asesorId, nombre: asesorNombre, email: asesorEmail, autenticado, cargando } = useAsesor()
   const values = watch()
 
+
  
+  const [horaLocal, setHoraLocal] = useState("");
+
+useEffect(() => {
+  const ahora = new Date();
+  const offset = ahora.getTimezoneOffset() * 60000; // diferencia con UTC
+  const local = new Date(ahora.getTime() - offset);
+  const localISOTime = local.toISOString().slice(11, 16); // formato HH:mm
+  setHoraLocal(localISOTime);
+
+  // si usas react-hook-form:
+  if (setValue) {
+    setValue("hora_inicio_gestion", localISOTime);
+  }
+}, [setValue]);
+
+
+
+
+
   useEffect(() => {
     if (!message) return
     
@@ -540,9 +561,38 @@ export default function FormGenerator({ config, schema }: FormGeneratorProps) {
                       : (<input type="text" {...register(field.name, { required: shouldShowField(field, values) && field.required })} className="border p-3 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-xl" placeholder={`Ingrese ${field.label}`} />)
                 )
             )}
-            {field.type === "time" && (
-              <input type="time" {...register(field.name, { required: shouldShowField(field, values) && field.required })} className="border p-3 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 w-full max-w-md" step="60" />
+
+
+
+         {field.type === "time" && (
+              <input
+                type="time"
+                {...register(field.name, {
+                  required: shouldShowField(field, values) && field.required,
+                })}
+                value={
+                  field.name === "hora_inicio_gestion"
+                    ? horaLocal // usamos la hora local calculada
+                    : watch(field.name)
+                }
+                readOnly={field.name === "hora_inicio_gestion"}
+                onChange={(e) => {
+                  if (field.name !== "hora_inicio_gestion") {
+                    setValue(field.name, e.target.value);
+                  }
+                }}
+                className={`border p-3 rounded-xl text-gray-900 placeholder-gray-400 w-full max-w-xl ${
+                  field.name === "hora_inicio_gestion"
+                    ? "bg-gray-200 cursor-not-allowed"
+                    : "focus:ring-2 focus:ring-blue-500"
+                }`}
+              />
             )}
+
+
+
+
+
             {field.type === "number" && (
               <input type="number" {...register(field.name, { required: shouldShowField(field, values) && field.required })} className="border p-3 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 w-full max-w-md" placeholder={`Ingrese ${field.label}`} />
             )}
